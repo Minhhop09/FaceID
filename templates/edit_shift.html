@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chỉnh Sửa Ca Làm Việc - Công Ty ABC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin: 30px auto;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .page-title {
+            color: var(--dark-color);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+        
+        .shift-preview {
+            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        
+        .shift-type {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .shift-time {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .section-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 12px 15px;
+            border: 1px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-outline-secondary {
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-weight: 500;
+        }
+        
+        .employee-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #dee2e6;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .employee-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .employee-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+        
+        .employee-info {
+            flex: 1;
+        }
+        
+        .employee-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .employee-department {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+        
+        .remove-employee {
+            color: #dc3545;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .remove-employee:hover {
+            transform: scale(1.2);
+        }
+        
+        .available-employees {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+        }
+        
+        .time-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .time-separator {
+            font-weight: 600;
+            color: #6c757d;
+        }
+        
+        .shift-color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+            border: 2px solid #dee2e6;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .badge-shift {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 20px;
+                margin: 15px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .form-actions .btn {
+                width: 100%;
+            }
+            
+            .time-input-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .time-separator {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="fas fa-clock me-2"></i>WorkShift Manager
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html"><i class="fas fa-home me-1"></i> Trang Chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="departments.html"><i class="fas fa-building me-1"></i> Phòng Ban</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="shifts.html"><i class="fas fa-calendar-alt me-1"></i> Ca Làm Việc</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="employees.html"><i class="fas fa-users me-1"></i> Nhân Viên</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="reports.html"><i class="fas fa-chart-pie me-1"></i> Báo Cáo</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="form-container">
+                    <!-- Page Header -->
+                    <div class="page-header">
+                        <h1 class="page-title">Chỉnh Sửa Ca Làm Việc</h1>
+                        <p class="page-subtitle">Cập nhật thông tin ca làm việc và phân công nhân viên</p>
+                    </div>
+                    
+                    <!-- Shift Preview -->
+                    <div class="shift-preview">
+                        <div class="shift-type">Ca Sáng - Phòng Công Nghệ</div>
+                        <div class="shift-time">Thứ Hai, 15/01/2024 | 06:00 - 14:00</div>
+                    </div>
+                    
+                    <form id="editShiftForm">
+                        <!-- Basic Information Section -->
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-info-circle"></i> Thông Tin Cơ Bản
+                            </h3>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="shiftName" class="form-label">Tên Ca Làm Việc</label>
+                                    <input type="text" class="form-control" id="shiftName" value="Ca Sáng - Công Nghệ" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="shiftType" class="form-label">Loại Ca</label>
+                                    <select class="form-select" id="shiftType" required>
+                                        <option value="morning" selected>Ca Sáng</option>
+                                        <option value="afternoon">Ca Chiều</option>
+                                        <option value="evening">Ca Tối</option>
+                                        <option value="night">Ca Đêm</option>
+                                        <option value="custom">Tùy chỉnh</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="shiftDate" class="form-label">Ngày Làm Việc</label>
+                                    <input type="date" class="form-control" id="shiftDate" value="2024-01-15" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="shiftDepartment" class="form-label">Phòng Ban</label>
+                                    <select class="form-select" id="shiftDepartment" required>
+                                        <option value="tech" selected>Phòng Công Nghệ</option>
+                                        <option value="sales">Phòng Kinh Doanh</option>
+                                        <option value="hr">Phòng Nhân Sự</option>
+                                        <option value="finance">Phòng Tài Chính</option>
+                                        <option value="marketing">Phòng Marketing</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Thời Gian Bắt Đầu</label>
+                                    <div class="time-input-group">
+                                        <input type="time" class="form-control" id="startTime" value="06:00" required>
+                                        <span class="time-separator">đến</span>
+                                        <input type="time" class="form-control" id="endTime" value="14:00" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="shiftColor" class="form-label">Màu Hiển Thị</label>
+                                    <div class="d-flex align-items-center">
+                                        <span class="shift-color-preview" style="background-color: #4cc9f0;"></span>
+                                        <select class="form-select" id="shiftColor">
+                                            <option value="#4cc9f0" selected>Xanh Ca Sáng</option>
+                                            <option value="#f72585">Hồng Ca Chiều</option>
+                                            <option value="#7209b7">Tím Ca Tối</option>
+                                            <option value="#3a0ca3">Xanh Đậm Ca Đêm</option>
+                                            <option value="#4361ee">Xanh Chính</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="shiftDescription" class="form-label">Mô Tả Ca Làm Việc</label>
+                                <textarea class="form-control" id="shiftDescription" rows="3" placeholder="Mô tả chi tiết về ca làm việc...">Ca làm việc sáng cho phòng Công Nghệ, tập trung vào phát triển dự án mới và bảo trì hệ thống.</textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Employee Assignment Section -->
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-user-friends"></i> Phân Công Nhân Viên
+                            </h3>
+                            
+                            <div class="mb-4">
+                                <label class="form-label">Nhân Viên Đã Được Phân Công</label>
+                                <div id="assignedEmployees">
+                                    <!-- Employee 1 -->
+                                    <div class="employee-card">
+                                        <img src="https://i.pravatar.cc/150?img=1" class="employee-avatar" alt="Nguyễn Văn A">
+                                        <div class="employee-info">
+                                            <div class="employee-name">Nguyễn Văn A</div>
+                                            <div class="employee-department">Phòng Công Nghệ - Lập trình viên</div>
+                                        </div>
+                                        <button type="button" class="remove-employee">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Employee 2 -->
+                                    <div class="employee-card">
+                                        <img src="https://i.pravatar.cc/150?img=2" class="employee-avatar" alt="Trần Thị B">
+                                        <div class="employee-info">
+                                            <div class="employee-name">Trần Thị B</div>
+                                            <div class="employee-department">Phòng Công Nghệ - Kiểm thử</div>
+                                        </div>
+                                        <button type="button" class="remove-employee">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Employee 3 -->
+                                    <div class="employee-card">
+                                        <img src="https://i.pravatar.cc/150?img=3" class="employee-avatar" alt="Lê Văn C">
+                                        <div class="employee-info">
+                                            <div class="employee-name">Lê Văn C</div>
+                                            <div class="employee-department">Phòng Công Nghệ - Thiết kế</div>
+                                        </div>
+                                        <button type="button" class="remove-employee">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="employeeSearch" class="form-label">Thêm Nhân Viên</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" id="employeeSearch" placeholder="Tìm kiếm nhân viên...">
+                                    <button class="btn btn-outline-primary" type="button">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="available-employees">
+                                <div class="employee-card">
+                                    <img src="https://i.pravatar.cc/150?img=4" class="employee-avatar" alt="Phạm Thị D">
+                                    <div class="employee-info">
+                                        <div class="employee-name">Phạm Thị D</div>
+                                        <div class="employee-department">Phòng Công Nghệ - Phân tích</div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-primary add-employee">
+                                        <i class="fas fa-plus"></i> Thêm
+                                    </button>
+                                </div>
+                                
+                                <div class="employee-card">
+                                    <img src="https://i.pravatar.cc/150?img=5" class="employee-avatar" alt="Hoàng Văn E">
+                                    <div class="employee-info">
+                                        <div class="employee-name">Hoàng Văn E</div>
+                                        <div class="employee-department">Phòng Công Nghệ - Lập trình viên</div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-primary add-employee">
+                                        <i class="fas fa-plus"></i> Thêm
+                                    </button>
+                                </div>
+                                
+                                <div class="employee-card">
+                                    <img src="https://i.pravatar.cc/150?img=6" class="employee-avatar" alt="Vũ Thị F">
+                                    <div class="employee-info">
+                                        <div class="employee-name">Vũ Thị F</div>
+                                        <div class="employee-department">Phòng Công Nghệ - Quản lý dự án</div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-primary add-employee">
+                                        <i class="fas fa-plus"></i> Thêm
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Additional Settings Section -->
+                        <div class="form-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-cog"></i> Cài Đặt Bổ Sung
+                            </h3>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="maxEmployees" class="form-label">Số Lượng Nhân Viên Tối Đa</label>
+                                    <input type="number" class="form-control" id="maxEmployees" value="5" min="1" max="20">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="shiftStatus" class="form-label">Trạng Thái Ca Làm Việc</label>
+                                    <select class="form-select" id="shiftStatus">
+                                        <option value="scheduled" selected>Đã lên lịch</option>
+                                        <option value="in_progress">Đang diễn ra</option>
+                                        <option value="completed">Đã hoàn thành</option>
+                                        <option value="cancelled">Đã hủy</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="enableReminders" checked>
+                                    <label class="form-check-label" for="enableReminders">
+                                        Gửi thông báo nhắc nhở cho nhân viên
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="allowOvertime">
+                                    <label class="form-check-label" for="allowOvertime">
+                                        Cho phép làm thêm giờ
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="requireApproval">
+                                    <label class="form-check-label" for="requireApproval">
+                                        Yêu cầu phê duyệt khi điểm danh
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Quay lại
+                            </button>
+                            <div>
+                                <button type="button" class="btn btn-outline-danger me-2">
+                                    <i class="fas fa-trash me-2"></i> Xóa Ca
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i> Lưu Thay Đổi
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script>
+        // Employee management functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Remove employee from assigned list
+            document.querySelectorAll('.remove-employee').forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.employee-card').remove();
+                    updateEmployeeCount();
+                });
+            });
+            
+            // Add employee to assigned list
+            document.querySelectorAll('.add-employee').forEach(button => {
+                button.addEventListener('click', function() {
+                    const employeeCard = this.closest('.employee-card');
+                    const employeeName = employeeCard.querySelector('.employee-name').textContent;
+                    const employeeDepartment = employeeCard.querySelector('.employee-department').textContent;
+                    const employeeAvatar = employeeCard.querySelector('.employee-avatar').src;
+                    
+                    // Check if max employees reached
+                    const maxEmployees = parseInt(document.getElementById('maxEmployees').value);
+                    const currentEmployees = document.querySelectorAll('#assignedEmployees .employee-card').length;
+                    
+                    if (currentEmployees >= maxEmployees) {
+                        alert(`Đã đạt số lượng nhân viên tối đa (${maxEmployees}). Vui lòng tăng giới hạn hoặc xóa nhân viên khác.`);
+                        return;
+                    }
+                    
+                    // Create new assigned employee card
+                    const newEmployeeCard = document.createElement('div');
+                    newEmployeeCard.className = 'employee-card';
+                    newEmployeeCard.innerHTML = `
+                        <img src="${employeeAvatar}" class="employee-avatar" alt="${employeeName}">
+                        <div class="employee-info">
+                            <div class="employee-name">${employeeName}</div>
+                            <div class="employee-department">${employeeDepartment}</div>
+                        </div>
+                        <button type="button" class="remove-employee">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    
+                    document.getElementById('assignedEmployees').appendChild(newEmployeeCard);
+                    
+                    // Add event listener to new remove button
+                    newEmployeeCard.querySelector('.remove-employee').addEventListener('click', function() {
+                        this.closest('.employee-card').remove();
+                        updateEmployeeCount();
+                    });
+                    
+                    updateEmployeeCount();
+                });
+            });
+            
+            // Update employee count display
+            function updateEmployeeCount() {
+                const currentEmployees = document.querySelectorAll('#assignedEmployees .employee-card').length;
+                const maxEmployees = parseInt(document.getElementById('maxEmployees').value);
+                // You could update a counter display here if needed
+            }
+            
+            // Form submission
+            document.getElementById('editShiftForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Simple validation
+                let isValid = true;
+                const requiredFields = this.querySelectorAll('[required]');
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        field.classList.add('is-invalid');
+                        isValid = false;
+                    } else {
+                        field.classList.remove('is-invalid');
+                    }
+                });
+                
+                if (isValid) {
+                    // Show success message (in a real app, you would submit to server here)
+                    alert('Thông tin ca làm việc đã được cập nhật thành công!');
+                    // Redirect or perform other actions
+                } else {
+                    alert('Vui lòng điền đầy đủ các trường bắt buộc!');
+                }
+            });
+            
+            // Update shift preview when form changes
+            document.getElementById('shiftType').addEventListener('change', updateShiftPreview);
+            document.getElementById('shiftDate').addEventListener('change', updateShiftPreview);
+            document.getElementById('startTime').addEventListener('change', updateShiftPreview);
+            document.getElementById('endTime').addEventListener('change', updateShiftPreview);
+            
+            function updateShiftPreview() {
+                const shiftType = document.getElementById('shiftType');
+                const typeText = shiftType.options[shiftType.selectedIndex].text;
+                const date = document.getElementById('shiftDate').value;
+                const startTime = document.getElementById('startTime').value;
+                const endTime = document.getElementById('endTime').value;
+                
+                // Format date
+                const dateObj = new Date(date);
+                const formattedDate = dateObj.toLocaleDateString('vi-VN', {
+                    weekday: 'long',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+                
+                // Update preview
+                document.querySelector('.shift-type').textContent = `${typeText} - Phòng Công Nghệ`;
+                document.querySelector('.shift-time').textContent = `${formattedDate} | ${startTime} - ${endTime}`;
+            }
+            
+            // Initialize datepicker
+            $('#shiftDate').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true,
+                todayHighlight: true
+            });
+        });
+    </script>
+</body>
+</html>

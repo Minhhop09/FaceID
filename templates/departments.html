@@ -1,0 +1,125 @@
+{% extends "admin.html" %}
+
+{% block content %}
+<div class="floating-back">
+    <a href="{{ url_for('departments') }}" class="btn-back">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+</div>
+
+<div class="edit-container">
+    <div class="edit-card">
+        <div class="card-header">
+            <div class="card-icon">
+                <i class="fas fa-edit"></i>
+            </div>
+            <h1 class="card-title">Chỉnh sửa phòng ban</h1>
+            <p class="card-subtitle">Cập nhật thông tin phòng ban trong hệ thống</p>
+        </div>
+
+        <!-- Thông báo -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'info' }}">
+                        <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'info-circle' }} me-2"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Thông tin hiện tại -->
+        <div class="department-info">
+            <div class="info-title">
+                <i class="fas fa-info-circle"></i>
+                Thông tin hiện tại
+            </div>
+            <div class="info-content">
+                <div class="info-item">
+                    <div class="info-label">Mã phòng ban</div>
+                    <div class="info-value">{{ department.ma_pb }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Tên phòng ban</div>
+                    <div class="info-value">{{ department.ten_pb }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form chỉnh sửa -->
+        <form method="POST">
+            <input type="hidden" name="action" value="update">
+
+            <div class="form-group">
+                <label for="ma_pb" class="form-label">
+                    <i class="fas fa-id-badge"></i>Mã phòng ban
+                </label>
+                <input type="text" class="form-control readonly-field" id="ma_pb" 
+                       value="{{ department.ma_pb }}" readonly>
+                <small class="form-text text-muted">Mã phòng ban không thể thay đổi</small>
+            </div>
+
+            <div class="form-group">
+                <label for="ten_pb" class="form-label">
+                    <i class="fas fa-signature"></i>Tên phòng ban mới
+                </label>
+                <input type="text" class="form-control" id="ten_pb" name="ten_pb" 
+                       value="{{ department.ten_pb }}" required
+                       placeholder="Nhập tên phòng ban mới">
+                <small class="form-text text-muted">Nhập tên phòng ban mới (bắt buộc)</small>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="fas fa-lightbulb me-2"></i>
+                <strong>Lưu ý:</strong> Sau khi cập nhật, tất cả nhân viên thuộc phòng ban này sẽ được áp dụng thay đổi.
+            </div>
+
+            <div class="btn-group">
+                <a href="{{ url_for('manage_departments') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>Hủy bỏ
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>Cập nhật
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Hiệu ứng focus cho input
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('focused');
+        });
+
+        input.addEventListener('blur', function() {
+            if (this.value === '') {
+                this.parentElement.classList.remove('focused');
+            }
+        });
+    });
+
+    // Xác nhận trước khi rời trang nếu có thay đổi
+    let formChanged = false;
+    const form = document.querySelector('form');
+    const initialFormData = new FormData(form);
+
+    form.addEventListener('input', function() {
+        formChanged = true;
+    });
+
+    window.addEventListener('beforeunload', function(e) {
+        if (formChanged) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    // Vô hiệu hóa cảnh báo khi submit form
+    form.addEventListener('submit', function() {
+        formChanged = false;
+    });
+</script>
+{% endblock %}

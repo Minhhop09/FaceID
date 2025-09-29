@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký nhân viên - Hệ thống FaceID</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a0ca3;
+            --secondary: #7209b7;
+            --light-bg: #f8f9ff;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+        }
+        
+        * {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 0;
+            top: 10px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .back-button i {
+            margin-right: 8px;
+            transition: transform 0.3s;
+        }
+        
+        .back-button:hover i {
+            transform: translateX(-3px);
+        }
+        
+        .header h1 {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+        
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .register-container {
+            display: flex;
+            gap: 40px;
+            margin-top: 20px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(67, 97, 238, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .form-section, .camera-section {
+            flex: 1;
+        }
+        
+        .form-section {
+            padding-right: 20px;
+        }
+        
+        .camera-section {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .camera-preview {
+            width: 100%;
+            height: 350px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(67, 97, 238, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .camera-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .camera-instruction {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.05) 0%, rgba(58, 12, 163, 0.05) 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+        
+        .camera-instruction h6 {
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .camera-instruction h6 i {
+            margin-right: 10px;
+        }
+        
+        .camera-instruction ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+            color: var(--text-secondary);
+        }
+        
+        .camera-instruction li {
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .form-control, .form-select {
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .mb-3 {
+            margin-bottom: 1.5rem !important;
+        }
+        
+        .btn-register {
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        
+        .btn-register:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(67, 97, 238, 0.4);
+        }
+        
+        .btn-register i {
+            margin-left: 10px;
+            transition: transform 0.3s;
+        }
+        
+        .btn-register:hover i {
+            transform: translateX(5px);
+        }
+        
+        .alert {
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 25px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .alert-success {
+            background: linear-gradient(to right, rgba(72, 187, 120, 0.9), rgba(56, 161, 105, 0.9));
+            color: white;
+        }
+        
+        .alert-danger {
+            background: linear-gradient(to right, rgba(245, 101, 101, 0.9), rgba(229, 62, 62, 0.9));
+            color: white;
+        }
+        
+        .alert-warning {
+            background: linear-gradient(to right, rgba(237, 137, 54, 0.9), rgba(221, 107, 32, 0.9));
+            color: white;
+        }
+        
+        .alert-info {
+            background: linear-gradient(to right, rgba(66, 153, 225, 0.9), rgba(49, 130, 206, 0.9));
+            color: white;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .register-container {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .form-section {
+                padding-right: 0;
+            }
+            
+            .camera-preview {
+                height: 300px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .main-container {
+                padding: 10px;
+            }
+            
+            .register-container {
+                padding: 25px 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .back-button {
+                position: relative;
+                margin-bottom: 15px;
+                justify-content: center;
+            }
+        }
+        
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .register-container {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* Decorative elements */
+        .circle {
+            position: fixed;
+            border-radius: 50%;
+            opacity: 0.08;
+            z-index: -1;
+        }
+        
+        .circle-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--primary);
+            top: -150px;
+            right: -150px;
+        }
+        
+        .circle-2 {
+            width: 200px;
+            height: 200px;
+            background: var(--secondary);
+            bottom: -100px;
+            left: -100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+    
+    <div class="main-container">
+        <div class="header">
+            <a href="{{ url_for('index') }}" class="back-button">
+
+                <i class="fas fa-arrow-left"></i> Quay lại trang chủ
+            </a>
+            <h1><i class="fas fa-user-plus me-2"></i> Đăng ký nhân viên mới</h1>
+            <p>Thêm thông tin nhân viên và đăng ký khuôn mặt để kích hoạt tính năng chấm công tự động</p>
+        </div>
+
+        <!-- Hiển thị thông báo -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, msg in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show">
+                <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                {{ msg }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="register-container">
+            <!-- Form nhập thông tin -->
+            <div class="form-section">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Họ tên <span class="text-danger">*</span></label>
+                                <input type="text" name="HoTen" class="form-control" required placeholder="Nhập họ tên đầy đủ">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" name="Email" class="form-control" required placeholder="email@gmail.com">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Số điện thoại</label>
+                                <input type="text" name="SDT" class="form-control" placeholder="Nhập số điện thoại">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Giới tính</label>
+                                <select name="GioiTinh" class="form-select">
+                                    <option value="">-- Chọn giới tính --</option>
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Ngày sinh</label>
+                                <input type="date" name="NgaySinh" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Phòng ban <span class="text-danger">*</span></label>
+                                <select name="PhongBan" class="form-select" required>
+                                    <option value="">-- Chọn phòng ban --</option>
+                                    {% for pb in phongbans %}
+                                        <option value="{{ pb['MaPB'] }}">{{ pb['TenPB'] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Địa chỉ</label>
+                        <input type="text" name="DiaChi" class="form-control" placeholder="Nhập địa chỉ">
+                    </div>
+                    
+                    <button type="submit" class="btn-register">
+                        <i class="fas fa-user-plus me-2"></i> Thêm nhân viên & Đăng ký FaceID
+                    </button>
+                </form>
+            </div>
+
+            <!-- Camera -->
+            <div class="camera-section">
+                <h5 class="mb-3"><i class="fas fa-camera me-2"></i> Xem trước camera</h5>
+                <div class="camera-preview">
+                    <img src="{{ url_for('register_feed') }}" width="640" height="480">
+
+
+
+
+                </div>
+                
+                <div class="camera-instruction">
+                    <h6><i class="fas fa-lightbulb"></i> Hướng dẫn chụp ảnh khuôn mặt</h6>
+                    <ul>
+                        <li>Đảm bảo khuôn mặt nằm trong khung hình</li>
+                        <li>Ánh sáng đủ và không ngược sáng</li>
+                        <li>Không đeo kính râm hoặc vật che mặt</li>
+                        <li>Nhìn thẳng vào camera và giữ nguyên 3 giây</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
