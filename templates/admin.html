@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+    }
+    .sidebar {
+      height: 100vh;
+      background: #343a40;
+      color: #fff;
+      padding-top: 20px;
+      position: fixed;
+      top: 0; left: 0;
+      width: 240px;
+    }
+    .sidebar a {
+      display: block;
+      padding: 12px 20px;
+      color: #ddd;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+    .sidebar a:hover {
+      background: #495057;
+      color: #fff;
+    }
+    .content {
+      margin-left: 240px;
+      padding: 20px;
+    }
+    .card {
+      border-radius: 12px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h4 class="text-center text-white">Admin Panel</h4>
+    <hr class="bg-secondary">
+    <a href="{{ url_for('employees') }}"><i class="fa-solid fa-users"></i> Quản lý nhân viên</a>
+    <a href="{{ url_for('departments') }}"><i class="fa-solid fa-building"></i> Quản lý phòng ban</a>
+    <a href="{{ url_for('shifts') }}"><i class="fa-solid fa-clock"></i> Quản lý ca làm</a>
+    <a href="{{ url_for('accounts') }}"><i class="fa-solid fa-user-shield"></i> Quản lý tài khoản</a>
+    <a href="{{ url_for('reports') }}"><i class="fa-solid fa-chart-line"></i> Báo cáo & Thống kê</a>
+    <hr class="bg-secondary">
+    <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <h2 class="mb-4">📊 Dashboard Tổng Quan</h2>
+
+    <div class="row g-4">
+      <div class="col-md-3">
+        <div class="card shadow-sm p-3">
+          <h5><i class="fa-solid fa-users"></i> Nhân viên</h5>
+          <p class="fs-4 fw-bold text-primary">{{ total_employees }}</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card shadow-sm p-3">
+          <h5><i class="fa-solid fa-building"></i> Phòng ban</h5>
+          <p class="fs-4 fw-bold text-success">{{ total_departments }}</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card shadow-sm p-3">
+          <h5><i class="fa-solid fa-clock"></i> Ca làm</h5>
+          <p class="fs-4 fw-bold text-warning">{{ total_shifts }}</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card shadow-sm p-3">
+          <h5><i class="fa-solid fa-user-shield"></i> Tài khoản</h5>
+          <p class="fs-4 fw-bold text-danger">{{ total_accounts }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <h4><i class="fa-solid fa-chart-pie"></i> Biểu đồ thống kê</h4>
+      <div class="card shadow-sm p-3">
+        <canvas id="reportChart" height="100"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const ctx = document.getElementById('reportChart');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Nhân viên', 'Phòng ban', 'Ca làm', 'Tài khoản'],
+        datasets: [{
+          label: 'Số lượng',
+          data: [{{ total_employees }}, {{ total_departments }}, {{ total_shifts }}, {{ total_accounts }}],
+          backgroundColor: ['#0d6efd','#198754','#ffc107','#dc3545']
+        }]
+      }
+    });
+  </script>
+</body>
+</html>

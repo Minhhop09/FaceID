@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chấm công - FaceID System</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root { --primary: #4361ee; --success: #4cc9f0; --danger: #f72585; --dark: #1d3557; --gray: #6c757d; }
+body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; color: var(--dark); }
+.app-header { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 1rem 0; position: sticky; top: 0; z-index: 100; }
+.header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+.logo { display: flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 700; }
+.logo-icon { background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.logo-text span { color: var(--primary); }
+.user-info { display: flex; align-items: center; gap: 15px; }
+.user-name { font-weight: 600; color: var(--primary); }
+.main-container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+.page-title { text-align: center; font-weight: 700; color: var(--dark); margin-bottom: 2rem; font-size: 2.5rem; }
+.dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+.camera-container, .info-panel { background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+.camera-feed { width: 100%; height: 300px; object-fit: cover; border-radius: 10px; border: 2px solid var(--primary); }
+.scanning-animation { position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, var(--primary), var(--success)); animation: scan 2s infinite; }
+@keyframes scan { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+.status-indicator { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 1rem; font-size: 0.9rem; }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gray); }
+.status-ready .status-dot { background: var(--success); }
+.status-processing .status-dot { background: var(--primary); animation: pulse 1.5s infinite; }
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+.info-title { font-weight: 600; margin-bottom: 1.5rem; color: var(--dark); border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem; }
+.info-item { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+.info-label { font-weight: 500; color: var(--gray); }
+.info-value { font-weight: 600; color: var(--dark); }
+.action-section { text-align: center; margin-top: 2rem; }
+.btn-scan { background: linear-gradient(135deg, var(--primary), #3f37c9); color: white; border: none; padding: 1rem 2rem; font-size: 1.2rem; border-radius: 50px; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; }
+.btn-scan:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4); }
+.btn-scan:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+.flash-container { position: fixed; top: 100px; right: 20px; z-index: 1050; max-width: 400px; }
+.alert { box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: none; border-radius: 10px; }
+@media (max-width: 768px) { .dashboard { grid-template-columns: 1fr; } .page-title { font-size: 2rem; } }
+</style>
+</head>
+<body>
+<div class="app-header">
+  <div class="header-content">
+    <div class="logo">
+      <div class="logo-icon"><i class="fas fa-id-badge"></i></div>
+      <div class="logo-text">Face<span>ID</span></div>
+    </div>
+    <div class="user-info">
+      <div class="user-welcome">Xin chào, <span class="user-name">{{ username }}</span></div>
+      <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">
+        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="main-container">
+  <h1 class="page-title">Chấm công bằng khuôn mặt</h1>
+  <div class="dashboard">
+    <div class="camera-container" id="camera-container">
+      <div class="scanning-animation"></div>
+      <h2 class="camera-title">Camera nhận diện</h2>
+      <img src="{{ url_for('video_feed') }}" class="w-100 rounded shadow" />
+
+
+      <div class="status-indicator status-ready">
+        <span class="status-dot"></span>
+        <span>Camera sẵn sàng</span>
+      </div>
+    </div>
+
+    <div class="info-panel">
+      <h3 class="info-title">Thông tin nhân viên</h3>
+      <div class="employee-info" id="employee-info" style="display:none;">
+        <div class="info-item"><span class="info-label">Họ tên:</span><span class="info-value" id="nhanvienName">-</span></div>
+        <div class="info-item"><span class="info-label">Mã nhân viên:</span><span class="info-value" id="maNhanVien">-</span></div>
+        <div class="info-item"><span class="info-label">Phòng ban:</span><span class="info-value" id="phongBan">-</span></div>
+        <div class="info-item"><span class="info-label">Ngày chấm công:</span><span class="info-value" id="ngayChamCong">-</span></div>
+        <div class="info-item"><span class="info-label">Giờ vào:</span><span class="info-value" id="gioVao">-</span></div>
+        <div class="info-item"><span class="info-label">Giờ ra:</span><span class="info-value" id="gioRa">-</span></div>
+        <div class="info-item"><span class="info-label">Trạng thái:</span><span class="info-value" id="trangThai">-</span></div>
+      </div>
+      <div id="no-employee" style="text-align:center; color:#999;">❌ Chưa có nhân viên nào</div>
+    </div>
+  </div>
+
+  <div class="action-section">
+    <form method="post" id="attendance-form" action="{{ url_for('manual_attendance') }}">
+
+        <input type="hidden" id="ma_nv" name="ma_nv">
+        <button type="submit" class="btn btn-scan" id="attendance-btn" disabled>
+            <i class="fas fa-camera"></i> Chấm công ngay
+        </button>
+    </form>
+</div>
+
+<script>
+function setNhanVien(data) {
+    const btn = document.getElementById("attendance-btn");
+
+    if (data.found) {
+        document.getElementById("ma_nv").value = data.MaNV || "-";
+        document.getElementById("nhanvienName").innerText = data.HoTen || "Chưa xác định";
+        document.getElementById("maNhanVien").innerText = data.MaNV || "-";
+        document.getElementById("phongBan").innerText = data.PhongBan || "-";
+        document.getElementById("ngayChamCong").innerText = data.NgayChamCong || "-";
+        document.getElementById("gioVao").innerText = data.GioVao || "-";
+        document.getElementById("gioRa").innerText = data.GioRa || "-";
+        document.getElementById("trangThai").innerText = data.TrangThai || "Chưa chấm công";
+        btn.disabled = false; // bật nút
+    } else {
+        // reset nếu không nhận diện được
+        document.getElementById("ma_nv").value = "";
+        document.getElementById("nhanvienName").innerText = "Chưa xác định";
+        document.getElementById("maNhanVien").innerText = "-";
+        document.getElementById("phongBan").innerText = "-";
+        document.getElementById("ngayChamCong").innerText = "-";
+        document.getElementById("gioVao").innerText = "-";
+        document.getElementById("gioRa").innerText = "-";
+        document.getElementById("trangThai").innerText = "Chưa chấm công";
+        btn.disabled = true; // tắt nút
+    }
+}
+
+// Poll server mỗi 2 giây
+async function fetchNhanVien() {
+    try {
+        const res = await fetch("/get_current_employee");
+        const data = await res.json();
+        if (data.found) {
+            setNhanVien(data);  // cập nhật thông tin
+            document.querySelector('.btn-scan').disabled = false; // bật nút chấm công
+        } else {
+            setNhanVien({});  // reset thông tin
+            document.querySelector('.btn-scan').disabled = true;  // tắt nút
+        }
+    } catch (err) {
+        console.error("Lỗi lấy dữ liệu nhân viên:", err);
+    }
+}
+
+setInterval(fetchNhanVien, 2000);
+
+// Khi bấm chấm công
+document.getElementById('attendance-form').addEventListener('submit', function(e) {
+    const btn = document.getElementById('attendance-btn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+    btn.disabled = true;
+});
+</script>
+<script>
+function updateNhanVienUI(data) {
+    const infoBox = document.getElementById("employee-info");
+    const noEmp = document.getElementById("no-employee");
+    const btn = document.getElementById("attendance-btn");
+
+    if (data && data.found) {
+        document.getElementById("ma_nv").value = data.MaNV;
+        document.getElementById("nhanvienName").innerText = data.HoTen || "-";
+        document.getElementById("maNhanVien").innerText = data.MaNV || "-";
+        document.getElementById("phongBan").innerText = data.PhongBan || "-";
+        document.getElementById("ngayChamCong").innerText = data.NgayChamCong || "-";
+        document.getElementById("gioVao").innerText = data.GioVao || "-";
+        document.getElementById("gioRa").innerText = data.GioRa || "-";
+        document.getElementById("trangThai").innerText = data.TrangThai || "-";
+
+        infoBox.style.display = "block";
+        noEmp.style.display = "none";
+        btn.disabled = false;
+    } else {
+        infoBox.style.display = "none";
+        noEmp.style.display = "block";
+        btn.disabled = true;
+    }
+}
+
+// Poll server mỗi 2 giây
+async function fetchNhanVien() {
+    try {
+        const res = await fetch("/get_current_employee");
+        const data = await res.json();
+        updateNhanVienUI(data);
+    } catch (err) {
+        console.error("Lỗi lấy dữ liệu nhân viên:", err);
+    }
+}
+
+setInterval(fetchNhanVien, 2000);
+</script>
+
+</body>
+</html>
