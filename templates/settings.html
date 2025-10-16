@@ -1,0 +1,53 @@
+{% extends "admin.html" %}
+
+{% block content %}
+<div class="container-fluid">
+  <h2 class="mb-4"><i class="fas fa-cog"></i> Cài đặt hệ thống</h2>
+
+  <!-- Thẻ cấu hình chung -->
+  <div class="card mb-4 shadow-sm p-3">
+    <h5 class="mb-3">Thông tin hệ thống</h5>
+    <form method="POST" action="{{ url_for('save_settings') }}">
+      <div class="mb-3">
+        <label for="system_name" class="form-label">Tên hệ thống</label>
+        <input type="text" class="form-control" id="system_name" name="system_name" value="{{ settings.system_name }}">
+      </div>
+      <div class="mb-3">
+        <label for="company_name" class="form-label">Tên công ty</label>
+        <input type="text" class="form-control" id="company_name" name="company_name" value="{{ settings.company_name }}">
+      </div>
+      <div class="mb-3">
+        <label for="timezone" class="form-label">Múi giờ</label>
+        <select class="form-select" id="timezone" name="timezone">
+          <option value="Asia/Ho_Chi_Minh" {% if settings.timezone=='Asia/Ho_Chi_Minh' %}selected{% endif %}>Asia/Ho_Chi_Minh</option>
+          <option value="UTC" {% if settings.timezone=='UTC' %}selected{% endif %}>UTC</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Lưu cài đặt</button>
+    </form>
+  </div>
+
+  <!-- Thẻ cấu hình camera -->
+  <div class="card mb-4 shadow-sm p-3">
+    <h5 class="mb-3">Cấu hình camera</h5>
+    <form method="POST" action="{{ url_for('save_camera_settings') }}">
+      <div class="mb-3">
+        <label for="camera_ip" class="form-label">IP Camera</label>
+        <input type="text" class="form-control" id="camera_ip" name="camera_ip" value="{{ settings.camera_ip }}">
+      </div>
+      <div class="mb-3">
+        <label for="camera_port" class="form-label">Cổng kết nối</label>
+        <input type="number" class="form-control" id="camera_port" name="camera_port" value="{{ settings.camera_port }}">
+      </div>
+      <button type="submit" class="btn btn-primary">Lưu cấu hình camera</button>
+    </form>
+  </div>
+
+  <!-- Thẻ sao lưu dữ liệu -->
+  <div class="card mb-4 shadow-sm p-3">
+    <h5 class="mb-3">Sao lưu / phục hồi dữ liệu</h5>
+    <a href="{{ url_for('backup_data') }}" class="btn btn-success me-2"><i class="fas fa-database"></i> Sao lưu dữ liệu</a>
+    <a href="{{ url_for('restore_data') }}" class="btn btn-warning"><i class="fas fa-upload"></i> Phục hồi dữ liệu</a>
+  </div>
+</div>
+{% endblock %}

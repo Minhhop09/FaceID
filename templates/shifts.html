@@ -1,632 +1,222 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Ca Làm Việc - Công Ty ABC</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --success-color: #4cc9f0;
-            --warning-color: #f72585;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fb;
-            color: #333;
-        }
-        
-        .navbar {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .sidebar {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            padding: 20px;
-            height: fit-content;
-            position: sticky;
-            top: 20px;
-        }
-        
-        .main-content {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            padding: 25px;
-        }
-        
-        .shift-card {
-            border: none;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            overflow: hidden;
-        }
-        
-        .shift-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        
-        .shift-header {
-            padding: 15px 20px;
-            color: white;
-            font-weight: 600;
-        }
-        
-        .shift-morning {
-            background: linear-gradient(135deg, #4cc9f0, #4895ef);
-        }
-        
-        .shift-afternoon {
-            background: linear-gradient(135deg, #f72585, #b5179e);
-        }
-        
-        .shift-evening {
-            background: linear-gradient(135deg, #7209b7, #560bad);
-        }
-        
-        .shift-night {
-            background: linear-gradient(135deg, #3a0ca3, #4361ee);
-        }
-        
-        .shift-body {
-            padding: 20px;
-        }
-        
-        .employee-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .stats-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-        }
-        
-        .stats-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-        }
-        
-        .stats-icon {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-        }
-        
-        .stats-number {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-        
-        .stats-label {
-            font-size: 0.9rem;
-            color: #6c757d;
-        }
-        
-        .filter-btn {
-            border-radius: 20px;
-            padding: 8px 20px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .filter-btn.active {
-            background-color: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-        
-        .calendar-day {
-            text-align: center;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .calendar-day:hover {
-            background-color: #e9ecef;
-        }
-        
-        .calendar-day.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .calendar-day.today {
-            border: 2px solid var(--primary-color);
-        }
-        
-        .badge-shift {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
-        }
-        
-        .page-title {
-            color: var(--dark-color);
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-        
-        .page-subtitle {
-            color: #6c757d;
-            margin-bottom: 25px;
-        }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                margin-bottom: 20px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quản Lý Ca Làm Việc - FaceID System</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {--primary:#4361ee;--primary-dark:#3a56d4;--secondary:#6c757d;--success:#28a745;--info:#17a2b8;--warning:#ffc107;--danger:#dc3545;--light:#f8f9fa;--dark:#343a40;--sidebar-bg:#1e293b;--sidebar-hover:#334155;--sidebar-active:#4361ee;}
+body {background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;min-height:100vh;overflow-x:hidden;}
+.sidebar{min-height:100vh;width:280px;background:var(--sidebar-bg);position:fixed;top:0;left:0;z-index:1000;transition:all .3s ease;box-shadow:3px 0 15px rgba(0,0,0,.1);}
+.sidebar-header{padding:25px 20px;border-bottom:1px solid rgba(255,255,255,.1);text-align:center;}
+.sidebar-brand{color:#fff;text-decoration:none;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;}
+.sidebar-brand i{background:linear-gradient(135deg,var(--primary),#4895ef);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.8rem;}
+.sidebar-nav {
+    padding: 20px 0 80px;  /* chừa không gian cuối để thấy nút logout */
+    overflow-y: auto;      /* cho phép cuộn */
+    height: calc(100vh - 80px);
+}
+
+.nav-item{margin-bottom:5px;}
+.nav-link{color:rgba(255,255,255,.8);padding:15px 25px;text-decoration:none;display:flex;align-items:center;gap:12px;transition:all .3s ease;border-left:3px solid transparent;font-weight:500;}
+.nav-link:hover{color:#fff;background:var(--sidebar-hover);border-left-color:var(--primary);transform:translateX(5px);}
+.nav-link.active{color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-left-color:#fff;box-shadow:0 4px 15px rgba(67,97,238,.3);}
+.nav-link i{width:20px;text-align:center;font-size:1.1rem;}
+.logout-link{color:#f8d7da;border-top:1px solid rgba(255,255,255,.1);margin-top:20px;}
+.logout-link:hover{color:#dc3545;background:rgba(220,53,69,.1);}
+.main-content{margin-left:280px;padding:30px;transition:all .3s ease;}
+.dashboard-header{background:#fff;border-radius:15px;padding:25px 30px;margin-bottom:30px;box-shadow:0 5px 15px rgba(0,0,0,.08);display:flex;justify-content:space-between;align-items:center;}
+.header-title h1{color:var(--dark);font-weight:700;margin-bottom:5px;}
+.header-title p{color:var(--secondary);margin:0;}
+.user-profile{display:flex;align-items:center;gap:15px;background:var(--light);padding:12px 20px;border-radius:12px;border:1px solid rgba(0,0,0,.05);}
+.user-avatar{width:45px;height:45px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:1.2rem;}
+.user-info{line-height:1.4;}
+.user-name{font-weight:600;color:var(--dark);margin:0;}
+.user-role{color:var(--secondary);font-size:.9rem;margin:0;}
+.stats-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px;margin-bottom:30px;}
+.stat-card{background:#fff;border-radius:15px;padding:25px;box-shadow:0 5px 15px rgba(0,0,0,.08);transition:all .3s ease;position:relative;overflow:hidden;animation:fadeInUp .6s ease-out;text-decoration:none!important;color:inherit!important;}
+.stat-card:hover{transform:translateY(-5px);box-shadow:0 10px 25px rgba(0,0,0,.12);}
+.stat-card::before{content:'';position:absolute;top:0;right:0;width:80px;height:80px;background:rgba(0,0,0,.03);border-radius:0 0 0 80px;}
+.stat-icon{width:60px;height:60px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:15px;color:#fff;}
+.stat-icon.blue{background:linear-gradient(135deg,var(--info),#39d4ff);}
+.stat-icon.green{background:linear-gradient(135deg,var(--success),#34d399);}
+.stat-icon.orange{background:linear-gradient(135deg,var(--warning),#fbbf24);}
+.stat-value{font-size:2.2rem;font-weight:700;margin-bottom:5px;color:var(--dark);}
+.stat-label{color:var(--secondary);font-weight:500;font-size:.95rem;}
+.shifts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:25px;margin-bottom:30px;}
+.shift-card{background:#fff;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.08);overflow:hidden;animation:fadeInUp .6s ease-out;}
+.shift-header{padding:20px 25px;color:#fff;display:flex;justify-content:space-between;align-items:center;}
+.shift-morning{background:linear-gradient(135deg,#4cc9f0,#4895ef);}
+.shift-afternoon{background:linear-gradient(135deg,#f72585,#b5179e);}
+.shift-evening{background:linear-gradient(135deg,#7209b7,#560bad);}
+.shift-info h3{margin:0 0 5px;color:#fff;font-weight:600;}
+.shift-time{font-size:.9rem;opacity:.9;}
+.shift-code{background:rgba(255,255,255,.2);padding:4px 12px;border-radius:20px;font-size:.85rem;font-weight:500;}
+.shift-body{padding:20px 25px;}
+.shift-meta{display:flex;flex-direction:column;gap:12px;margin-bottom:20px;}
+.meta-item{display:flex;align-items:center;gap:10px;color:var(--secondary);}
+.shift-actions{display:flex;gap:10px;margin-top:15px;}
+.btn-action{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .3s ease;border:none;}
+.btn-action:hover{transform:scale(1.1);}
+.btn-edit{background:linear-gradient(135deg,var(--warning),#ffb300);color:#fff;}
+.btn-delete{background:linear-gradient(135deg,var(--danger),#e53935);color:#fff;}
+.shift-footer{padding:15px 25px;background:var(--light);display:flex;justify-content:space-between;align-items:center;font-size:.85rem;}
+.last-updated{color:var(--secondary);}
+.view-details{color:var(--primary);text-decoration:none;font-weight:500;}
+.empty-state{text-align:center;padding:60px 20px;background:#fff;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.08);}
+.empty-icon{font-size:4rem;color:var(--secondary);margin-bottom:20px;}
+.empty-title{color:var(--dark);margin-bottom:10px;}
+.empty-text{color:var(--secondary);max-width:400px;margin:0 auto 25px;}
+.footer{text-align:center;padding:20px;color:var(--secondary);font-size:.9rem;}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border:none;border-radius:8px;padding:12px 24px;font-weight:500;transition:all .3s;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(67,97,238,.3);}
+.btn-secondary{background:var(--secondary);border:none;border-radius:8px;padding:12px 24px;font-weight:500;transition:all .3s;}
+.btn-secondary:hover{background:#5a6268;transform:translateY(-2px);}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:992px){.sidebar{width:80px;}.sidebar-brand span,.nav-link span{display:none;}.main-content{margin-left:80px;}.sidebar-header{padding:20px 10px;}.nav-link{justify-content:center;padding:15px;}.nav-link i{font-size:1.3rem;}}
+@media(max-width:768px){.main-content{padding:20px;}.dashboard-header{flex-direction:column;gap:15px;text-align:center;}.stats-container{grid-template-columns:1fr;}.shifts-grid{grid-template-columns:1fr;}.shift-footer{flex-direction:column;gap:10px;text-align:center;}}
+</style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="#">
-                <i class="fas fa-clock me-2"></i>WorkShift Manager
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand">
+                <i class="fas fa-id-card-alt"></i>
+                <span>FaceID System</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html"><i class="fas fa-home me-1"></i> Trang Chủ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="departments.html"><i class="fas fa-building me-1"></i> Phòng Ban</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="shifts.html"><i class="fas fa-calendar-alt me-1"></i> Ca Làm Việc</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="employees.html"><i class="fas fa-users me-1"></i> Nhân Viên</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-cog me-1"></i> Cài Đặt</a>
-                    </li>
-                </ul>
-            </div>
         </div>
-    </nav>
+        <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand">
+                <i class="fas fa-id-card-alt"></i>
+                <span>FaceID System</span>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('shifts') }}" class="nav-link active"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Báo cáo thống kê</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
+    </div>
+    </div>
 
     <!-- Main Content -->
-    <div class="container my-4">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-lg-3 mb-4">
-                <div class="sidebar">
-                    <h5 class="fw-bold mb-3">Bộ Lọc</h5>
-                    
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Chọn Ngày</label>
-                        <input type="date" class="form-control" value="2024-01-15">
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Loại Ca</label>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-outline-primary filter-btn active">Tất Cả</button>
-                            <button class="btn btn-outline-primary filter-btn">Ca Sáng</button>
-                            <button class="btn btn-outline-primary filter-btn">Ca Chiều</button>
-                            <button class="btn btn-outline-primary filter-btn">Ca Tối</button>
-                            <button class="btn btn-outline-primary filter-btn">Ca Đêm</button>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Phòng Ban</label>
-                        <select class="form-select">
-                            <option selected>Tất Cả Phòng Ban</option>
-                            <option>Phòng Công Nghệ</option>
-                            <option>Phòng Kinh Doanh</option>
-                            <option>Phòng Nhân Sự</option>
-                            <option>Phòng Kế Toán</option>
-                        </select>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Trạng Thái</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="activeCheck" checked>
-                            <label class="form-check-label" for="activeCheck">Đang Hoạt Động</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="completedCheck">
-                            <label class="form-check-label" for="completedCheck">Đã Hoàn Thành</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="cancelledCheck">
-                            <label class="form-check-label" for="cancelledCheck">Đã Hủy</label>
-                        </div>
-                    </div>
-                    
-                    <button class="btn btn-primary w-100 mt-3">
-                        <i class="fas fa-filter me-2"></i> Áp Dụng Bộ Lọc
-                    </button>
-                </div>
-                
-                <!-- Calendar Widget -->
-                <div class="sidebar mt-4">
-                    <h5 class="fw-bold mb-3">Lịch Tháng</h5>
-                    <div class="row text-center fw-semibold mb-2">
-                        <div class="col p-1">T2</div>
-                        <div class="col p-1">T3</div>
-                        <div class="col p-1">T4</div>
-                        <div class="col p-1">T5</div>
-                        <div class="col p-1">T6</div>
-                        <div class="col p-1">T7</div>
-                        <div class="col p-1">CN</div>
-                    </div>
-                    <div class="row">
-                        <div class="col p-1"><div class="calendar-day">1</div></div>
-                        <div class="col p-1"><div class="calendar-day">2</div></div>
-                        <div class="col p-1"><div class="calendar-day">3</div></div>
-                        <div class="col p-1"><div class="calendar-day">4</div></div>
-                        <div class="col p-1"><div class="calendar-day">5</div></div>
-                        <div class="col p-1"><div class="calendar-day">6</div></div>
-                        <div class="col p-1"><div class="calendar-day">7</div></div>
-                    </div>
-                    <div class="row">
-                        <div class="col p-1"><div class="calendar-day">8</div></div>
-                        <div class="col p-1"><div class="calendar-day">9</div></div>
-                        <div class="col p-1"><div class="calendar-day">10</div></div>
-                        <div class="col p-1"><div class="calendar-day">11</div></div>
-                        <div class="col p-1"><div class="calendar-day">12</div></div>
-                        <div class="col p-1"><div class="calendar-day">13</div></div>
-                        <div class="col p-1"><div class="calendar-day">14</div></div>
-                    </div>
-                    <div class="row">
-                        <div class="col p-1"><div class="calendar-day today active">15</div></div>
-                        <div class="col p-1"><div class="calendar-day">16</div></div>
-                        <div class="col p-1"><div class="calendar-day">17</div></div>
-                        <div class="col p-1"><div class="calendar-day">18</div></div>
-                        <div class="col p-1"><div class="calendar-day">19</div></div>
-                        <div class="col p-1"><div class="calendar-day">20</div></div>
-                        <div class="col p-1"><div class="calendar-day">21</div></div>
-                    </div>
-                    <div class="row">
-                        <div class="col p-1"><div class="calendar-day">22</div></div>
-                        <div class="col p-1"><div class="calendar-day">23</div></div>
-                        <div class="col p-1"><div class="calendar-day">24</div></div>
-                        <div class="col p-1"><div class="calendar-day">25</div></div>
-                        <div class="col p-1"><div class="calendar-day">26</div></div>
-                        <div class="col p-1"><div class="calendar-day">27</div></div>
-                        <div class="col p-1"><div class="calendar-day">28</div></div>
-                    </div>
-                    <div class="row">
-                        <div class="col p-1"><div class="calendar-day">29</div></div>
-                        <div class="col p-1"><div class="calendar-day">30</div></div>
-                        <div class="col p-1"><div class="calendar-day">31</div></div>
-                        <div class="col p-1"></div>
-                        <div class="col p-1"></div>
-                        <div class="col p-1"></div>
-                        <div class="col p-1"></div>
-                    </div>
-                </div>
+    <div class="main-content">
+        <div class="dashboard-header">
+            <div class="header-title">
+                <h1>Quản lý ca làm việc</h1>
+                <p>Quản lý và phân công ca làm việc cho nhân viên</p>
             </div>
-            
-            <!-- Main Content Area -->
-            <div class="col-lg-9">
-                <div class="main-content">
-                    <!-- Page Header -->
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div>
-                            <h1 class="page-title">Quản Lý Ca Làm Việc</h1>
-                            <p class="page-subtitle">Quản lý và theo dõi lịch làm việc của nhân viên</p>
-                        </div>
-                        <button class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i> Tạo Ca Mới
-                        </button>
-                    </div>
-                    
-                    <!-- Stats Cards -->
-                    <div class="row mb-4">
-                        <div class="col-md-3">
-                            <div class="stats-card">
-                                <div class="stats-icon text-primary">
-                                    <i class="fas fa-calendar-check"></i>
-                                </div>
-                                <div class="stats-number">24</div>
-                                <div class="stats-label">Ca Hôm Nay</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="stats-card">
-                                <div class="stats-icon text-success">
-                                    <i class="fas fa-user-check"></i>
-                                </div>
-                                <div class="stats-number">18</div>
-                                <div class="stats-label">Đã Điểm Danh</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="stats-card">
-                                <div class="stats-icon text-warning">
-                                    <i class="fas fa-user-clock"></i>
-                                </div>
-                                <div class="stats-number">4</div>
-                                <div class="stats-label">Chưa Điểm Danh</div>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="stats-card">
-                                <div class="stats-icon text-danger">
-                                    <i class="fas fa-user-times"></i>
-                                </div>
-                                <div class="stats-number">2</div>
-                                <div class="stats-label">Vắng Mặt</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Shifts List -->
-                    <h4 class="fw-bold mb-3">Ca Làm Việc Hôm Nay <span class="badge bg-primary">15/01/2024</span></h4>
-                    
-                    <!-- Morning Shift -->
-                    <div class="card shift-card">
-                        <div class="shift-header shift-morning d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-sun me-2"></i> Ca Sáng
-                                <span class="badge bg-light text-dark ms-2">06:00 - 14:00</span>
-                            </div>
-                            <div>
-                                <span class="badge bg-success">Đang diễn ra</span>
-                            </div>
-                        </div>
-                        <div class="shift-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <h6 class="fw-semibold mb-2">Nhân Viên</h6>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <img src="https://i.pravatar.cc/150?img=1" class="employee-avatar" alt="NV001" title="Nguyễn Văn A">
-                                        <img src="https://i.pravatar.cc/150?img=2" class="employee-avatar" alt="NV002" title="Trần Thị B">
-                                        <img src="https://i.pravatar.cc/150?img=3" class="employee-avatar" alt="NV003" title="Lê Văn C">
-                                        <img src="https://i.pravatar.cc/150?img=4" class="employee-avatar" alt="NV004" title="Phạm Thị D">
-                                        <img src="https://i.pravatar.cc/150?img=5" class="employee-avatar" alt="NV005" title="Hoàng Văn E">
-                                    </div>
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <h6 class="fw-semibold mb-2">Phòng Ban</h6>
-                                    <div>
-                                        <span class="badge-shift bg-primary">Công Nghệ</span>
-                                        <span class="badge-shift bg-info">Kinh Doanh</span>
-                                    </div>
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <h6 class="fw-semibold mb-2">Trạng Thái</h6>
-                                    <div>
-                                        <span class="badge bg-success">5/5 có mặt</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="d-flex justify-content-end mt-3">
-                                <button class="btn btn-sm btn-outline-primary me-2">
-                                    <i class="fas fa-edit me-1"></i> Chỉnh Sửa
-                                </button>
-                                <button class="btn btn-sm btn-outline-success">
-                                    <i class="fas fa-clipboard-check me-1"></i> Điểm Danh
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Afternoon Shift -->
-                    <div class="card shift-card">
-                        <div class="shift-header shift-afternoon d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-cloud-sun me-2"></i> Ca Chiều
-                                <span class="badge bg-light text-dark ms-2">14:00 - 22:00</span>
-                            </div>
-                            <div>
-                                <span class="badge bg-info">Sắp bắt đầu</span>
-                            </div>
-                        </div>
-                        <div class="shift-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <h6 class="fw-semibold mb-2">Nhân Viên</h6>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <img src="https://i.pravatar.cc/150?img=6" class="employee-avatar" alt="NV006" title="Nguyễn Thị F">
-                                        <img src="https://i.pravatar.cc/150?img=7" class="employee-avatar" alt="NV007" title="Trần Văn G">
-                                        <img src="https://i.pravatar.cc/150?img=8" class="employee-avatar" alt="NV008" title="Lê Thị H">
-                                        <img src="https://i.pravatar.cc/150?img=9" class="employee-avatar" alt="NV009" title="Phạm Văn I">
-                                    </div>
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <h6 class="fw-semibold mb-2">Phòng Ban</h6>
-                                    <div>
-                                        <span class="badge-shift bg-primary">Công Nghệ</span>
-                                        <span class="badge-shift bg-warning">Nhân Sự</span>
-                                    </div>
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <h6 class="fw-semibold mb-2">Trạng Thái</h6>
-                                    <div>
-                                        <span class="badge bg-secondary">Chưa bắt đầu</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="d-flex justify-content-end mt-3">
-                                <button class="btn btn-sm btn-outline-primary me-2">
-                                    <i class="fas fa-edit me-1"></i> Chỉnh Sửa
-                                </button>
-                                <button class="btn btn-sm btn-outline-success">
-                                    <i class="fas fa-clipboard-check me-1"></i> Điểm Danh
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Evening Shift -->
-                    <div class="card shift-card">
-                        <div class="shift-header shift-evening d-flex justify-content-between align-items-center">
-                            <div>
-                                <i class="fas fa-moon me-2"></i> Ca Tối
-                                <span class="badge bg-light text-dark ms-2">18:00 - 02:00</span>
-                            </div>
-                            <div>
-                                <span class="badge bg-secondary">Chưa bắt đầu</span>
-                            </div>
-                        </div>
-                        <div class="shift-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <h6 class="fw-semibold mb-2">Nhân Viên</h6>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <img src="https://i.pravatar.cc/150?img=10" class="employee-avatar" alt="NV010" title="Nguyễn Văn J">
-                                        <img src="https://i.pravatar.cc/150?img=11" class="employee-avatar" alt="NV011" title="Trần Thị K">
-                                        <img src="https://i.pravatar.cc/150?img=12" class="employee-avatar" alt="NV012" title="Lê Văn L">
-                                    </div>
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <h6 class="fw-semibold mb-2">Phòng Ban</h6>
-                                    <div>
-                                        <span class="badge-shift bg-primary">Công Nghệ</span>
-                                    </div>
-                                </div>
-                                <div class="col-md-3 mb-3">
-                                    <h6 class="fw-semibold mb-2">Trạng Thái</h6>
-                                    <div>
-                                        <span class="badge bg-secondary">Chưa bắt đầu</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="d-flex justify-content-end mt-3">
-                                <button class="btn btn-sm btn-outline-primary me-2">
-                                    <i class="fas fa-edit me-1"></i> Chỉnh Sửa
-                                </button>
-                                <button class="btn btn-sm btn-outline-success">
-                                    <i class="fas fa-clipboard-check me-1"></i> Điểm Danh
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Upcoming Shifts -->
-                    <h4 class="fw-bold mt-5 mb-3">Ca Sắp Tới</h4>
-                    
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Ngày</th>
-                                    <th>Ca</th>
-                                    <th>Thời Gian</th>
-                                    <th>Nhân Viên</th>
-                                    <th>Phòng Ban</th>
-                                    <th>Trạng Thái</th>
-                                    <th>Thao Tác</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>16/01/2024</td>
-                                    <td><span class="badge-shift shift-morning text-white">Ca Sáng</span></td>
-                                    <td>06:00 - 14:00</td>
-                                    <td>5 nhân viên</td>
-                                    <td>Công Nghệ, Kinh Doanh</td>
-                                    <td><span class="badge bg-secondary">Chưa bắt đầu</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>16/01/2024</td>
-                                    <td><span class="badge-shift shift-afternoon text-white">Ca Chiều</span></td>
-                                    <td>14:00 - 22:00</td>
-                                    <td>4 nhân viên</td>
-                                    <td>Công Nghệ, Nhân Sự</td>
-                                    <td><span class="badge bg-secondary">Chưa bắt đầu</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>17/01/2024</td>
-                                    <td><span class="badge-shift shift-night text-white">Ca Đêm</span></td>
-                                    <td>22:00 - 06:00</td>
-                                    <td>3 nhân viên</td>
-                                    <td>Công Nghệ</td>
-                                    <td><span class="badge bg-secondary">Chưa bắt đầu</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+            <div class="user-profile">
+                <div class="user-avatar">{{ session['username'][0]|upper }}</div>
+                <div class="user-info">
+                    <div class="user-name">{{ session['username'] }}</div>
+                    <div class="user-role">{{ session['role'] }}</div>
                 </div>
             </div>
         </div>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show mb-4" role="alert">
+                        <i class="fa-solid fa-{{ 'triangle-exclamation' if category == 'error' else 'circle-check' }} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Header actions + Search -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary"><i class="fa-solid fa-file-export me-2"></i>Xuất báo cáo</button>
+                <a href="{{ url_for('add_shift') }}" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Thêm ca làm</a>
+            </div>
+            <form class="d-flex" method="get" action="{{ url_for('shifts') }}">
+                <input class="form-control me-2" type="search" name="q" placeholder="🔍 Tìm theo mã hoặc tên ca làm..." value="{{ keyword or '' }}" style="max-width:260px;">
+                <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fa-solid fa-clock"></i></div>
+                <div class="stat-value">{{ shifts|length }}</div>
+                <div class="stat-label">Tổng số ca làm</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fa-solid fa-user-check"></i></div>
+                <div class="stat-value">{{ active_shifts }}</div>
+                <div class="stat-label">Ca đang hoạt động</div>
+            </div>
+            <a href="{{ url_for('assigned_employees') }}" class="stat-card text-decoration-none">
+                <div class="stat-icon orange"><i class="fa-solid fa-users"></i></div>
+                <div class="stat-value">{{ total_employees }}</div>
+                <div class="stat-label">Nhân viên đã phân ca</div>
+            </a>
+        </div>
+
+        <!-- Shifts Grid -->
+        {% if shifts %}
+        <div class="shifts-grid">
+            {% for shift in shifts %}
+            <div class="shift-card">
+                <div class="shift-header {% if loop.index == 1 %}shift-morning{% elif loop.index == 2 %}shift-afternoon{% else %}shift-evening{% endif %}">
+                    <div class="shift-info">
+                        <h3>{{ shift.TenCa }}</h3>
+                        <div class="shift-time">{{ shift.GioBatDau }} - {{ shift.GioKetThuc }}</div>
+                    </div>
+                    <div class="shift-code">{{ shift.MaCa }}</div>
+                </div>
+
+                <div class="shift-body">
+                    <div class="shift-meta">
+                        <div class="meta-item"><i class="fa-solid fa-hashtag"></i><span>Mã ca: {{ shift.MaCa }}</span></div>
+                        <div class="meta-item"><i class="fa-solid fa-money-bill-wave"></i><span>Hệ số lương: {{ shift.HeSo }}</span></div>
+                        <div class="meta-item"><i class="fa-solid fa-circle-info"></i><span>Mô tả: {{ shift.MoTa or "Không có" }}</span></div>
+                        <div class="meta-item"><i class="fa-solid fa-circle-check"></i><span>Trạng thái: {{ shift.TrangThai }}</span></div>
+                    </div>
+
+                    <div class="shift-actions">
+                        <a href="{{ url_for('edit_shift', ma_ca=shift.MaCa) }}" class="btn btn-action btn-edit"><i class="fas fa-edit"></i></a>
+                        <a href="{{ url_for('delete_shift', ma_ca=shift.MaCa) }}" class="btn btn-action btn-delete" onclick="return confirm('Bạn có chắc muốn xóa ca {{ shift.TenCa }}?')"><i class="fas fa-trash"></i></a>
+                    </div>
+                </div>
+
+                <div class="shift-footer">
+                    <div class="last-updated"><i class="fa-regular fa-clock me-1"></i>Cập nhật: {{ shift.LastUpdated or "—" }}</div>
+                    <a href="{{ url_for('shift_detail', ma_ca=shift.MaCa) }}" class="view-details">Xem chi tiết <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon"><i class="fa-solid fa-clock"></i></div>
+            <h3 class="empty-title">Chưa có ca làm việc nào</h3>
+            <p class="empty-text">Hãy thêm ca làm việc đầu tiên để quản lý thời gian làm việc của nhân viên hiệu quả hơn.</p>
+            <a href="{{ url_for('add_shift') }}" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Thêm ca làm đầu tiên</a>
+        </div>
+        {% endif %}
+
+        <div class="footer">© 2025 FaceID System — Developed with ❤️ by Trần Minh Hợp</div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Active filter buttons
-        document.querySelectorAll('.filter-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                document.querySelectorAll('.filter-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                this.classList.add('active');
-            });
-        });
-        
-        // Calendar day selection
-        document.querySelectorAll('.calendar-day').forEach(day => {
-            day.addEventListener('click', function() {
-                document.querySelectorAll('.calendar-day').forEach(d => {
-                    d.classList.remove('active');
-                });
-                this.classList.add('active');
-            });
-        });
-    </script>
 </body>
 </html>

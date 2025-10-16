@@ -12,13 +12,18 @@ def get_accounts():
     conn.close()
     return data
 
-def add_account(username, password, role):
+def add_account(username, hashed_password, role):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO TaiKhoan (Username, Password, Role) VALUES (?, ?, ?)",
-                   (username, hash_password(password), role))
+    
+    cursor.execute("""
+        INSERT INTO TaiKhoan (TenDangNhap, MatKhauHash, VaiTro, TrangThai, NgayTao)
+        VALUES (?, ?, ?, 1, GETDATE())
+    """, (username, hashed_password, role))
+    
     conn.commit()
     conn.close()
+
 
 def update_account(username, password=None, role=None):
     conn = get_connection()

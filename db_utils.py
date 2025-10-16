@@ -18,6 +18,14 @@ def get_connection():
     except Exception as e:
         print(f"❌ Lỗi kết nối CSDL: {e}")
         return None
+    
+def find_employees_by_name_or_manv(keyword):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM NhanVien WHERE MaNV=? OR HoTen LIKE ?", (keyword, f"%{keyword}%"))
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
 
 def get_phongbans():
     conn = get_connection()

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết lương - {{ emp[1] }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root{--primary:#4361ee;--primary-dark:#3a56d4;--secondary:#6c757d;--success:#28a745;--info:#17a2b8;--warning:#ffc107;--danger:#dc3545;--light:#f8f9fa;--dark:#343a40;--sidebar-bg:#1e293b;--sidebar-hover:#334155;--sidebar-active:#4361ee;}
+        body{background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;min-height:100vh;overflow-x:hidden;}
+        .sidebar{min-height:100vh;width:280px;background:var(--sidebar-bg);position:fixed;top:0;left:0;z-index:1000;transition:all .3s ease;box-shadow:3px 0 15px rgba(0,0,0,.1);}
+        .sidebar-header{padding:25px 20px;border-bottom:1px solid rgba(255,255,255,.1);text-align:center;}
+        .sidebar-brand{color:#fff;text-decoration:none;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;}
+        .sidebar-brand i{background:linear-gradient(135deg,var(--primary),#4895ef);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.8rem;}
+        .sidebar-nav {
+    padding: 20px 0 80px;  /* chừa không gian cuối để thấy nút logout */
+    overflow-y: auto;      /* cho phép cuộn */
+    height: calc(100vh - 80px);
+}
+
+        .nav-item{margin-bottom:5px;}
+        .nav-link{color:rgba(255,255,255,.8);padding:15px 25px;text-decoration:none;display:flex;align-items:center;gap:12px;transition:all .3s ease;border-left:3px solid transparent;font-weight:500;}
+        .nav-link:hover{color:#fff;background:var(--sidebar-hover);border-left-color:var(--primary);transform:translateX(5px);}
+        .nav-link.active{color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-left-color:#fff;box-shadow:0 4px 15px rgba(67,97,238,.3);}
+        .nav-link i{width:20px;text-align:center;font-size:1.1rem;}
+        .logout-link{color:#f8d7da;border-top:1px solid rgba(255,255,255,.1);margin-top:20px;}
+        .logout-link:hover{color:#dc3545;background:rgba(220,53,69,.1);}
+        .main-content{margin-left:280px;padding:30px;transition:all .3s ease;}
+        .dashboard-header{background:#fff;border-radius:15px;padding:25px 30px;margin-bottom:30px;box-shadow:0 5px 15px rgba(0,0,0,.08);display:flex;justify-content:space-between;align-items:center;}
+        .header-title h1{color:var(--dark);font-weight:700;margin-bottom:5px;}
+        .header-title p{color:var(--secondary);margin:0;}
+        .user-profile{display:flex;align-items:center;gap:15px;background:var(--light);padding:12px 20px;border-radius:12px;border:1px solid rgba(0,0,0,.05);}
+        .user-avatar{width:45px;height:45px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:1.2rem;}
+        .user-info{line-height:1.4;}
+        .user-name{font-weight:600;color:var(--dark);margin:0;}
+        .user-role{color:var(--secondary);font-size:.9rem;margin:0;}
+        .card{border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.08);border:none;}
+        .card-header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border-radius:15px 15px 0 0!important;padding:20px 25px;font-weight:600;}
+        .table thead{background:#f1f5f9;}
+        .table tbody tr:hover{background:rgba(67,97,238,.05);}
+        .summary-box{text-align:right;margin-top:20px;font-weight:600;background:#fff;padding:20px;border-radius:12px;box-shadow:0 3px 10px rgba(0,0,0,.08);}
+        .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border:none;border-radius:8px;padding:10px 20px;font-weight:500;transition:all .3s;}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(67,97,238,.3);}
+        @media(max-width:992px){.sidebar{width:80px;}.sidebar-brand span,.nav-link span{display:none;}.main-content{margin-left:80px;}.sidebar-header{padding:20px 10px;}.nav-link{justify-content:center;padding:15px;}.nav-link i{font-size:1.3rem;}}
+        @media(max-width:768px){.main-content{padding:20px;}.dashboard-header{flex-direction:column;gap:15px;text-align:center;}}
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand">
+                <i class="fas fa-id-card-alt"></i>
+                <span>FaceID System</span>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('shifts') }}" class="nav-link"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('salary_view') }}" class="nav-link active"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Báo cáo thống kê</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="header-title">
+                <h1>Chi tiết lương nhân viên</h1>
+                <p>Xem chi tiết bảng lương tháng {{ current_month }}/{{ current_year }}</p>
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar">{{ session['username'][0]|upper }}</div>
+                <div class="user-info">
+                    <div class="user-name">{{ session['username'] }}</div>
+                    <div class="user-role">{{ session['role'] }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-user-tie me-2"></i>{{ emp[1] }}</span>
+                <a href="{{ url_for('salary_view') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i> Quay lại
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+<div class="col-md-6">
+    <h5 class="text-primary mb-2">
+        <i class="fa-solid {{ role_icon }} me-2"></i>{{ emp[1] }}
+        <span class="badge 
+            {% if role_label == 'Trưởng phòng' %}bg-warning text-dark
+            {% elif role_label == 'Phó phòng' %}bg-info text-dark
+            {% elif role_label == 'Thực tập sinh' %}bg-secondary
+            {% else %}bg-primary
+            {% endif %}
+        ">
+            {{ role_label }}
+        </span>
+    </h5>
+    <p class="text-muted mb-1">
+        Mã NV: <b>{{ emp[0] }}</b> | 
+        Phòng ban: <b>{{ emp[3] or '—' }}</b>
+    </p>
+    <p class="text-muted mb-0">
+        Chức vụ: <b>{{ emp[2] or '—' }}</b>
+    </p>
+</div>
+
+
+                    <div class="col-md-6 text-md-end">
+                        <p class="text-muted mb-0">Tháng: <b>{{ current_month }}/{{ current_year }}</b></p>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead>
+                            <tr>
+                                <th>Ngày</th>
+                                <th>Ca làm</th>
+                                <th>Giờ vào</th>
+                                <th>Giờ ra</th>
+                                <th class="text-center">Số giờ</th>
+                                <th class="text-end">Hệ số</th>
+                                <th class="text-end">Tiền (VNĐ)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in records %}
+                            <tr>
+                                <!-- Ngày -->
+                                <td>
+                                    {% if r.NgayChamCong.__class__.__name__ == 'datetime' %}
+                                        {{ r.NgayChamCong.strftime("%d/%m/%Y") }}
+                                    {% else %}
+                                        {{ r.NgayChamCong }}
+                                    {% endif %}
+                                </td>
+
+                                <!-- Ca -->
+                                <td>{{ r.MaCa or '—' }}</td>
+
+                                <!-- Giờ vào -->
+                                <td>
+                                    {% if r.GioVao and r.GioVao.__class__.__name__ == 'datetime' %}
+                                        {{ r.GioVao.strftime("%H:%M") }}
+                                    {% else %}
+                                        {{ r.GioVao }}
+                                    {% endif %}
+                                </td>
+
+                                <!-- Giờ ra -->
+                                <td>
+                                    {% if r.GioRa and r.GioRa.__class__.__name__ == 'datetime' %}
+                                        {{ r.GioRa.strftime("%H:%M") }}
+                                    {% else %}
+                                        {{ r.GioRa }}
+                                    {% endif %}
+                                </td>
+
+                                <!-- Giờ, hệ số, tiền -->
+                                <td class="text-center">{{ "%.2f"|format(r.SoGio or 0) }}</td>
+                                <td class="text-end">{{ "%.1f"|format(r.HeSo or 1.0) }}</td>
+                                <td class="text-end text-success fw-bold">{{ "{:,.0f}".format(r.TienCa or 0) }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    <i class="fa-solid fa-inbox me-2"></i>Không có bản ghi chấm công trong tháng này
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="summary-box">
+                    <p class="mb-2">Tổng số giờ: <span class="text-primary fs-5">{{ "%.2f"|format(tong_gio) }}</span></p>
+                    <p class="mb-0">Tổng tiền: <span class="text-success fs-5">{{ "{:,.0f}".format(tong_tien) }} VNĐ</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

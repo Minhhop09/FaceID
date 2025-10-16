@@ -24,11 +24,11 @@ body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f5
 .camera-feed { width: 100%; height: 300px; object-fit: cover; border-radius: 10px; border: 2px solid var(--primary); }
 .scanning-animation { position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: linear-gradient(90deg, var(--primary), var(--success)); animation: scan 2s infinite; }
 @keyframes scan { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-.status-indicator { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 1rem; font-size: 0.9rem; }
-.status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gray); }
-.status-ready .status-dot { background: var(--success); }
-.status-processing .status-dot { background: var(--primary); animation: pulse 1.5s infinite; }
-@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+.status-box { text-align: center; margin-top: 15px; font-weight: 600; font-size: 1.1rem; padding: 10px; border-radius: 10px; color: white; display: none; }
+.status-in { background: #28a745; }
+.status-out { background: #17a2b8; }
+.status-done { background: #ffc107; color: #222; }
+.status-error { background: #f72585; }
 .info-title { font-weight: 600; margin-bottom: 1.5rem; color: var(--dark); border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem; }
 .info-item { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
 .info-label { font-weight: 500; color: var(--gray); }
@@ -37,12 +37,12 @@ body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f5
 .btn-scan { background: linear-gradient(135deg, var(--primary), #3f37c9); color: white; border: none; padding: 1rem 2rem; font-size: 1.2rem; border-radius: 50px; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; }
 .btn-scan:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4); }
 .btn-scan:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
-.flash-container { position: fixed; top: 100px; right: 20px; z-index: 1050; max-width: 400px; }
-.alert { box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: none; border-radius: 10px; }
+select.mode-select { border-radius: 50px; padding: 0.6rem 1.5rem; font-weight: 500; border: 2px solid var(--primary); }
 @media (max-width: 768px) { .dashboard { grid-template-columns: 1fr; } .page-title { font-size: 2rem; } }
 </style>
 </head>
 <body>
+
 <div class="app-header">
   <div class="header-content">
     <div class="logo">
@@ -61,18 +61,17 @@ body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f5
 <div class="main-container">
   <h1 class="page-title">Chấm công bằng khuôn mặt</h1>
   <div class="dashboard">
-    <div class="camera-container" id="camera-container">
+    <!-- Camera -->
+    <div class="camera-container position-relative">
       <div class="scanning-animation"></div>
-      <h2 class="camera-title">Camera nhận diện</h2>
-      <img src="{{ url_for('video_feed') }}" class="w-100 rounded shadow" />
+      <h2 class="camera-title mb-3">Camera nhận diện</h2>
+      <img src="{{ url_for('attendance_feed') }}" class="w-100 rounded shadow" />
 
 
-      <div class="status-indicator status-ready">
-        <span class="status-dot"></span>
-        <span>Camera sẵn sàng</span>
-      </div>
+      <div id="status-box" class="status-box">Đang nhận diện...</div>
     </div>
 
+    <!-- Thông tin nhân viên -->
     <div class="info-panel">
       <h3 class="info-title">Thông tin nhân viên</h3>
       <div class="employee-info" id="employee-info" style="display:none;">
@@ -84,79 +83,45 @@ body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f5
         <div class="info-item"><span class="info-label">Giờ ra:</span><span class="info-value" id="gioRa">-</span></div>
         <div class="info-item"><span class="info-label">Trạng thái:</span><span class="info-value" id="trangThai">-</span></div>
       </div>
-      <div id="no-employee" style="text-align:center; color:#999;">❌ Chưa có nhân viên nào</div>
+      <div id="no-employee" style="text-align:center; color:#999;"> Chưa nhận diện khuôn mặt</div>
     </div>
   </div>
 
+  <!-- Khu vực chọn chế độ và nút chấm công -->
   <div class="action-section">
     <form method="post" id="attendance-form" action="{{ url_for('manual_attendance') }}">
+      <input type="hidden" id="ma_nv" name="ma_nv">
 
-        <input type="hidden" id="ma_nv" name="ma_nv">
-        <button type="submit" class="btn btn-scan" id="attendance-btn" disabled>
-            <i class="fas fa-camera"></i> Chấm công ngay
-        </button>
+      <div class="d-flex justify-content-center align-items-center gap-3 mb-3">
+        <select name="mode" id="mode-select" class="form-select mode-select w-auto">
+          <option value="in">Chấm công Vào ca</option>
+          <option value="out">Chấm công Ra ca</option>
+        </select>
+
+        <select name="ma_ca" id="ma_ca" class="form-select mode-select w-auto">
+          <option value="Ca1">Ca sáng</option>
+          <option value="Ca2">Ca chiều</option>
+          <option value="Ca3">Ca tối</option>
+        </select>
+
+      </div>
+
+      <button type="submit" class="btn btn-scan" id="attendance-btn" disabled>
+        <i class="fas fa-check"></i> Xác nhận chấm công
+      </button>
+      <button type="button" class="btn btn-outline-primary ms-3" id="refresh-btn">
+        <i class="fas fa-sync-alt"></i> Làm mới
+      </button>
     </form>
+  </div>
 </div>
 
-<script>
-function setNhanVien(data) {
-    const btn = document.getElementById("attendance-btn");
-
-    if (data.found) {
-        document.getElementById("ma_nv").value = data.MaNV || "-";
-        document.getElementById("nhanvienName").innerText = data.HoTen || "Chưa xác định";
-        document.getElementById("maNhanVien").innerText = data.MaNV || "-";
-        document.getElementById("phongBan").innerText = data.PhongBan || "-";
-        document.getElementById("ngayChamCong").innerText = data.NgayChamCong || "-";
-        document.getElementById("gioVao").innerText = data.GioVao || "-";
-        document.getElementById("gioRa").innerText = data.GioRa || "-";
-        document.getElementById("trangThai").innerText = data.TrangThai || "Chưa chấm công";
-        btn.disabled = false; // bật nút
-    } else {
-        // reset nếu không nhận diện được
-        document.getElementById("ma_nv").value = "";
-        document.getElementById("nhanvienName").innerText = "Chưa xác định";
-        document.getElementById("maNhanVien").innerText = "-";
-        document.getElementById("phongBan").innerText = "-";
-        document.getElementById("ngayChamCong").innerText = "-";
-        document.getElementById("gioVao").innerText = "-";
-        document.getElementById("gioRa").innerText = "-";
-        document.getElementById("trangThai").innerText = "Chưa chấm công";
-        btn.disabled = true; // tắt nút
-    }
-}
-
-// Poll server mỗi 2 giây
-async function fetchNhanVien() {
-    try {
-        const res = await fetch("/get_current_employee");
-        const data = await res.json();
-        if (data.found) {
-            setNhanVien(data);  // cập nhật thông tin
-            document.querySelector('.btn-scan').disabled = false; // bật nút chấm công
-        } else {
-            setNhanVien({});  // reset thông tin
-            document.querySelector('.btn-scan').disabled = true;  // tắt nút
-        }
-    } catch (err) {
-        console.error("Lỗi lấy dữ liệu nhân viên:", err);
-    }
-}
-
-setInterval(fetchNhanVien, 2000);
-
-// Khi bấm chấm công
-document.getElementById('attendance-form').addEventListener('submit', function(e) {
-    const btn = document.getElementById('attendance-btn');
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
-    btn.disabled = true;
-});
-</script>
 <script>
 function updateNhanVienUI(data) {
     const infoBox = document.getElementById("employee-info");
     const noEmp = document.getElementById("no-employee");
     const btn = document.getElementById("attendance-btn");
+    const statusBox = document.getElementById("status-box");
 
     if (data && data.found) {
         document.getElementById("ma_nv").value = data.MaNV;
@@ -171,15 +136,23 @@ function updateNhanVienUI(data) {
         infoBox.style.display = "block";
         noEmp.style.display = "none";
         btn.disabled = false;
+
+        statusBox.style.display = "block";
+        statusBox.className = "status-box status-in";
+        statusBox.innerText = "Đã nhận diện khuôn mặt";
     } else {
         infoBox.style.display = "none";
         noEmp.style.display = "block";
         btn.disabled = true;
+
+        statusBox.style.display = "block";
+        statusBox.className = "status-box status-error";
+        statusBox.innerText = "Chưa nhận diện khuôn mặt";
     }
 }
 
-// Poll server mỗi 2 giây
-async function fetchNhanVien() {
+// Gọi server mỗi 2 giây để cập nhật nhân viên đang nhận diện
+setInterval(async () => {
     try {
         const res = await fetch("/get_current_employee");
         const data = await res.json();
@@ -187,9 +160,21 @@ async function fetchNhanVien() {
     } catch (err) {
         console.error("Lỗi lấy dữ liệu nhân viên:", err);
     }
-}
+}, 2000);
 
-setInterval(fetchNhanVien, 2000);
+// Khi bấm chấm công
+document.getElementById('attendance-form').addEventListener('submit', function(e) {
+    const btn = document.getElementById('attendance-btn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+    btn.disabled = true;
+});
+
+// Làm mới thủ công
+document.getElementById("refresh-btn").addEventListener("click", async () => {
+    const res = await fetch("/get_current_employee");
+    const data = await res.json();
+    updateNhanVienUI(data);
+});
 </script>
 
 </body>

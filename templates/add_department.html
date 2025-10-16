@@ -1,416 +1,152 @@
-{% extends "admin.html" %}
-{% block content %}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý phòng ban</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #3498db;
-            --secondary-color: #2c3e50;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-            --light-bg: #f8f9fa;
-            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --border-radius: 8px;
-        }
-        
-        .content-container {
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--card-shadow);
-            padding: 25px;
-            margin: 20px 0;
-        }
-        
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .page-title {
-            color: var(--secondary-color);
-            font-weight: 600;
-            margin: 0;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            border-radius: var(--border-radius);
-            padding: 8px 16px;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary:hover {
-            background-color: #2980b9;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
-        }
-        
-        .btn-warning {
-            background-color: var(--warning-color);
-            border-color: var(--warning-color);
-            border-radius: var(--border-radius);
-            transition: all 0.3s;
-        }
-        
-        .btn-warning:hover {
-            background-color: #e67e22;
-            transform: translateY(-2px);
-        }
-        
-        .btn-danger {
-            background-color: var(--danger-color);
-            border-color: var(--danger-color);
-            border-radius: var(--border-radius);
-            transition: all 0.3s;
-        }
-        
-        .btn-danger:hover {
-            background-color: #c0392b;
-            transform: translateY(-2px);
-        }
-        
-        .form-container {
-            background-color: var(--light-bg);
-            border-radius: var(--border-radius);
-            padding: 20px;
-            margin-bottom: 25px;
-        }
-        
-        .form-row {
-            display: flex;
-            gap: 15px;
-            align-items: end;
-            flex-wrap: wrap;
-        }
-        
-        .form-group {
-            flex: 1;
-            min-width: 200px;
-        }
-        
-        .form-group label {
-            font-weight: 500;
-            margin-bottom: 8px;
-            color: var(--secondary-color);
-        }
-        
-        .form-control {
-            border-radius: var(--border-radius);
-            border: 1px solid #ddd;
-            padding: 10px 12px;
-            transition: all 0.3s;
-        }
-        
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
-        }
-        
-        .table-container {
-            overflow-x: auto;
-            border-radius: var(--border-radius);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-        
-        .table {
-            margin-bottom: 0;
-        }
-        
-        .table thead th {
-            background-color: var(--secondary-color);
-            color: white;
-            border: none;
-            padding: 15px 12px;
-            font-weight: 600;
-        }
-        
-        .table tbody tr {
-            transition: all 0.2s;
-        }
-        
-        .table tbody tr:hover {
-            background-color: rgba(52, 152, 219, 0.05);
-        }
-        
-        .table tbody td {
-            padding: 15px 12px;
-            vertical-align: middle;
-            border-color: #eee;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        
-        .btn-action {
-            border-radius: var(--border-radius);
-            transition: all 0.3s;
-            padding: 6px 12px;
-            font-size: 0.875rem;
-        }
-        
-        .btn-action:hover {
-            transform: translateY(-2px);
-        }
-        
-        .edit-form {
-            display: none;
-            background-color: #fff9e6;
-            border-radius: var(--border-radius);
-            padding: 15px;
-            margin-top: 10px;
-            border-left: 4px solid var(--warning-color);
-        }
-        
-        .edit-form.active {
-            display: block;
-        }
-        
-        .edit-form .form-row {
-            margin-bottom: 10px;
-        }
-        
-        .department-code {
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-        
-        .department-name {
-            font-weight: 500;
-        }
-        
-        .stats-card {
-            background: white;
-            border-radius: var(--border-radius);
-            padding: 20px;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 20px;
-            text-align: center;
-            transition: transform 0.3s;
-        }
-        
-        .stats-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .stats-card i {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            color: var(--primary-color);
-        }
-        
-        .stats-number {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--secondary-color);
-        }
-        
-        .stats-label {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #6c757d;
-        }
-        
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            color: #dee2e6;
-        }
-        
-        @media (max-width: 768px) {
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .page-header .btn {
-                margin-top: 15px;
-                align-self: flex-end;
-            }
-            
-            .form-row {
-                flex-direction: column;
-            }
-            
-            .form-group {
-                width: 100%;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thêm phòng ban</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{--primary:#4361ee;--primary-dark:#3a56d4;--secondary:#6c757d;--success:#28a745;--info:#17a2b8;--warning:#ffc107;--danger:#dc3545;--light:#f8f9fa;--dark:#343a40;--sidebar-bg:#1e293b;--sidebar-hover:#334155;--sidebar-active:#4361ee;}
+    body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);min-height:100vh;overflow-x:hidden;}
+    .sidebar{min-height:100vh;width:280px;background:var(--sidebar-bg);position:fixed;top:0;left:0;z-index:1000;transition:all 0.3s ease;box-shadow:3px 0 15px rgba(0,0,0,0.1);}
+    .sidebar-header{padding:25px 20px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:center;}
+    .sidebar-brand{color:white;text-decoration:none;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;}
+    .sidebar-brand i{background:linear-gradient(135deg,var(--primary),#4895ef);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.8rem;}
+   .sidebar-nav {
+    padding: 20px 0 80px;  /* chừa không gian cuối để thấy nút logout */
+    overflow-y: auto;      /* cho phép cuộn */
+    height: calc(100vh - 80px);
+}
+
+    .nav-item{margin-bottom:5px;}
+    .nav-link{color:rgba(255,255,255,0.8);padding:15px 25px;text-decoration:none;display:flex;align-items:center;gap:12px;transition:all 0.3s ease;border-left:3px solid transparent;font-weight:500;}
+    .nav-link:hover{color:white;background:var(--sidebar-hover);border-left-color:var(--primary);transform:translateX(5px);}
+    .nav-link.active{color:white;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-left-color:white;box-shadow:0 4px 15px rgba(67,97,238,0.3);}
+    .nav-link i{width:20px;text-align:center;font-size:1.1rem;}
+    .logout-link{color:#f8d7da;border-top:1px solid rgba(255,255,255,0.1);margin-top:20px;}
+    .logout-link:hover{color:#dc3545;background:rgba(220,53,69,0.1);}
+    .main-content{margin-left:280px;padding:30px;transition:all 0.3s ease;}
+    .dashboard-header{background:white;border-radius:15px;padding:25px 30px;margin-bottom:30px;box-shadow:0 5px 15px rgba(0,0,0,0.08);display:flex;justify-content:space-between;align-items:center;}
+    .header-title h1{color:var(--dark);font-weight:700;margin-bottom:5px;}
+    .header-title p{color:var(--secondary);margin:0;}
+    .user-profile{display:flex;align-items:center;gap:15px;background:var(--light);padding:12px 20px;border-radius:12px;border:1px solid rgba(0,0,0,0.05);}
+    .user-avatar{width:45px;height:45px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:1.2rem;}
+    .user-info{line-height:1.4;}
+    .user-name{font-weight:600;color:var(--dark);margin:0;}
+    .user-role{color:var(--secondary);font-size:0.9rem;margin:0;}
+    .form-container{max-width:600px;margin:0 auto;background:white;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.1);overflow:hidden;transition:transform 0.3s ease;}
+    .form-container:hover{transform:translateY(-5px);}
+    .form-header{background:linear-gradient(to right,var(--primary),var(--primary-dark));color:white;padding:1.5rem;text-align:center;}
+    .form-header h2{margin:0;font-weight:600;}
+    .form-body{padding:2rem;}
+    .icon-container{display:flex;justify-content:center;margin-bottom:1.5rem;}
+    .department-icon{background:linear-gradient(to right,var(--primary),var(--primary-dark));width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:2rem;box-shadow:0 5px 15px rgba(67,97,238,0.3);}
+    .form-label{font-weight:600;color:var(--dark);margin-bottom:0.5rem;}
+    .required::after{content:" *";color:var(--danger);}
+    .form-control{border-radius:8px;padding:0.75rem 1rem;border:1px solid #e1e5ee;transition:all 0.3s;}
+    .form-control:focus{border-color:var(--primary);box-shadow:0 0 0 0.25rem rgba(67,97,238,0.25);}
+    .btn-primary{background:linear-gradient(to right,var(--primary),var(--primary-dark));border:none;border-radius:8px;padding:0.75rem;font-weight:600;transition:all 0.3s;color:white;}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(67,97,238,0.4);}
+    .btn-secondary{background:#6c757d;border:none;border-radius:8px;padding:0.75rem;font-weight:600;transition:all 0.3s;color:white;}
+    .btn-secondary:hover{background:#5a6268;transform:translateY(-2px);}
+    .form-footer{margin-top:1.5rem;text-align:center;color:#6c757d;font-size:0.9rem;}
+    @media (max-width:992px){.sidebar{width:80px;}.sidebar-brand span,.nav-link span{display:none;}.main-content{margin-left:80px;}.sidebar-header{padding:20px 10px;}.nav-link{justify-content:center;padding:15px;}.nav-link i{font-size:1.3rem;}}
+    @media (max-width:768px){.main-content{padding:20px;}.dashboard-header{flex-direction:column;gap:15px;text-align:center;}.form-body{padding:1.5rem;}}
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}.form-container{animation:fadeInUp 0.6s ease-out;}
+  </style>
 </head>
 <body>
-    <div class="container py-4">
-        <div class="content-container">
-            <div class="page-header">
-                <h1 class="page-title">
-                    <i class="fas fa-building me-2"></i>Quản lý phòng ban
-                </h1>
-            </div>
-            
-            <!-- Thống kê nhanh -->
-            <div class="row mb-4">
-                <div class="col-md-4">
-                    <div class="stats-card">
-                        <i class="fas fa-building"></i>
-                        <div class="stats-number">{{ departments|length }}</div>
-                        <div class="stats-label">Tổng phòng ban</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="stats-card">
-                        <i class="fas fa-users"></i>
-                        <div class="stats-number">24</div>
-                        <div class="stats-label">Nhân viên</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="stats-card">
-                        <i class="fas fa-chart-line"></i>
-                        <div class="stats-number">5</div>
-                        <div class="stats-label">Dự án đang triển khai</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Form thêm phòng ban -->
-            <div class="form-container">
-                <h5 class="mb-3"><i class="fas fa-plus-circle me-2"></i>Thêm phòng ban mới</h5>
-                <form method="POST">
-                    <input type="hidden" name="action" value="add">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="ma_pb">Mã phòng ban</label>
-                            <input type="text" class="form-control" id="ma_pb" name="ma_pb" placeholder="Nhập mã phòng ban" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="ten_pb">Tên phòng ban</label>
-                            <input type="text" class="form-control" id="ten_pb" name="ten_pb" placeholder="Nhập tên phòng ban" required>
-                        </div>
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="fas fa-plus me-2"></i>Thêm phòng ban
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            
-            <!-- Danh sách phòng ban -->
-            <h5 class="mb-3"><i class="fas fa-list me-2"></i>Danh sách phòng ban</h5>
-            
-            {% if departments %}
-            <div class="table-container">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Mã phòng ban</th>
-                            <th>Tên phòng ban</th>
-                            <th class="text-center">Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for pb in departments %}
-                        <tr>
-                            <td>
-                                <span class="department-code">{{ pb[0] }}</span>
-                            </td>
-                            <td>
-                                <span class="department-name">{{ pb[1] }}</span>
-                            </td>
-                            <td class="text-center">
-                                <div class="action-buttons justify-content-center">
-                                    <button type="button" class="btn btn-warning btn-action edit-toggle" data-id="{{ pb[0] }}">
-                                        <i class="fas fa-edit me-1"></i>Sửa
-                                    </button>
-                                    <form method="POST" class="d-inline">
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="ma_pb" value="{{ pb[0] }}">
-                                        <button type="submit" class="btn btn-danger btn-action" 
-                                                onclick="return confirm('Bạn có chắc muốn xóa phòng ban {{ pb[1] }}?')">
-                                            <i class="fas fa-trash me-1"></i>Xóa
-                                        </button>
-                                    </form>
-                                </div>
-                                
-                                <!-- Form sửa ẩn -->
-                                <div class="edit-form" id="edit-form-{{ pb[0] }}">
-                                    <form method="POST">
-                                        <input type="hidden" name="action" value="edit">
-                                        <input type="hidden" name="ma_pb" value="{{ pb[0] }}">
-                                        <div class="form-row">
-                                            <div class="form-group">
-                                                <label for="ten_pb_edit">Tên phòng ban mới</label>
-                                                <input type="text" class="form-control" id="ten_pb_edit" name="ten_pb" value="{{ pb[1] }}" required>
-                                            </div>
-                                            <div class="form-group d-flex align-items-end">
-                                                <button type="submit" class="btn btn-success me-2">
-                                                    <i class="fas fa-check me-1"></i>Cập nhật
-                                                </button>
-                                                <button type="button" class="btn btn-secondary cancel-edit" data-id="{{ pb[0] }}">
-                                                    <i class="fas fa-times me-1"></i>Hủy
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="empty-state">
-                <i class="fas fa-building"></i>
-                <h4>Chưa có phòng ban nào</h4>
-                <p>Hãy thêm phòng ban đầu tiên vào hệ thống</p>
-            </div>
-            {% endif %}
-        </div>
+  <!-- Sidebar -->
+  <div class="sidebar">
+      <div class="sidebar-header">
+        <a href="#" class="sidebar-brand">
+          <i class="fas fa-id-card-alt"></i>
+          <span>FaceID System</span>
+        </a>
+      </div>
+      <nav class="sidebar-nav">
+            <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('departments') }}" class="nav-link active"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('shifts') }}" class="nav-link"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Báo cáo thống kê</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Xử lý hiển thị form sửa
-        document.querySelectorAll('.edit-toggle').forEach(button => {
-            button.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
-                document.getElementById('edit-form-' + id).classList.add('active');
-            });
-        });
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <div class="dashboard-header">
+      <div class="header-title">
+        <h1>Thêm phòng ban mới</h1>
+        <p>Tạo phòng ban mới trong hệ thống quản lý</p>
+      </div>
+      <div class="user-profile">
+        <div class="user-avatar">
+          {{ session['username'][0]|upper }}
+        </div>
+        <div class="user-info">
+          <div class="user-name">{{ session['username'] }}</div>
+          <div class="user-role">{{ session['role'] }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Container -->
+    <div class="form-container">
+      <div class="form-header">
+        <h2><i class="fas fa-building me-2"></i>Thêm Phòng Ban Mới</h2>
+      </div>
+      <div class="form-body">
+        <div class="icon-container">
+          <div class="department-icon">
+            <i class="fas fa-users"></i>
+          </div>
+        </div>
         
-        // Xử lý ẩn form sửa
-        document.querySelectorAll('.cancel-edit').forEach(button => {
-            button.addEventListener('click', function() {
-                const id = this.getAttribute('data-id');
-                document.getElementById('edit-form-' + id).classList.remove('active');
-            });
-        });
-    </script>
+        <form method="POST" action="{{ url_for('add_department') }}">
+          <div class="mb-4">
+            <label class="form-label required">Tên phòng ban</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light"><i class="fas fa-signature text-primary"></i></span>
+              <input type="text" name="ten_pb" class="form-control" placeholder="Nhập tên phòng ban (VD: Kinh doanh)" required>
+            </div>
+            <div class="form-text">Vui lòng nhập tên phòng ban chính thức</div>
+          </div>
+          
+          <div class="mb-4">
+            <label class="form-label">Mô tả (tuỳ chọn)</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light align-items-start pt-2"><i class="fas fa-file-alt text-primary"></i></span>
+              <textarea name="mo_ta" class="form-control" rows="4" placeholder="Nhập mô tả về phòng ban..."></textarea>
+            </div>
+            <div class="form-text">Mô tả giúp các thành viên hiểu rõ hơn về chức năng của phòng ban</div>
+          </div>
+          
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-plus-circle me-2"></i>Thêm phòng ban
+            </button>
+            <a href="{{ url_for('departments') }}" class="btn btn-secondary">
+              <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+            </a>
+          </div>
+        </form>
+        
+        <div class="form-footer">
+          <p>Hệ thống Quản lý Phòng Ban & Nhân sự</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-{% endblock %}

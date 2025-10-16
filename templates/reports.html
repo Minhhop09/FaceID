@@ -1,822 +1,256 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Báo Cáo & Thống Kê - Công Ty ABC</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --success-color: #4cc9f0;
-            --warning-color: #f72585;
-            --info-color: #4895ef;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fb;
-            color: #333;
-        }
-        
-        .navbar {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .main-content {
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            padding: 25px;
-            margin-bottom: 30px;
-        }
-        
-        .page-title {
-            color: var(--dark-color);
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-        
-        .page-subtitle {
-            color: #6c757d;
-            margin-bottom: 25px;
-        }
-        
-        .stats-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-            border-left: 4px solid var(--primary-color);
-        }
-        
-        .stats-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-        }
-        
-        .stats-icon {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-        }
-        
-        .stats-number {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-        
-        .stats-label {
-            font-size: 0.9rem;
-            color: #6c757d;
-        }
-        
-        .stats-trend {
-            font-size: 0.8rem;
-            margin-top: 5px;
-        }
-        
-        .trend-up {
-            color: #28a745;
-        }
-        
-        .trend-down {
-            color: #dc3545;
-        }
-        
-        .chart-container {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            height: 100%;
-        }
-        
-        .chart-title {
-            font-weight: 600;
-            color: var(--dark-color);
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .filter-section {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-        
-        .report-table {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-        
-        .table thead th {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            font-weight: 500;
-        }
-        
-        .badge-report {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
-        }
-        
-        .export-options {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .export-btn {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 8px 15px;
-            border-radius: 6px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .tab-content {
-            padding-top: 20px;
-        }
-        
-        .nav-tabs .nav-link {
-            color: #6c757d;
-            font-weight: 500;
-            border: none;
-            padding: 10px 20px;
-        }
-        
-        .nav-tabs .nav-link.active {
-            color: var(--primary-color);
-            border-bottom: 3px solid var(--primary-color);
-            background: transparent;
-        }
-        
-        .kpi-badge {
-            font-size: 0.75rem;
-            padding: 3px 8px;
-            border-radius: 10px;
-        }
-        
-        @media (max-width: 768px) {
-            .export-options {
-                flex-direction: column;
-            }
-            
-            .export-btn {
-                justify-content: center;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Báo cáo tổng quan</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--primary:#4361ee;--primary-dark:#3a56d4;--secondary:#6c757d;--success:#28a745;--info:#17a2b8;--warning:#ffc107;--danger:#dc3545;--light:#f8f9fa;--dark:#343a40;--sidebar-bg:#1e293b;--sidebar-hover:#334155;--sidebar-active:#4361ee;}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);min-height:100vh;overflow-x:hidden;}
+.sidebar{min-height:100vh;width:280px;background:var(--sidebar-bg);position:fixed;top:0;left:0;z-index:1000;transition:all 0.3s ease;box-shadow:3px 0 15px rgba(0,0,0,0.1);}
+.sidebar-header{padding:25px 20px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:center;}
+.sidebar-brand{color:white;text-decoration:none;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;}
+.sidebar-brand i{background:linear-gradient(135deg,var(--primary),#4895ef);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.8rem;}
+.sidebar-nav {
+    padding: 20px 0 80px;  /* chừa không gian cuối để thấy nút logout */
+    overflow-y: auto;      /* cho phép cuộn */
+    height: calc(100vh - 80px);
+}
+
+.nav-item{margin-bottom:5px;}
+.nav-link{color:rgba(255,255,255,0.8);padding:15px 25px;text-decoration:none;display:flex;align-items:center;gap:12px;transition:all 0.3s ease;border-left:3px solid transparent;font-weight:500;}
+.nav-link:hover{color:white;background:var(--sidebar-hover);border-left-color:var(--primary);transform:translateX(5px);}
+.nav-link.active{color:white;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-left-color:white;box-shadow:0 4px 15px rgba(67,97,238,0.3);}
+.nav-link i{width:20px;text-align:center;font-size:1.1rem;}
+.logout-link{color:#f8d7da;border-top:1px solid rgba(255,255,255,0.1);margin-top:20px;}
+.logout-link:hover{color:#dc3545;background:rgba(220,53,69,0.1);}
+.main-content{margin-left:280px;padding:30px;transition:all 0.3s ease;}
+.dashboard-header{background:white;border-radius:15px;padding:25px 30px;margin-bottom:30px;box-shadow:0 5px 15px rgba(0,0,0,0.08);display:flex;justify-content:space-between;align-items:center;}
+.header-title h1{color:var(--dark);font-weight:700;margin-bottom:5px;}
+.header-title p{color:var(--secondary);margin:0;}
+.user-profile{display:flex;align-items:center;gap:15px;background:var(--light);padding:12px 20px;border-radius:12px;border:1px solid rgba(0,0,0,0.05);}
+.user-avatar{width:45px;height:45px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:1.2rem;}
+.user-info{line-height:1.4;}
+.user-name{font-weight:600;color:var(--dark);margin:0;}
+.user-role{color:var(--secondary);font-size:0.9rem;margin:0;}
+.content-area{background:#fff;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,0.08);padding:30px;margin-bottom:30px;}
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;border-bottom:1px solid #eee;padding-bottom:20px;}
+.page-title{color:var(--dark);font-weight:700;margin:0;display:flex;align-items:center;gap:10px;}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border:none;border-radius:8px;padding:12px 24px;font-weight:500;transition:all 0.3s ease;display:flex;align-items:center;gap:8px;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(67,97,238,0.3);background:linear-gradient(135deg,var(--primary-dark),var(--primary));}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:30px;}
+.stat-card{background:white;border-radius:12px;padding:20px;box-shadow:0 5px 15px rgba(0,0,0,0.08);border-left:4px solid var(--primary);transition:all 0.3s ease;text-align:center;}
+.stat-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.12);}
+.stat-value{font-size:2rem;font-weight:700;margin-bottom:5px;color:var(--dark);}
+.stat-label{color:var(--secondary);font-weight:500;font-size:0.9rem;}
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:25px;margin-bottom:30px;}
+.chart-box{background:white;border-radius:15px;padding:25px;box-shadow:0 5px 15px rgba(0,0,0,0.08);}
+.chart-title{font-weight:600;color:var(--dark);margin-bottom:15px;font-size:1.1rem;}
+.table-container{background:white;border-radius:15px;padding:25px;box-shadow:0 5px 15px rgba(0,0,0,0.08);margin-bottom:30px;}
+.table-title{font-weight:600;color:var(--dark);margin-bottom:20px;font-size:1.2rem;}
+.table th{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;border:none;padding:16px 12px;font-weight:600;}
+.table td{padding:16px 12px;vertical-align:middle;border-bottom:1px solid #f0f0f0;}
+.badge-status{padding:6px 12px;border-radius:20px;font-size:0.8rem;font-weight:500;}
+.badge-active{background:rgba(76,201,240,0.2);color:#0d6efd;}
+.badge-inactive{background:rgba(108,117,125,0.2);color:#6c757d;}
+@media (max-width:992px){.sidebar{width:80px;}.sidebar-brand span,.nav-link span{display:none;}.main-content{margin-left:80px;}.sidebar-header{padding:20px 10px;}.nav-link{justify-content:center;padding:15px;}.nav-link i{font-size:1.3rem;}}
+@media (max-width:768px){.main-content{padding:20px;}.dashboard-header{flex-direction:column;gap:15px;text-align:center;}.stats-grid{grid-template-columns:1fr;}.chart-grid{grid-template-columns:1fr;}.page-header{flex-direction:column;gap:15px;text-align:center;}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}.stat-card,.chart-box,.table-container{animation:fadeInUp 0.6s ease-out;}
+</style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="#">
-                <i class="fas fa-chart-bar me-2"></i>HR Analytics
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html"><i class="fas fa-home me-1"></i> Trang Chủ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="departments.html"><i class="fas fa-building me-1"></i> Phòng Ban</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="shifts.html"><i class="fas fa-calendar-alt me-1"></i> Ca Làm Việc</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="employees.html"><i class="fas fa-users me-1"></i> Nhân Viên</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="reports.html"><i class="fas fa-chart-pie me-1"></i> Báo Cáo</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
 
-    <!-- Main Content -->
-    <div class="container my-4">
-        <!-- Page Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h1 class="page-title">Báo Cáo & Thống Kê</h1>
-                <p class="page-subtitle">Phân tích dữ liệu nhân sự và hiệu suất làm việc</p>
-            </div>
-            <div class="export-options">
-                <button class="btn btn-success export-btn">
-                    <i class="fas fa-file-excel me-1"></i> Xuất Excel
-                </button>
-                <button class="btn btn-danger export-btn">
-                    <i class="fas fa-file-pdf me-1"></i> Xuất PDF
-                </button>
-                <button class="btn btn-primary">
-                    <i class="fas fa-sync-alt me-2"></i> Làm Mới
-                </button>
-            </div>
+<!-- Sidebar -->
+<div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand">
+                <i class="fas fa-id-card-alt"></i>
+                <span>FaceID System</span>
+            </a>
         </div>
         
-        <!-- Filter Section -->
-        <div class="filter-section">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">Khoảng thời gian</label>
-                    <select class="form-select">
-                        <option selected>Tháng này</option>
-                        <option>Quý này</option>
-                        <option>Năm nay</option>
-                        <option>Tuần này</option>
-                        <option>Tuần trước</option>
-                        <option>Tháng trước</option>
-                        <option>Tùy chỉnh</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">Phòng ban</label>
-                    <select class="form-select">
-                        <option selected>Tất cả phòng ban</option>
-                        <option>Phòng Công Nghệ</option>
-                        <option>Phòng Kinh Doanh</option>
-                        <option>Phòng Nhân Sự</option>
-                        <option>Phòng Kế Toán</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">Loại báo cáo</label>
-                    <select class="form-select">
-                        <option selected>Tổng quan</option>
-                        <option>Hiệu suất</option>
-                        <option>Chấm công</option>
-                        <option>Tài chính</option>
-                    </select>
-                </div>
-                <div class="col-md-3 d-flex align-items-end">
-                    <button class="btn btn-primary w-100">
-                        <i class="fas fa-filter me-2"></i> Áp Dụng
-                    </button>
-                </div>
-            </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('shifts') }}" class="nav-link"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link active"><i class="fas fa-chart-line"></i><span>Báo cáo thống kê</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
+    </div>
+
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="header-title">
+            <h1>Báo cáo tổng quan</h1>
+            <p>Tổng hợp thông tin và thống kê về nhân sự công ty</p>
         </div>
-        
-        <!-- Stats Cards -->
-        <div class="row">
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="stats-icon text-primary">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stats-number">84</div>
-                    <div class="stats-label">Tổng Nhân Viên</div>
-                    <div class="stats-trend trend-up">
-                        <i class="fas fa-arrow-up me-1"></i> 5.2% so với tháng trước
-                    </div>
-                </div>
+        <div class="user-profile">
+            <div class="user-avatar">
+                {{ session['username'][0]|upper }}
             </div>
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="stats-icon text-success">
-                        <i class="fas fa-user-check"></i>
-                    </div>
-                    <div class="stats-number">96.4%</div>
-                    <div class="stats-label">Tỷ Lệ Có Mặt</div>
-                    <div class="stats-trend trend-up">
-                        <i class="fas fa-arrow-up me-1"></i> 1.8% so với tháng trước
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="stats-icon text-warning">
-                        <i class="fas fa-business-time"></i>
-                    </div>
-                    <div class="stats-number">42.5h</div>
-                    <div class="stats-label">Giờ Làm TB/Tuần</div>
-                    <div class="stats-trend trend-down">
-                        <i class="fas fa-arrow-down me-1"></i> 0.5h so với tháng trước
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card">
-                    <div class="stats-icon text-info">
-                        <i class="fas fa-money-bill-wave"></i>
-                    </div>
-                    <div class="stats-number">328M</div>
-                    <div class="stats-label">Tổng Chi Lương</div>
-                    <div class="stats-trend trend-up">
-                        <i class="fas fa-arrow-up me-1"></i> 12.5% so với tháng trước
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Tabs Navigation -->
-        <ul class="nav nav-tabs" id="reportsTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">
-                    <i class="fas fa-chart-pie me-2"></i>Tổng Quan
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="attendance-tab" data-bs-toggle="tab" data-bs-target="#attendance" type="button" role="tab">
-                    <i class="fas fa-calendar-check me-2"></i>Chấm Công
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="performance-tab" data-bs-toggle="tab" data-bs-target="#performance" type="button" role="tab">
-                    <i class="fas fa-chart-line me-2"></i>Hiệu Suất
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="financial-tab" data-bs-toggle="tab" data-bs-target="#financial" type="button" role="tab">
-                    <i class="fas fa-coins me-2"></i>Tài Chính
-                </button>
-            </li>
-        </ul>
-        
-        <!-- Tab Content -->
-        <div class="tab-content" id="reportsTabContent">
-            <!-- Overview Tab -->
-            <div class="tab-pane fade show active" id="overview" role="tabpanel">
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="chart-container">
-                            <div class="chart-title">
-                                <span>Phân Bổ Nhân Sự Theo Phòng Ban</span>
-                                <select class="form-select form-select-sm w-auto">
-                                    <option>Theo số lượng</option>
-                                    <option>Theo ngân sách</option>
-                                </select>
-                            </div>
-                            <canvas id="departmentChart" height="250"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="chart-container">
-                            <div class="chart-title">
-                                <span>Tỷ Lệ Loại Hình Làm Việc</span>
-                            </div>
-                            <canvas id="workTypeChart" height="250"></canvas>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row mt-4">
-                    <div class="col-md-6">
-                        <div class="chart-container">
-                            <div class="chart-title">
-                                <span>Xu Hướng Tuyển Dụng</span>
-                            </div>
-                            <canvas id="hiringTrendChart" height="250"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="chart-container">
-                            <div class="chart-title">
-                                <span>Phân Bổ Theo Kinh Nghiệm</span>
-                            </div>
-                            <canvas id="experienceChart" height="250"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Attendance Tab -->
-            <div class="tab-pane fade" id="attendance" role="tabpanel">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="chart-container">
-                            <div class="chart-title">
-                                <span>Tỷ Lệ Chấm Công Tháng Này</span>
-                            </div>
-                            <canvas id="attendanceChart" height="250"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="chart-container">
-                            <div class="chart-title">
-                                <span>Lý Do Vắng Mặt</span>
-                            </div>
-                            <canvas id="absenceChart" height="250"></canvas>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="report-table mt-4">
-                    <div class="chart-title p-3">
-                        <span>Top 10 Nhân Viên Đi Làm Đều Nhất</span>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Nhân Viên</th>
-                                    <th>Phòng Ban</th>
-                                    <th>Ngày Công</th>
-                                    <th>Giờ Làm TB</th>
-                                    <th>Đi Muộn</th>
-                                    <th>Đánh Giá</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>Nguyễn Văn A</td>
-                                    <td>Công Nghệ</td>
-                                    <td>22/22</td>
-                                    <td>8.5h</td>
-                                    <td>0</td>
-                                    <td><span class="badge bg-success">Xuất sắc</span></td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>Trần Thị B</td>
-                                    <td>Kinh Doanh</td>
-                                    <td>22/22</td>
-                                    <td>8.2h</td>
-                                    <td>1</td>
-                                    <td><span class="badge bg-success">Xuất sắc</span></td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>Lê Văn C</td>
-                                    <td>Công Nghệ</td>
-                                    <td>21/22</td>
-                                    <td>8.7h</td>
-                                    <td>0</td>
-                                    <td><span class="badge bg-success">Xuất sắc</span></td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td>Phạm Thị D</td>
-                                    <td>Nhân Sự</td>
-                                    <td>21/22</td>
-                                    <td>8.1h</td>
-                                    <td>2</td>
-                                    <td><span class="badge bg-primary">Tốt</span></td>
-                                </tr>
-                                <tr>
-                                    <td>5</td>
-                                    <td>Hoàng Văn E</td>
-                                    <td>Kế Toán</td>
-                                    <td>21/22</td>
-                                    <td>8.3h</td>
-                                    <td>1</td>
-                                    <td><span class="badge bg-primary">Tốt</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Performance Tab -->
-            <div class="tab-pane fade" id="performance" role="tabpanel">
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="chart-container">
-                            <div class="chart-title">
-                                <span>Đánh Giá Hiệu Suất Theo Phòng Ban</span>
-                            </div>
-                            <canvas id="performanceChart" height="250"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="chart-container">
-                            <div class="chart-title">
-                                <span>Phân Phối Đánh Giá</span>
-                            </div>
-                            <canvas id="ratingChart" height="250"></canvas>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row mt-4">
-                    <div class="col-md-12">
-                        <div class="report-table">
-                            <div class="chart-title p-3">
-                                <span>KPI Cá Nhân Tháng Này</span>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>Nhân Viên</th>
-                                            <th>Phòng Ban</th>
-                                            <th>Mục Tiêu</th>
-                                            <th>Thực Hiện</th>
-                                            <th>Tỷ Lệ Hoàn Thành</th>
-                                            <th>Đánh Giá</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Nguyễn Văn A</td>
-                                            <td>Công Nghệ</td>
-                                            <td>5 dự án</td>
-                                            <td>5 dự án</td>
-                                            <td>
-                                                <div class="progress" style="height: 8px;">
-                                                    <div class="progress-bar bg-success" style="width: 100%"></div>
-                                                </div>
-                                                <small>100%</small>
-                                            </td>
-                                            <td><span class="badge bg-success">Vượt Mục Tiêu</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Trần Thị B</td>
-                                            <td>Kinh Doanh</td>
-                                            <td>50 triệu</td>
-                                            <td>55 triệu</td>
-                                            <td>
-                                                <div class="progress" style="height: 8px;">
-                                                    <div class="progress-bar bg-success" style="width: 110%"></div>
-                                                </div>
-                                                <small>110%</small>
-                                            </td>
-                                            <td><span class="badge bg-success">Vượt Mục Tiêu</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Lê Văn C</td>
-                                            <td>Công Nghệ</td>
-                                            <td>4 dự án</td>
-                                            <td>4 dự án</td>
-                                            <td>
-                                                <div class="progress" style="height: 8px;">
-                                                    <div class="progress-bar bg-primary" style="width: 100%"></div>
-                                                </div>
-                                                <small>100%</small>
-                                            </td>
-                                            <td><span class="badge bg-primary">Đạt Mục Tiêu</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Phạm Thị D</td>
-                                            <td>Nhân Sự</td>
-                                            <td>5 tuyển dụng</td>
-                                            <td>4 tuyển dụng</td>
-                                            <td>
-                                                <div class="progress" style="height: 8px;">
-                                                    <div class="progress-bar bg-warning" style="width: 80%"></div>
-                                                </div>
-                                                <small>80%</small>
-                                            </td>
-                                            <td><span class="badge bg-warning">Cần Cải Thiện</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Hoàng Văn E</td>
-                                            <td>Kế Toán</td>
-                                            <td>20 báo cáo</td>
-                                            <td>18 báo cáo</td>
-                                            <td>
-                                                <div class="progress" style="height: 8px;">
-                                                    <div class="progress-bar bg-warning" style="width: 90%"></div>
-                                                </div>
-                                                <small>90%</small>
-                                            </td>
-                                            <td><span class="badge bg-primary">Đạt Mục Tiêu</span></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Financial Tab -->
-            <div class="tab-pane fade" id="financial" role="tabpanel">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="chart-container">
-                            <div class="chart-title">
-                                <span>Phân Bổ Ngân Sách Lương</span>
-                            </div>
-                            <canvas id="salaryChart" height="250"></canvas>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="chart-container">
-                            <div class="chart-title">
-                                <span>Xu Hướng Chi Phí Nhân Sự</span>
-                            </div>
-                            <canvas id="costTrendChart" height="250"></canvas>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row mt-4">
-                    <div class="col-md-12">
-                        <div class="report-table">
-                            <div class="chart-title p-3">
-                                <span>Bảng Lương Tháng Này</span>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>Phòng Ban</th>
-                                            <th>Số Nhân Viên</th>
-                                            <th>Tổng Lương</th>
-                                            <th>Lương TB</th>
-                                            <th>Lương Cao Nhất</th>
-                                            <th>Lương Thấp Nhất</th>
-                                            <th>So Với Tháng Trước</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Công Nghệ</td>
-                                            <td>25</td>
-                                            <td>1.250.000.000 ₫</td>
-                                            <td>50.000.000 ₫</td>
-                                            <td>85.000.000 ₫</td>
-                                            <td>35.000.000 ₫</td>
-                                            <td><span class="badge bg-success">+5.2%</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Kinh Doanh</td>
-                                            <td>20</td>
-                                            <td>900.000.000 ₫</td>
-                                            <td>45.000.000 ₫</td>
-                                            <td>75.000.000 ₫</td>
-                                            <td>25.000.000 ₫</td>
-                                            <td><span class="badge bg-success">+3.8%</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Nhân Sự</td>
-                                            <td>15</td>
-                                            <td>525.000.000 ₫</td>
-                                            <td>35.000.000 ₫</td>
-                                            <td>50.000.000 ₫</td>
-                                            <td>20.000.000 ₫</td>
-                                            <td><span class="badge bg-warning">+1.2%</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Kế Toán</td>
-                                            <td>12</td>
-                                            <td>420.000.000 ₫</td>
-                                            <td>35.000.000 ₫</td>
-                                            <td>45.000.000 ₫</td>
-                                            <td>25.000.000 ₫</td>
-                                            <td><span class="badge bg-warning">+0.8%</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Marketing</td>
-                                            <td>12</td>
-                                            <td>480.000.000 ₫</td>
-                                            <td>40.000.000 ₫</td>
-                                            <td>60.000.000 ₫</td>
-                                            <td>25.000.000 ₫</td>
-                                            <td><span class="badge bg-success">+4.5%</span></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="user-info">
+                <div class="user-name">{{ session['username'] }}</div>
+                <div class="user-role">{{ session['role'] }}</div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Initialize charts when the page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            // Department Distribution Chart
-            const departmentCtx = document.getElementById('departmentChart').getContext('2d');
-            const departmentChart = new Chart(departmentCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Công Nghệ', 'Kinh Doanh', 'Nhân Sự', 'Kế Toán', 'Marketing'],
-                    datasets: [{
-                        label: 'Số nhân viên',
-                        data: [25, 20, 15, 12, 12],
-                        backgroundColor: [
-                            '#4361ee', '#4cc9f0', '#f72585', '#4895ef', '#3a0ca3'
-                        ],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Số nhân viên'
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // Work Type Distribution Chart
-            const workTypeCtx = document.getElementById('workTypeChart').getContext('2d');
-            const workTypeChart = new Chart(workTypeCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Toàn thời gian', 'Bán thời gian', 'Hợp đồng', 'Từ xa'],
-                    datasets: [{
-                        data: [70, 15, 10, 5],
-                        backgroundColor: [
-                            '#4361ee', '#4cc9f0', '#f72585', '#4895ef'
-                        ],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
-            
-            // Hiring Trend Chart
-            const hiringTrendCtx = document.getElementById('hiringTrendChart').getContext('2d');
-            const hiringTrendChart = new Chart(hiringTrendCtx, {
-                type: 'line',
-                data: {
-                    labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
-                    datasets: [{
-                        label: 'Tuyển dụng',
-                        data: [5, 7, 8, 6, 9, 12, 10, 8, 7, 6, 5, 4],
-                        borderColor: '#4361ee',
-                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-            
-            // Initialize other charts similarly...
-            // For brevity, I'm only showing a few chart initializations
-        });
-    </script>
+    <!-- Content Area -->
+    <div class="content-area">
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-chart-bar"></i>
+                Báo cáo tổng quan hệ thống
+            </h1>
+            <div class="d-flex justify-content-end mb-3">
+  <div class="dropdown">
+    <button class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+      <i class="fa-solid fa-download"></i> Xuất báo cáo
+    </button>
+    <ul class="dropdown-menu">
+      <li><a class="dropdown-item" href="{{ url_for('export_report_word') }}">📘 Xuất file Word</a></li>
+      <li><a class="dropdown-item" href="{{ url_for('export_report_excel') }}">📗 Xuất file Excel</a></li>
+    </ul>
+  </div>
+</div>
+        </div>
+
+        <!-- Tổng quan số liệu -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ total_employees }}</div>
+                <div class="stat-label">Tổng nhân viên</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ total_departments }}</div>
+                <div class="stat-label">Tổng phòng ban</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ attendance_rate }}%</div>
+                <div class="stat-label">Tỉ lệ chấm công</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ avg_hours_per_week }}</div>
+                <div class="stat-label">Giờ TB/Tuần</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ total_shifts }}</div>
+                <div class="stat-label">Tổng số ca</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ total_salary }}</div>
+                <div class="stat-label">Tổng lương</div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ -->
+        <div class="chart-grid">
+            <div class="chart-box">
+                <h5 class="chart-title">Tỉ lệ nhân viên theo trạng thái</h5>
+                <canvas id="statusChart" height="200"></canvas>
+            </div>
+            <div class="chart-box">
+                <h5 class="chart-title">Tỉ lệ nhân viên theo giới tính</h5>
+                <canvas id="genderChart" height="200"></canvas>
+            </div>
+            <div class="chart-box">
+                <h5 class="chart-title">Số nhân viên theo phòng ban</h5>
+                <canvas id="deptChart" height="200"></canvas>
+            </div>
+            <div class="chart-box">
+                <h5 class="chart-title">Số nhân viên theo ca làm</h5>
+                <canvas id="shiftChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Bảng tổng quan phòng ban -->
+        <div class="table-container">
+            <h5 class="table-title">Phòng ban và số nhân viên</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Phòng ban</th>
+                            <th>Số nhân viên</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dept in departments %}
+                        <tr>
+                            <td>{{ dept['TenPB'] }}</td>
+                            <td>{{ dept.SoNhanVien }}</td>
+<td>
+  {% if dept.TrangThaiText == 'Đang hoạt động' %}
+    <span class="badge bg-success">{{ dept.TrangThaiText }}</span>
+  {% else %}
+    <span class="badge bg-secondary">{{ dept.TrangThaiText }}</span>
+  {% endif %}
+</td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Bảng danh sách nhân viên -->
+        <div class="table-container">
+            <h5 class="table-title">Danh sách nhân viên</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Họ tên</th>
+                            <th>Email</th>
+                            <th>Phòng ban</th>
+                            <th>Giới tính</th>
+                            <th>Ca làm</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emp in employees %}
+                        <tr>
+                            <td><strong>{{ emp['HoTen'] }}</strong></td>
+                            <td>{{ emp['Email'] }}</td>
+                            <td>{{ emp['TenPB'] }}</td>
+                            <td>{{ 'Nam' if emp['GioiTinh']==1 else 'Nữ' }}</td>
+                            <td>{{ emp['TenCa'] }}</td>
+                            <td>
+                                <span class="badge-status {% if emp['TrangThai']==1 %}badge-active{% else %}badge-inactive{% endif %}">
+                                    {% if emp['TrangThai']==1 %}Đang làm việc{% else %}Ngừng làm việc{% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const statusChart=new Chart(document.getElementById('statusChart'),{type:'pie',data:{labels:{{ status_counts.keys()|list|tojson }},datasets:[{data:{{ status_counts.values()|list|tojson }},backgroundColor:['#36A2EB','#FF6384','#4BC0C0']}]},options:{responsive:true,plugins:{legend:{position:'bottom'}}}});
+const genderChart=new Chart(document.getElementById('genderChart'),{type:'pie',data:{labels:['Nam','Nữ'],datasets:[{data:{{ gender_counts.values()|list|tojson }},backgroundColor:['#4BC0C0','#FF9F40']}]},options:{responsive:true,plugins:{legend:{position:'bottom'}}}});
+const deptChart=new Chart(document.getElementById('deptChart'),{type:'bar',data:{labels:{{ dept_counts.keys()|list|tojson }},datasets:[{label:'Số nhân viên',data:{{ dept_counts.values()|list|tojson }},backgroundColor:'#36A2EB'}]},options:{responsive:true,scales:{y:{beginAtZero:true,stepSize:1}}}});
+const shiftChart=new Chart(document.getElementById('shiftChart'),{type:'bar',data:{labels:{{ shift_counts.keys()|list|tojson }},datasets:[{label:'Số nhân viên theo ca',data:{{ shift_counts.values()|list|tojson }},backgroundColor:'#9966FF'}]},options:{responsive:true,scales:{y:{beginAtZero:true,stepSize:1}}}});
+</script>
 </body>
 </html>
