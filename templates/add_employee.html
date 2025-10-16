@@ -3,541 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thêm Nhân Viên - Công Ty ABC</title>
+    <title>Thêm nhân viên - FaceID System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --success-color: #4cc9f0;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-        
-        .navbar {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .form-container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            padding: 30px;
-            margin: 30px auto;
-        }
-        
-        .page-header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .page-title {
-            color: var(--dark-color);
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        
-        .page-subtitle {
-            color: #6c757d;
-            font-size: 1.1rem;
-        }
-        
-        .form-section {
-            margin-bottom: 30px;
-            padding: 25px;
-            border-radius: 10px;
-            background: #f8f9fa;
-            border-left: 4px solid var(--primary-color);
-        }
-        
-        .section-title {
-            font-weight: 600;
-            color: var(--primary-color);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .section-title i {
-            margin-right: 10px;
-            font-size: 1.2rem;
-        }
-        
-        .form-label {
-            font-weight: 500;
-            color: #495057;
-            margin-bottom: 8px;
-        }
-        
-        .form-control, .form-select {
-            border-radius: 8px;
-            padding: 12px 15px;
-            border: 1px solid #dee2e6;
-            transition: all 0.3s ease;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border: none;
-            border-radius: 8px;
-            padding: 12px 30px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
-        }
-        
-        .btn-outline-secondary {
-            border-radius: 8px;
-            padding: 12px 30px;
-            font-weight: 500;
-        }
-        
-        .avatar-upload {
-            text-align: center;
-            padding: 20px;
-            border: 2px dashed #dee2e6;
-            border-radius: 10px;
-            background: #f8f9fa;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .avatar-upload:hover {
-            border-color: var(--primary-color);
-            background: #e9ecef;
-        }
-        
-        .avatar-preview {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #dee2e6;
-            margin: 0 auto 15px;
-            display: block;
-        }
-        
-        .upload-icon {
-            font-size: 2.5rem;
-            color: #6c757d;
-            margin-bottom: 10px;
-        }
-        
-        .required-field::after {
-            content: " *";
-            color: #dc3545;
-        }
-        
-        .form-note {
-            font-size: 0.875rem;
-            color: #6c757d;
-            margin-top: 5px;
-        }
-        
-        .progress-bar-custom {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        }
-        
-        .step-indicator {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            position: relative;
-        }
-        
-        .step-indicator::before {
-            content: '';
-            position: absolute;
-            top: 15px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: #dee2e6;
-            z-index: 1;
-        }
-        
-        .step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            z-index: 2;
-        }
-        
-        .step-number {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: white;
-            border: 2px solid #dee2e6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            margin-bottom: 5px;
-            transition: all 0.3s ease;
-        }
-        
-        .step.active .step-number {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-            color: white;
-        }
-        
-        .step.completed .step-number {
-            background: var(--success-color);
-            border-color: var(--success-color);
-            color: white;
-        }
-        
-        .step-label {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #6c757d;
-        }
-        
-        .step.active .step-label {
-            color: var(--primary-color);
-        }
-        
-        .form-actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
-        
-        @media (max-width: 768px) {
-            .form-container {
-                padding: 20px;
-                margin: 15px;
-            }
-            
-            .form-actions {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .form-actions .btn {
-                width: 100%;
-            }
-        }
+        :root {--primary:#4361ee;--primary-dark:#3a56d4;--secondary:#6c757d;--success:#28a745;--info:#17a2b8;--warning:#ffc107;--danger:#dc3545;--light:#f8f9fa;--dark:#343a40;--sidebar-bg:#1e293b;--sidebar-hover:#334155;--sidebar-active:#4361ee;}
+        body {background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;min-height:100vh;overflow-x:hidden;}
+        .sidebar{min-height:100vh;width:280px;background:var(--sidebar-bg);position:fixed;top:0;left:0;z-index:1000;transition:all .3s ease;box-shadow:3px 0 15px rgba(0,0,0,.1);}
+        .sidebar-header{padding:25px 20px;border-bottom:1px solid rgba(255,255,255,.1);text-align:center;}
+        .sidebar-brand{color:#fff;text-decoration:none;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;}
+        .sidebar-brand i{background:linear-gradient(135deg,var(--primary),#4895ef);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.8rem;}
+        .sidebar-nav {
+    padding: 20px 0 80px;  /* chừa không gian cuối để thấy nút logout */
+    overflow-y: auto;      /* cho phép cuộn */
+    height: calc(100vh - 80px);
+}
+
+        .nav-item{margin-bottom:5px;}
+        .nav-link{color:rgba(255,255,255,.8);padding:15px 25px;text-decoration:none;display:flex;align-items:center;gap:12px;transition:all .3s ease;border-left:3px solid transparent;font-weight:500;}
+        .nav-link:hover{color:#fff;background:var(--sidebar-hover);border-left-color:var(--primary);transform:translateX(5px);}
+        .nav-link.active{color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-left-color:#fff;box-shadow:0 4px 15px rgba(67,97,238,.3);}
+        .nav-link i{width:20px;text-align:center;font-size:1.1rem;}
+        .logout-link{color:#f8d7da;border-top:1px solid rgba(255,255,255,.1);margin-top:20px;}
+        .logout-link:hover{color:#dc3545;background:rgba(220,53,69,.1);}
+        .main-content{margin-left:280px;padding:30px;transition:all .3s ease;}
+        .dashboard-header{background:#fff;border-radius:15px;padding:25px 30px;margin-bottom:30px;box-shadow:0 5px 15px rgba(0,0,0,.08);display:flex;justify-content:space-between;align-items:center;}
+        .header-title h1{color:var(--dark);font-weight:700;margin-bottom:5px;}
+        .header-title p{color:var(--secondary);margin:0;}
+        .user-profile{display:flex;align-items:center;gap:15px;background:var(--light);padding:12px 20px;border-radius:12px;border:1px solid rgba(0,0,0,.05);}
+        .user-avatar{width:45px;height:45px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:1.2rem;}
+        .user-info{line-height:1.4;}
+        .user-name{font-weight:600;color:var(--dark);margin:0;}
+        .user-role{color:var(--secondary);font-size:.9rem;margin:0;}
+        .content-area{background:#fff;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.08);padding:30px;margin-bottom:30px;}
+        .section-title{font-weight:600;color:var(--dark);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+        .section-title i{color:var(--primary);}
+        .form-section{margin-bottom:25px;padding:25px;border-radius:12px;background:var(--light);border-left:4px solid var(--primary);}
+        .form-label{font-weight:600;color:var(--dark);margin-bottom:8px;}
+        .form-control,.form-select{border-radius:8px;border:2px solid #e9ecef;padding:12px 16px;transition:all .3s;}
+        .form-control:focus,.form-select:focus{border-color:var(--primary);box-shadow:0 0 0 .25rem rgba(67,97,238,.25);}
+        .webcam-container{text-align:center;padding:20px;border:2px dashed #dee2e6;border-radius:10px;background:var(--light);margin-bottom:20px;}
+        .webcam-preview{width:100%;max-width:350px;border-radius:8px;border:2px solid #dee2e6;}
+        .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border:none;border-radius:8px;padding:12px 24px;font-weight:500;transition:all .3s;}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(67,97,238,.3);}
+        .btn-secondary{background:var(--secondary);border:none;border-radius:8px;padding:12px 24px;font-weight:500;transition:all .3s;}
+        .btn-secondary:hover{background:#5a6268;transform:translateY(-2px);}
+        @media(max-width:992px){.sidebar{width:80px;}.sidebar-brand span,.nav-link span{display:none;}.main-content{margin-left:80px;}.sidebar-header{padding:20px 10px;}.nav-link{justify-content:center;padding:15px;}.nav-link i{font-size:1.3rem;}}
+        @media(max-width:768px){.main-content{padding:20px;}.dashboard-header{flex-direction:column;gap:15px;text-align:center;}.form-section{padding:20px;}.webcam-preview{max-width:100%;}}
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="#">
-                <i class="fas fa-users me-2"></i>HR Management
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html"><i class="fas fa-home me-1"></i> Trang Chủ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="departments.html"><i class="fas fa-building me-1"></i> Phòng Ban</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="shifts.html"><i class="fas fa-calendar-alt me-1"></i> Ca Làm Việc</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="employees.html"><i class="fas fa-user-friends me-1"></i> Nhân Viên</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-cog me-1"></i> Cài Đặt</a>
-                    </li>
-                </ul>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <a href="#" class="sidebar-brand">
+          <i class="fas fa-id-card-alt"></i>
+          <span>FaceID System</span>
+        </a>
+      </div>
+      <nav class="sidebar-nav">
+            <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('departments') }}" class="nav-link active"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('shifts') }}" class="nav-link"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Báo cáo thống kê</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
+    </div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="header-title">
+                <h1>Thêm nhân viên mới</h1>
+                <p>Thêm thông tin nhân viên mới vào hệ thống FaceID</p>
+            </div>
+            <div class="user-profile">
+            <div class="user-avatar">{{ session['username'][0]|upper }}</div>
+            <div class="user-info">
+                <div class="user-name">{{ session['username'] }}</div>
+                <div class="user-role">{{ session['role'] }}</div>
             </div>
         </div>
-    </nav>
+        </div>
 
-    <!-- Main Content -->
-    <div class="container py-4">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="form-container">
-                    <!-- Page Header -->
-                    <div class="page-header">
-                        <h1 class="page-title">Thêm Nhân Viên Mới</h1>
-                        <p class="page-subtitle">Điền thông tin chi tiết để thêm nhân viên mới vào hệ thống</p>
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show mb-4" role="alert">
+                        <i class="fa-solid fa-{{ 'triangle-exclamation' if category == 'error' else 'circle-check' }} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                    
-                    <!-- Progress Steps -->
-                    <div class="step-indicator">
-                        <div class="step completed">
-                            <div class="step-number">1</div>
-                            <div class="step-label">Thông Tin Cá Nhân</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Form Content -->
+        <div class="content-area">
+            <h3 class="section-title"><i class="fas fa-user-plus"></i> Thêm nhân viên mới</h3>
+
+            <form id="employeeForm" method="POST" action="{{ url_for('add_employee_web') }}">
+                <!-- Thông tin cá nhân -->
+                <div class="form-section">
+                    <h5 class="section-title"><i class="fas fa-user"></i> Thông Tin Cá Nhân</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Họ tên <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="HoTen" required>
                         </div>
-                        <div class="step active">
-                            <div class="step-number">2</div>
-                            <div class="step-label">Thông Tin Công Việc</div>
-                        </div>
-                        <div class="step">
-                            <div class="step-number">3</div>
-                            <div class="step-label">Xác Nhận</div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" name="Email" required>
                         </div>
                     </div>
-                    
-                    <form id="addEmployeeForm">
-                        <!-- Personal Information Section -->
-                        <div class="form-section">
-                            <h3 class="section-title">
-                                <i class="fas fa-user"></i> Thông Tin Cá Nhân
-                            </h3>
-                            
-                            <div class="row">
-                                <div class="col-md-4 text-center mb-4">
-                                    <div class="avatar-upload" id="avatarUpload">
-                                        <img src="https://i.pravatar.cc/150?img=0" alt="Avatar Preview" class="avatar-preview" id="avatarPreview">
-                                        <div class="upload-icon">
-                                            <i class="fas fa-camera"></i>
-                                        </div>
-                                        <p class="mb-0">Tải lên ảnh đại diện</p>
-                                        <small class="form-note">JPG, PNG tối đa 2MB</small>
-                                        <input type="file" id="avatarInput" accept="image/*" style="display: none;">
-                                    </div>
-                                </div>
-                                
-                                <div class="col-md-8">
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="firstName" class="form-label required-field">Họ và tên đệm</label>
-                                            <input type="text" class="form-control" id="firstName" placeholder="Nhập họ và tên đệm" required>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label for="lastName" class="form-label required-field">Tên</label>
-                                            <input type="text" class="form-control" id="lastName" placeholder="Nhập tên" required>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="email" class="form-label required-field">Email</label>
-                                            <input type="email" class="form-control" id="email" placeholder="Nhập địa chỉ email" required>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label for="phone" class="form-label required-field">Số điện thoại</label>
-                                            <input type="tel" class="form-control" id="phone" placeholder="Nhập số điện thoại" required>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="birthDate" class="form-label">Ngày sinh</label>
-                                            <input type="date" class="form-control" id="birthDate">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label for="gender" class="form-label">Giới tính</label>
-                                            <select class="form-select" id="gender">
-                                                <option value="">Chọn giới tính</option>
-                                                <option value="male">Nam</option>
-                                                <option value="female">Nữ</option>
-                                                <option value="other">Khác</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <label for="address" class="form-label">Địa chỉ</label>
-                                        <textarea class="form-control" id="address" rows="2" placeholder="Nhập địa chỉ"></textarea>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="text" class="form-control" name="SDT">
                         </div>
-                        
-                        <!-- Employment Information Section -->
-                        <div class="form-section">
-                            <h3 class="section-title">
-                                <i class="fas fa-briefcase"></i> Thông Tin Công Việc
-                            </h3>
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="employeeId" class="form-label required-field">Mã nhân viên</label>
-                                    <input type="text" class="form-control" id="employeeId" placeholder="NV001" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="position" class="form-label required-field">Chức vụ</label>
-                                    <select class="form-select" id="position" required>
-                                        <option value="">Chọn chức vụ</option>
-                                        <option value="manager">Quản lý</option>
-                                        <option value="team_lead">Trưởng nhóm</option>
-                                        <option value="senior">Chuyên viên cao cấp</option>
-                                        <option value="specialist">Chuyên viên</option>
-                                        <option value="staff">Nhân viên</option>
-                                        <option value="intern">Thực tập sinh</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="department" class="form-label required-field">Phòng ban</label>
-                                    <select class="form-select" id="department" required>
-                                        <option value="">Chọn phòng ban</option>
-                                        <option value="tech">Phòng Công Nghệ</option>
-                                        <option value="sales">Phòng Kinh Doanh</option>
-                                        <option value="hr">Phòng Nhân Sự</option>
-                                        <option value="finance">Phòng Tài Chính</option>
-                                        <option value="marketing">Phòng Marketing</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="workType" class="form-label required-field">Loại hình làm việc</label>
-                                    <select class="form-select" id="workType" required>
-                                        <option value="">Chọn loại hình</option>
-                                        <option value="full_time">Toàn thời gian</option>
-                                        <option value="part_time">Bán thời gian</option>
-                                        <option value="contract">Hợp đồng</option>
-                                        <option value="remote">Làm việc từ xa</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="startDate" class="form-label required-field">Ngày bắt đầu</label>
-                                    <input type="date" class="form-control" id="startDate" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="salary" class="form-label required-field">Mức lương (VND)</label>
-                                    <input type="number" class="form-control" id="salary" placeholder="Nhập mức lương" required>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="skills" class="form-label">Kỹ năng</label>
-                                <input type="text" class="form-control" id="skills" placeholder="Nhập các kỹ năng, phân cách bằng dấu phẩy">
-                                <div class="form-note">Ví dụ: JavaScript, Python, Quản lý dự án</div>
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Giới tính</label>
+                            <select class="form-select" name="GioiTinh">
+                                <option value="1">Nam</option>
+                                <option value="0">Nữ</option>
+                            </select>
                         </div>
-                        
-                        <!-- Account Information Section -->
-                        <div class="form-section">
-                            <h3 class="section-title">
-                                <i class="fas fa-key"></i> Thông Tin Tài Khoản
-                            </h3>
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="username" class="form-label required-field">Tên đăng nhập</label>
-                                    <input type="text" class="form-control" id="username" placeholder="Nhập tên đăng nhập" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Mật khẩu mặc định</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" value="123456" readonly>
-                                        <button class="btn btn-outline-secondary" type="button" id="copyPassword">
-                                            <i class="fas fa-copy"></i>
-                                        </button>
-                                    </div>
-                                    <div class="form-note">Nhân viên sẽ được yêu cầu thay đổi mật khẩu khi đăng nhập lần đầu</div>
-                                </div>
-                            </div>
-                            
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" id="sendWelcomeEmail">
-                                <label class="form-check-label" for="sendWelcomeEmail">
-                                    Gửi email chào mừng với thông tin đăng nhập
-                                </label>
-                            </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ngày sinh</label>
+                            <input type="date" class="form-control" name="NgaySinh">
                         </div>
-                        
-                        <!-- Form Actions -->
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i> Quay lại
-                            </button>
-                            <div>
-                                <button type="reset" class="btn btn-outline-secondary me-2">
-                                    <i class="fas fa-redo me-2"></i> Đặt lại
-                                </button>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-2"></i> Lưu thông tin
-                                </button>
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Địa chỉ</label>
+                            <input type="text" class="form-control" name="DiaChi">
                         </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+
+                <!-- Thông tin công việc -->
+                <div class="form-section">
+                    <h5 class="section-title"><i class="fas fa-briefcase"></i> Thông Tin Công Việc</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Phòng ban <span class="text-danger">*</span></label>
+                            <select class="form-select" name="MaPB" id="MaPB" required>
+                                <option value="">-- Chọn phòng ban --</option>
+                                {% for pb in departments %}
+                                    <option value="{{ pb.MaPB }}">{{ pb.TenPB }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Chức vụ</label>
+                            <input type="text" class="form-control" name="ChucVu">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Webcam -->
+                <div class="form-section">
+                    <h5 class="section-title"><i class="fas fa-camera"></i> Webcam (Xem trước khuôn mặt)</h5>
+                    <div class="webcam-container">
+                        <video id="video" class="webcam-preview" autoplay></video>
+                        <p class="text-muted small mt-2">Camera chỉ hiển thị xem trước, hệ thống sẽ tự chụp khi thêm nhân viên</p>
+                    </div>
+                </div>
+
+                <!-- Nút hành động -->
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <a href="{{ url_for('employee_list') }}" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i> Hủy bỏ
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-1"></i> Thêm nhân viên
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Avatar upload functionality
-        document.getElementById('avatarUpload').addEventListener('click', function() {
-            document.getElementById('avatarInput').click();
+        // Webcam initialization
+        navigator.mediaDevices.getUserMedia({video:true})
+        .then(stream => { document.getElementById('video').srcObject = stream; })
+        .catch(err => { 
+            console.error("Không thể bật webcam: ", err);
+            document.querySelector('.webcam-container').innerHTML = 
+                '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>Không thể truy cập webcam. Vui lòng kiểm tra quyền truy cập camera.</div>';
         });
-        
-        document.getElementById('avatarInput').addEventListener('change', function(e) {
-            if (e.target.files && e.target.files[0]) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    document.getElementById('avatarPreview').src = e.target.result;
-                }
-                
-                reader.readAsDataURL(e.target.files[0]);
-            }
-        });
-        
-        // Copy password to clipboard
-        document.getElementById('copyPassword').addEventListener('click', function() {
-            const tempInput = document.createElement('input');
-            tempInput.value = '123456';
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-            
-            // Show feedback
-            const originalHTML = this.innerHTML;
-            this.innerHTML = '<i class="fas fa-check"></i>';
-            this.classList.remove('btn-outline-secondary');
-            this.classList.add('btn-success');
-            
-            setTimeout(() => {
-                this.innerHTML = originalHTML;
-                this.classList.remove('btn-success');
-                this.classList.add('btn-outline-secondary');
-            }, 2000);
-        });
-        
-        // Form submission
-        document.getElementById('addEmployeeForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Simple validation
-            let isValid = true;
+
+        // Form validation
+        document.getElementById('employeeForm').addEventListener('submit', function(e) {
             const requiredFields = this.querySelectorAll('[required]');
-            
+            let isValid = true;
+
             requiredFields.forEach(field => {
                 if (!field.value.trim()) {
                     field.classList.add('is-invalid');
@@ -546,29 +213,11 @@
                     field.classList.remove('is-invalid');
                 }
             });
-            
-            if (isValid) {
-                // Show success message (in a real app, you would submit to server here)
-                alert('Thông tin nhân viên đã được lưu thành công!');
-                this.reset();
-                document.getElementById('avatarPreview').src = 'https://i.pravatar.cc/150?img=0';
-            } else {
-                alert('Vui lòng điền đầy đủ các trường bắt buộc!');
+
+            if (!isValid) {
+                e.preventDefault();
+                alert('Vui lòng điền đầy đủ các thông tin bắt buộc!');
             }
-        });
-        
-        // Real-time validation
-        const inputs = document.querySelectorAll('input, select');
-        inputs.forEach(input => {
-            input.addEventListener('blur', function() {
-                if (this.hasAttribute('required') && !this.value.trim()) {
-                    this.classList.add('is-invalid');
-                } else {
-                    this.classList.remove('is-invalid');
-                this.classList.add('is-valid');
-                setTimeout(() => this.classList.remove('is-valid'), 2000);
-                }
-            });
         });
     </script>
 </body>

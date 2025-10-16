@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bảng điều khiển nhân viên - FaceID</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<style>
+:root {
+  --primary: #4361ee;
+  --primary-light: #4895ef;
+  --secondary: #3f37c9;
+  --success: #4cc9f0;
+  --dark: #1e1e2c;
+  --light: #f8f9fa;
+  --gray: #6c757d;
+  --gray-light: #e9ecef;
+  --white: #ffffff;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+
+[data-theme="dark"] {
+  --dark: #f8f9fa;
+  --light: #1e1e2c;
+  --white: #2d2d44;
+  --gray-light: #343a40;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--light);
+  color: var(--dark);
+  transition: var(--transition);
+  line-height: 1.6;
+}
+
+/* Header */
+header {
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-light);
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.logo {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.theme-toggle {
+  background: none;
+  border: none;
+  color: var(--gray);
+  cursor: pointer;
+  font-size: 1.2rem;
+  margin-right: 15px;
+  transition: var(--transition);
+}
+
+.theme-toggle:hover {
+  color: var(--primary);
+}
+
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logout a {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: var(--white);
+  padding: 8px 18px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition);
+  box-shadow: 0 2px 4px rgba(67, 97, 238, 0.3);
+}
+
+.logout a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(67, 97, 238, 0.4);
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 70px;
+  left: 0;
+  width: 250px;
+  height: calc(100vh - 70px);
+  background: var(--white);
+  border-right: 1px solid var(--gray-light);
+  padding-top: 20px;
+  transition: var(--transition);
+  overflow-y: auto;
+  z-index: 90;
+}
+
+.sidebar a {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  color: var(--dark);
+  text-decoration: none;
+  transition: var(--transition);
+  border-left: 4px solid transparent;
+}
+
+.sidebar a:hover, .sidebar a.active {
+  background: rgba(67, 97, 238, 0.1);
+  color: var(--primary);
+  border-left-color: var(--primary);
+}
+
+.sidebar a i {
+  width: 24px;
+  text-align: center;
+  margin-right: 12px;
+  font-size: 1.1rem;
+}
+
+/* Main content */
+.main {
+  margin-left: 250px;
+  padding: 30px;
+  transition: var(--transition);
+  min-height: calc(100vh - 70px);
+}
+
+.section {
+  display: none;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.section.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Cards */
+.card {
+  background: var(--white);
+  border: none;
+  border-radius: 12px;
+  padding: 25px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--success));
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card i {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  background: linear-gradient(135deg, var(--primary), var(--success));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.card h5 {
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.card a {
+  display: inline-block;
+  margin-top: 15px;
+  text-decoration: none;
+  color: var(--primary);
+  font-weight: 500;
+  transition: var(--transition);
+  position: relative;
+}
+
+.card a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--primary);
+  transition: var(--transition);
+}
+
+.card a:hover::after {
+  width: 100%;
+}
+
+/* Tables */
+.table-container {
+  background: var(--white);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.table thead th {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 15px;
+  font-weight: 600;
+}
+
+.table tbody td {
+  padding: 15px;
+  border-color: var(--gray-light);
+  transition: var(--transition);
+}
+
+.table tbody tr:hover td {
+  background: rgba(67, 97, 238, 0.05);
+}
+
+/* Welcome section */
+.welcome-section {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.welcome-section h3 {
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.welcome-section p {
+  opacity: 0.9;
+  margin-bottom: 0;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .sidebar {
+    width: 70px;
+  }
+  
+  .sidebar a span {
+    display: none;
+  }
+  
+  .main {
+    margin-left: 70px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: 20px 15px;
+  }
+  
+  header {
+    padding: 12px 15px;
+  }
+  
+  .logo {
+    font-size: 1.2rem;
+  }
+  
+  .user-actions {
+    gap: 10px;
+  }
+  
+  .logout a {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Loading animation */
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255,255,255,.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--gray);
+}
+
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  opacity: 0.5;
+}
+
+/* Section headers */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--gray-light);
+}
+
+.section-header h4 {
+  color: var(--primary);
+  font-weight: 700;
+  margin: 0;
+}
+
+.section-header i {
+  margin-right: 10px;
+}
+</style>
+</head>
+<body>
+<header>
+  <a href="#" class="logo">
+    <i class="fas fa-id-badge"></i>
+    <span>FaceID</span>
+  </a>
+  
+  <div class="user-actions">
+    <button class="theme-toggle" id="themeToggle">
+      <i class="fas fa-moon"></i>
+    </button>
+    <div class="logout">
+      <a href="{{ url_for('logout') }}">
+        <i class="fas fa-sign-out-alt me-1"></i>Đăng xuất
+      </a>
+    </div>
+  </div>
+</header>
+
+<nav class="sidebar">
+  <a href="#dashboard" class="active">
+    <i class="fas fa-tachometer-alt"></i>
+    <span>Tổng quan</span>
+  </a>
+  <a href="#profile">
+    <i class="fas fa-user"></i>
+    <span>Thông tin cá nhân</span>
+  </a>
+  <a href="#shifts">
+    <i class="fas fa-calendar-check"></i>
+    <span>Ca làm việc</span>
+  </a>
+  <a href="#attendance">
+    <i class="fas fa-clock"></i>
+    <span>Chấm công</span>
+  </a>
+  <a href="#history">
+    <i class="fas fa-history"></i>
+    <span>Lịch sử</span>
+  </a>
+</nav>
+
+<main class="main">
+  <!-- Tổng quan -->
+  <section id="dashboard" class="section active">
+    <div class="welcome-section">
+      <h3>Xin chào, {{ nhanvien.HoTen }}</h3>
+      <p>Chúc bạn một ngày làm việc hiệu quả!</p>
+    </div>
+    
+    <div class="row g-4">
+      <div class="col-md-3">
+        <div class="card">
+          <i class="fas fa-user"></i>
+          <h5>Thông tin</h5>
+          <p class="text-muted">Xem thông tin cá nhân</p>
+          <a href="#" data-target="#profile">Xem chi tiết</a>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card">
+          <i class="fas fa-calendar-check"></i>
+          <h5>Ca làm việc</h5>
+          <p class="text-muted">Lịch làm việc của bạn</p>
+          <a href="#" data-target="#shifts">Xem ca</a>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card">
+          <i class="fas fa-clock"></i>
+          <h5>Chấm công</h5>
+          <p class="text-muted">Lịch sử chấm công</p>
+          <a href="#" data-target="#attendance">Xem lịch sử</a>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card">
+          <i class="fas fa-history"></i>
+          <h5>Hoạt động</h5>
+          <p class="text-muted">Nhật ký hoạt động</p>
+          <a href="#" data-target="#history">Xem chi tiết</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Thông tin -->
+  <section id="profile" class="section">
+    <div class="section-header">
+      <h4><i class="fas fa-user me-2"></i>Thông tin cá nhân</h4>
+    </div>
+    
+    <div class="table-container">
+      <table class="table">
+        <tr>
+          <th width="200">Mã NV</th>
+          <td>{{ nhanvien.MaNV }}</td>
+        </tr>
+        <tr>
+          <th>Họ tên</th>
+          <td>{{ nhanvien.HoTen }}</td>
+        </tr>
+        <tr>
+          <th>Phòng ban</th>
+          <td>{{ nhanvien.TenPB }}</td>
+        </tr>
+        <tr>
+          <th>Chức vụ</th>
+          <td>{{ nhanvien.ChucVu }}</td>
+        </tr>
+        <tr>
+          <th>Email</th>
+          <td>{{ nhanvien.Email }}</td>
+        </tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- Ca làm việc -->
+  <section id="shifts" class="section">
+    <div class="section-header">
+      <h4><i class="fas fa-calendar-check me-2"></i>Ca làm việc</h4>
+    </div>
+    
+    {% if calamviec %}
+    <div class="table-container">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Mã ca</th>
+            <th>Bắt đầu</th>
+            <th>Kết thúc</th>
+            <th>Hệ số</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ca in calamviec %}
+          <tr>
+            <td>{{ ca.MaCa }}</td>
+            <td>{{ ca.GioBatDau }}</td>
+            <td>{{ ca.GioKetThuc }}</td>
+            <td>{{ ca.HeSoLuong }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="fas fa-calendar-times"></i>
+      <h5>Chưa có ca làm việc nào</h5>
+      <p>Liên hệ quản lý để được phân công ca làm việc</p>
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- Chấm công -->
+  <section id="attendance" class="section">
+    <div class="section-header">
+      <h4><i class="fas fa-clock me-2"></i>Lịch sử chấm công</h4>
+    </div>
+    
+    {% if chamcong %}
+    <div class="table-container">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Ngày</th>
+            <th>Giờ vào</th>
+            <th>Giờ ra</th>
+            <th>Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in chamcong %}
+          <tr>
+            <td>{{ c.Ngay }}</td>
+            <td>{{ c.GioVao }}</td>
+            <td>{{ c.GioRa or '-' }}</td>
+            <td>
+              <span class="badge bg-{{ 'success' if c.TrangThai == 'Đúng giờ' else 'warning' if c.TrangThai == 'Trễ' else 'secondary' }}">
+                {{ c.TrangThai }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="fas fa-clock"></i>
+      <h5>Chưa có dữ liệu chấm công</h5>
+      <p>Dữ liệu chấm công sẽ xuất hiện sau khi bạn chấm công</p>
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- Lịch sử -->
+  <section id="history" class="section">
+    <div class="section-header">
+      <h4><i class="fas fa-history me-2"></i>Lịch sử hoạt động</h4>
+    </div>
+    
+    {% if lichsu %}
+    <div class="table-container">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Thời gian</th>
+            <th>Bảng</th>
+            <th>Hành động</th>
+            <th>Trường</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ls in lichsu %}
+          <tr>
+            <td>{{ ls.ThoiGian }}</td>
+            <td>{{ ls.TenBang }}</td>
+            <td>
+              <span class="badge bg-{{ 'info' if ls.HanhDong == 'Thêm' else 'warning' if ls.HanhDong == 'Sửa' else 'danger' if ls.HanhDong == 'Xóa' else 'secondary' }}">
+                {{ ls.HanhDong }}
+              </span>
+            </td>
+            <td>{{ ls.TruongThayDoi }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="fas fa-history"></i>
+      <h5>Chưa có lịch sử hoạt động</h5>
+      <p>Lịch sử hoạt động sẽ được ghi lại tại đây</p>
+    </div>
+    {% endif %}
+  </section>
+</main>
+
+<script>
+// Chuyển đổi chế độ sáng/tối
+const themeToggle = document.getElementById('themeToggle');
+const themeIcon = themeToggle.querySelector('i');
+
+themeToggle.addEventListener('click', () => {
+  if (document.body.hasAttribute('data-theme')) {
+    document.body.removeAttribute('data-theme');
+    themeIcon.classList.remove('fa-sun');
+    themeIcon.classList.add('fa-moon');
+    localStorage.setItem('theme', 'light');
+  } else {
+    document.body.setAttribute('data-theme', 'dark');
+    themeIcon.classList.remove('fa-moon');
+    themeIcon.classList.add('fa-sun');
+    localStorage.setItem('theme', 'dark');
+  }
+});
+
+// Kiểm tra theme đã lưu
+if (localStorage.getItem('theme') === 'dark') {
+  document.body.setAttribute('data-theme', 'dark');
+  themeIcon.classList.remove('fa-moon');
+  themeIcon.classList.add('fa-sun');
+}
+
+// Điều hướng sidebar
+document.querySelectorAll('.sidebar a').forEach(link => {
+  link.onclick = e => {
+    e.preventDefault();
+    document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+    link.classList.add('active');
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelector(link.getAttribute('href')).classList.add('active');
+    
+    // Cuộn lên đầu trang
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+});
+
+// Điều hướng từ card
+document.querySelectorAll('.card a').forEach(btn => {
+  btn.onclick = e => {
+    e.preventDefault();
+    const target = btn.dataset.target;
+    document.querySelector(`.sidebar a[href="${target}"]`).click();
+  };
+});
+
+// Thêm hiệu ứng loading khi chuyển trang (mô phỏng)
+document.querySelectorAll('.sidebar a, .card a').forEach(link => {
+  link.addEventListener('click', function() {
+    // Trong thực tế, bạn có thể thêm loading spinner ở đây
+    // khi tải dữ liệu từ server
+  });
+});
+</script>
+</body>
+</html>

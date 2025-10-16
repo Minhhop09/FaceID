@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Báo cáo chấm công - FaceID System</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<style>
+:root{--primary:#4361ee;--primary-dark:#3a56d4;--secondary:#6c757d;--success:#28a745;--info:#17a2b8;--warning:#ffc107;--danger:#dc3545;--light:#f8f9fa;--dark:#343a40;--sidebar-bg:#1e293b;--sidebar-hover:#334155;--sidebar-active:#4361ee;}
+body{background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;min-height:100vh;overflow-x:hidden;}
+.sidebar{min-height:100vh;width:280px;background:var(--sidebar-bg);position:fixed;top:0;left:0;z-index:1000;transition:all .3s ease;box-shadow:3px 0 15px rgba(0,0,0,.1);}
+.sidebar-header{padding:25px 20px;border-bottom:1px solid rgba(255,255,255,.1);text-align:center;}
+.sidebar-brand{color:#fff;text-decoration:none;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;}
+.sidebar-brand i{background:linear-gradient(135deg,var(--primary),#4895ef);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.8rem;}
+.sidebar-nav {
+    padding: 20px 0 80px;  /* chừa không gian cuối để thấy nút logout */
+    overflow-y: auto;      /* cho phép cuộn */
+    height: calc(100vh - 80px);
+}
+
+.nav-item{margin-bottom:5px;}
+.nav-link{color:rgba(255,255,255,.8);padding:15px 25px;text-decoration:none;display:flex;align-items:center;gap:12px;transition:all .3s ease;border-left:3px solid transparent;font-weight:500;}
+.nav-link:hover{color:#fff;background:var(--sidebar-hover);border-left-color:var(--primary);transform:translateX(5px);}
+.nav-link.active{color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-left-color:#fff;box-shadow:0 4px 15px rgba(67,97,238,.3);}
+.nav-link i{width:20px;text-align:center;font-size:1.1rem;}
+.logout-link{color:#f8d7da;border-top:1px solid rgba(255,255,255,.1);margin-top:20px;}
+.logout-link:hover{color:#dc3545;background:rgba(220,53,69,.1);}
+.main-content{margin-left:280px;padding:30px;transition:all .3s ease;}
+.dashboard-header{background:#fff;border-radius:15px;padding:25px 30px;margin-bottom:30px;box-shadow:0 5px 15px rgba(0,0,0,.08);display:flex;justify-content:space-between;align-items:center;}
+.header-title h1{color:var(--dark);font-weight:700;margin-bottom:5px;}
+.header-title p{color:var(--secondary);margin:0;}
+.user-profile{display:flex;align-items:center;gap:15px;background:var(--light);padding:12px 20px;border-radius:12px;border:1px solid rgba(0,0,0,.05);}
+.user-avatar{width:45px;height:45px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:1.2rem;}
+.user-info{line-height:1.4;}
+.user-name{font-weight:600;color:var(--dark);margin:0;}
+.user-role{color:var(--secondary);font-size:.9rem;margin:0;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px;margin-bottom:30px;}
+.stats-card{background:#fff;border-radius:15px;padding:25px;box-shadow:0 5px 15px rgba(0,0,0,.08);transition:all .3s ease;position:relative;overflow:hidden;animation:fadeInUp .6s ease-out;}
+.stats-card:hover{transform:translateY(-5px);box-shadow:0 10px 25px rgba(0,0,0,.12);}
+.stats-card::before{content:'';position:absolute;top:0;right:0;width:80px;height:80px;background:rgba(0,0,0,.03);border-radius:0 0 0 80px;}
+.stats-icon{width:60px;height:60px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:15px;color:#fff;}
+.stats-card.total .stats-icon{background:linear-gradient(135deg,var(--info),#39d4ff);}
+.stats-card.ontime .stats-icon{background:linear-gradient(135deg,var(--success),#34d399);}
+.stats-card.late .stats-icon{background:linear-gradient(135deg,var(--warning),#fbbf24);}
+.stats-card.absent .stats-icon{background:linear-gradient(135deg,var(--danger),#f87171);}
+.stats-number{font-size:2.2rem;font-weight:700;margin-bottom:5px;color:var(--dark);}
+.stats-label{color:var(--secondary);font-weight:500;font-size:.95rem;}
+.table-responsive{border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.table{table-layout:fixed;margin:0;}
+.table thead th{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border:none;padding:15px;font-weight:600;text-align:center;vertical-align:middle;}
+.table tbody td{padding:12px 15px;vertical-align:middle;border-color:#f0f0f0;}
+.table tbody tr:hover{background-color:rgba(67,97,238,.03);}
+.badge{padding:8px 12px;border-radius:6px;font-weight:500;}
+.btn-action{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .3s ease;border:none;}
+.btn-action:hover{transform:scale(1.1);}
+.btn-edit{background:linear-gradient(135deg,var(--warning),#ffb300);color:#fff;}
+.btn-delete{background:linear-gradient(135deg,var(--danger),#e53935);color:#fff;}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border:none;border-radius:8px;padding:10px 20px;font-weight:500;transition:all .3s;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(67,97,238,.3);}
+.btn-danger{background:linear-gradient(135deg,var(--danger),#e53935);border:none;border-radius:8px;padding:10px 20px;font-weight:500;transition:all .3s;}
+.btn-danger:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(220,53,69,.3);}
+.content-area{background:#fff;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.08);padding:30px;margin-bottom:30px;}
+.footer{text-align:center;color:var(--secondary);font-size:.9rem;margin-top:30px;}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:992px){.sidebar{width:80px;}.sidebar-brand span,.nav-link span{display:none;}.main-content{margin-left:80px;}.sidebar-header{padding:20px 10px;}.nav-link{justify-content:center;padding:15px;}.nav-link i{font-size:1.3rem;}}
+@media(max-width:768px){.main-content{padding:20px;}.dashboard-header{flex-direction:column;gap:15px;text-align:center;}.stats-grid{grid-template-columns:1fr;}.table-responsive{font-size:.9rem;}.table thead th,.table tbody td{padding:8px 10px;}}
+</style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand">
+                <i class="fas fa-id-card-alt"></i>
+                <span>FaceID System</span>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('shifts') }}" class="nav-link"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link active"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Báo cáo thống kê</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="header-title">
+                <h1>Thống kê chấm công</h1>
+                <p>Tổng hợp và theo dõi tình hình chấm công</p>
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar">{{ session['username'][0]|upper }}</div>
+                <div class="user-info">
+                    <div class="user-name">{{ session['username'] }}</div>
+                    <div class="user-role">{{ session['role'] }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show mb-4" role="alert">
+                        <i class="fa-solid fa-{{ 'triangle-exclamation' if category == 'error' else 'circle-check' }} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Header Actions -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+                <h4 class="mb-0">Báo cáo chi tiết chấm công</h4>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{{ url_for('attendance') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i> Thêm chấm công
+                    </a>
+                    <button class="btn btn-outline-secondary">
+                        <i class="fas fa-file-export me-2"></i> Xuất báo cáo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stats-card total">
+                    <div class="stats-icon"><i class="fas fa-calendar-check"></i></div>
+                    <div class="stats-number">{{ total_records }}</div>
+                    <div class="stats-label">Tổng lượt chấm công</div>
+                </div>
+                <div class="stats-card ontime">
+                    <div class="stats-icon"><i class="fas fa-user-check"></i></div>
+                    <div class="stats-number">{{ total_on_time }}</div>
+                    <div class="stats-label">Đúng giờ</div>
+                </div>
+                <div class="stats-card late">
+                    <div class="stats-icon"><i class="fas fa-clock"></i></div>
+                    <div class="stats-number">{{ total_late }}</div>
+                    <div class="stats-label">Đi muộn</div>
+                </div>
+                <div class="stats-card absent">
+                    <div class="stats-icon"><i class="fas fa-user-times"></i></div>
+                    <div class="stats-number">{{ total_absent }}</div>
+                    <div class="stats-label">Vắng</div>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+                <form class="d-flex align-items-center gap-2 flex-wrap" method="get" action="{{ url_for('attendance_report') }}">
+                    <input class="form-control" type="search" name="q" placeholder="🔍 Tìm theo tên, mã NV hoặc phòng ban..." value="{{ keyword or '' }}" style="max-width:300px;">
+                    <select class="form-select" name="sort" style="max-width:180px;">
+                        <option value="ten" {% if sort=='ten' %}selected{% endif %}>Theo tên</option>
+                        <option value="ngay" {% if sort=='ngay' %}selected{% endif %}>Theo ngày</option>
+                        <option value="trangthai" {% if sort=='trangthai' %}selected{% endif %}>Theo trạng thái</option>
+                    </select>
+                    <button class="btn btn-primary" type="submit"><i class="fas fa-sort"></i> Sắp xếp</button>
+                </form>
+                <div class="text-muted"><small><i class="fas fa-list me-1"></i>Tổng: {{ records|length }} bản ghi</small></div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width:100px">Mã NV</th>
+                            <th style="width:150px">Họ tên</th>
+                            <th style="width:120px">Phòng ban</th>
+                            <th style="width:120px">Ngày chấm công</th>
+                            <th style="width:100px">Ca làm</th>
+                            <th style="width:100px">Giờ vào</th>
+                            <th style="width:100px">Giờ ra</th>
+                            <th style="width:100px">Số giờ làm</th>
+                            <th style="width:110px">Trạng thái</th>
+                            <th style="width:120px" class="text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in records %}
+                        <tr>
+                            <td class="fw-bold">{{ r.MaNV }}</td>
+                            <td>{{ r.HoTen }}</td>
+                            <td>{{ r.PhongBan }}</td>
+                            <td>{{ r.NgayChamCong }}</td>
+                            <td>{{ r.CaLam }}</td>
+                            <td>{{ r.GioVao or '—' }}</td>
+                            <td>{{ r.GioRa or '—' }}</td>
+                            <td>{{ "%.2f"|format(r.SoGioLam or 0) }}</td>
+                            <td>
+                                {% if r.TrangThaiText == 'Đúng giờ' %}
+                                    <span class="badge bg-success">{{ r.TrangThaiText }}</span>
+                                {% elif r.TrangThaiText == 'Đi muộn' %}
+                                    <span class="badge bg-warning text-dark">{{ r.TrangThaiText }}</span>
+                                {% elif r.TrangThaiText == 'Vắng' %}
+                                    <span class="badge bg-danger">{{ r.TrangThaiText }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ r.TrangThaiText }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="/attendance/edit/{{ r.MaChamCong }}" class="btn-action btn-edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form action="/attendance/delete/{{ r.MaChamCong }}" method="POST" style="display:inline;">
+                                        <button type="submit" class="btn-action btn-delete" onclick="return confirm('Bạn có chắc chắn muốn xóa bản ghi này?');">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="10" class="text-center text-muted py-4">
+                                <i class="fas fa-inbox me-2 fa-lg"></i>
+                                <strong>Không có dữ liệu chấm công</strong>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            © 2025 FaceID System — Developed with ❤️ by Trần Minh Hợp
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

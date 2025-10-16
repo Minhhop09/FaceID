@@ -33,10 +33,10 @@ def shift_report():
     conn = get_connection()
     cursor = conn.cursor()
     query = """
-        SELECT cl.MaCa, COUNT(cc.MaNV) AS SoLanChamCong
-        FROM CaLamViec cl
-        LEFT JOIN ChamCong cc ON cl.MaCa = cc.MaCa
-        GROUP BY cl.MaCa
+        SELECT llv.MaLLV, COUNT(cc.MaNV) AS SoLanChamCong
+        FROM LichLamViec llv
+        LEFT JOIN ChamCong cc ON llv.MaLLV = cc.MaLLV
+        GROUP BY llv.MaLLV
     """
     cursor.execute(query)
     data = cursor.fetchall()

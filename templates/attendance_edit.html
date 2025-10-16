@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sửa chấm công - FaceID System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <style>
+    :root{--primary:#4361ee;--primary-dark:#3a56d4;--secondary:#6c757d;--success:#28a745;--info:#17a2b8;--warning:#ffc107;--danger:#dc3545;--light:#f8f9fa;--dark:#343a40;--sidebar-bg:#1e293b;--sidebar-hover:#334155;--sidebar-active:#4361ee;}
+    body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);min-height:100vh;overflow-x:hidden;}
+    .sidebar{min-height:100vh;width:280px;background:var(--sidebar-bg);position:fixed;top:0;left:0;z-index:1000;transition:all 0.3s ease;box-shadow:3px 0 15px rgba(0,0,0,0.1);}
+    .sidebar-header{padding:25px 20px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:center;}
+    .sidebar-brand{color:white;text-decoration:none;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;}
+    .sidebar-brand i{background:linear-gradient(135deg,var(--primary),#4895ef);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.8rem;}
+    .sidebar-nav {
+    padding: 20px 0 80px;  /* chừa không gian cuối để thấy nút logout */
+    overflow-y: auto;      /* cho phép cuộn */
+    height: calc(100vh - 80px);
+}
+
+    .nav-item{margin-bottom:5px;}
+    .nav-link{color:rgba(255,255,255,0.8);padding:15px 25px;text-decoration:none;display:flex;align-items:center;gap:12px;transition:all 0.3s ease;border-left:3px solid transparent;font-weight:500;}
+    .nav-link:hover{color:white;background:var(--sidebar-hover);border-left-color:var(--primary);transform:translateX(5px);}
+    .nav-link.active{color:white;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-left-color:white;box-shadow:0 4px 15px rgba(67,97,238,0.3);}
+    .nav-link i{width:20px;text-align:center;font-size:1.1rem;}
+    .logout-link{color:#f8d7da;border-top:1px solid rgba(255,255,255,0.1);margin-top:20px;}
+    .logout-link:hover{color:#dc3545;background:rgba(220,53,69,0.1);}
+    .main-content{margin-left:280px;padding:30px;transition:all 0.3s ease;}
+    .dashboard-header{background:white;border-radius:15px;padding:25px 30px;margin-bottom:30px;box-shadow:0 5px 15px rgba(0,0,0,0.08);display:flex;justify-content:space-between;align-items:center;}
+    .form-container{max-width:650px;margin:0 auto;background:white;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.1);}
+    .form-header{background:linear-gradient(to right,var(--primary),var(--primary-dark));color:white;padding:1.5rem;text-align:center;}
+    .form-header h2{margin:0;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;}
+    .form-body{padding:2rem;}
+    .info-card{background:linear-gradient(135deg,#e3f2fd,#bbdefb);border-left:4px solid var(--info);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem;}
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="sidebar-brand">
+        <i class="fas fa-id-card-alt"></i><span>FaceID System</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link active"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+    </nav>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="dashboard-header">
+      <div class="header-title">
+        <h1>Sửa chấm công</h1>
+        <p>Chỉnh sửa thông tin chấm công nhân viên</p>
+      </div>
+      <div class="user-profile d-flex align-items-center gap-2">
+        <div class="user-avatar">{{ session['username'][0]|upper }}</div>
+        <div>
+          <div class="user-name">{{ session['username'] }}</div>
+          <div class="user-role">{{ session['role'] }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-container">
+      <div class="form-header">
+        <h2><i class="fas fa-pen-to-square me-2"></i>Sửa Chấm Công</h2>
+      </div>
+      <div class="form-body">
+
+        <!-- Thông tin nhân viên -->
+        <div class="info-card mb-4">
+          <div class="d-flex align-items-center gap-3">
+            <div style="width:70px;height:70px;overflow:hidden;border-radius:50%;">
+              <img src="{{ record.Avatar }}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div>
+              <h5 class="fw-bold mb-1">{{ record.HoTen or 'Nhân viên' }}</h5>
+              <p class="mb-1 text-muted">
+                <i class="fas fa-id-card me-1"></i>Mã NV: {{ record.MaNV }} |
+                <i class="fas fa-building me-1"></i>{{ record.TenPB or '—' }}
+              </p>
+              <p class="mb-0 text-muted">
+                <i class="fas fa-calendar-day me-1"></i>Ngày: {{ record.NgayChamCong or '—' }} |
+                <i class="fas fa-clock me-1"></i>Gợi ý: {{ record.CaLamNhanh or 'Không xác định' }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form chỉnh sửa -->
+        <form method="POST">
+          <div class="mb-3">
+            <label class="form-label">Giờ vào</label>
+            <input type="time" name="GioVao" class="form-control"
+                   value="{{ record.GioVao.strftime('%H:%M') if record.GioVao else '' }}" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Giờ ra</label>
+            <input type="time" name="GioRa" class="form-control"
+                   value="{{ record.GioRa.strftime('%H:%M') if record.GioRa else '' }}">
+          </div>
+
+          <!-- ✅ Đoạn này thay vì CaLam => MaCa -->
+          <div class="mb-3">
+            <label class="form-label">Ca làm việc</label>
+            <select name="MaCa" class="form-select">
+              <option value="">-- Giữ nguyên --</option>
+              {% for ca in shifts %}
+                <option value="{{ ca.MaCa }}" {% if record.MaCa == ca.MaCa %}selected{% endif %}>
+                  {{ ca.MaCa }} — {{ ca.TenCa }} ({{ ca.KhungGio }})
+                </option>
+              {% endfor %}
+            </select>
+            <small class="text-muted">Gợi ý theo giờ vào: {{ record.CaLamNhanh }}</small>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label">Trạng thái</label>
+            <select name="TrangThai" class="form-select">
+              <option value="1" {% if record.TrangThai == 1 %}selected{% endif %}>Đúng giờ</option>
+              <option value="2" {% if record.TrangThai == 2 %}selected{% endif %}>Đi muộn</option>
+              <option value="3" {% if record.TrangThai == 3 %}selected{% endif %}>Vắng</option>
+            </select>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <a href="{{ url_for('attendance_report') }}" class="btn btn-secondary">
+              <i class="fas fa-arrow-left me-2"></i>Quay lại
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-2"></i>Lưu thay đổi
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

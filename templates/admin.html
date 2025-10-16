@@ -1,112 +1,520 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f8f9fa;
-    }
-    .sidebar {
-      height: 100vh;
-      background: #343a40;
-      color: #fff;
-      padding-top: 20px;
-      position: fixed;
-      top: 0; left: 0;
-      width: 240px;
-    }
-    .sidebar a {
-      display: block;
-      padding: 12px 20px;
-      color: #ddd;
-      text-decoration: none;
-      transition: 0.3s;
-    }
-    .sidebar a:hover {
-      background: #495057;
-      color: #fff;
-    }
-    .content {
-      margin-left: 240px;
-      padding: 20px;
-    }
-    .card {
-      border-radius: 12px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - FaceID System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --info: #17a2b8;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --sidebar-bg: #1e293b;
+            --sidebar-hover: #334155;
+            --sidebar-active: #4361ee;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            min-height: 100vh;
+            width: 280px;
+            background: var(--sidebar-bg);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            box-shadow: 3px 0 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar-header {
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .sidebar-brand {
+            color: white;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .sidebar-brand i {
+            background: linear-gradient(135deg, var(--primary), #4895ef);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.8rem;
+        }
+        
+        .sidebar-nav {
+    padding: 20px 0 80px;  /* chừa không gian cuối để thấy nút logout */
+    overflow-y: auto;      /* cho phép cuộn */
+    height: calc(100vh - 80px);
+}
+
+        
+        .nav-item {
+            margin-bottom: 5px;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 15px 25px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            color: white;
+            background: var(--sidebar-hover);
+            border-left-color: var(--primary);
+            transform: translateX(5px);
+        }
+        
+        .nav-link.active {
+            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-left-color: white;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        .logout-link {
+            color: #f8d7da;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 20px;
+        }
+        
+        .logout-link:hover {
+            color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        /* Header */
+        .dashboard-header {
+            background: white;
+            border-radius: 15px;
+            padding: 25px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title h1 {
+            color: var(--dark);
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .header-title p {
+            color: var(--secondary);
+            margin: 0;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: var(--light);
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        .user-info {
+            line-height: 1.4;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin: 0;
+        }
+        
+        .user-role {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: 0 0 0 80px;
+        }
+        
+        .stat-card.employees {
+            border-left-color: var(--info);
+        }
+        
+        .stat-card.departments {
+            border-left-color: var(--success);
+        }
+        
+        .stat-card.shifts {
+            border-left-color: var(--warning);
+        }
+        
+        .stat-card.accounts {
+            border-left-color: var(--danger);
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: white;
+        }
+        
+        .stat-card.employees .stat-icon {
+            background: linear-gradient(135deg, var(--info), #39d4ff);
+        }
+        
+        .stat-card.departments .stat-icon {
+            background: linear-gradient(135deg, var(--success), #34d399);
+        }
+        
+        .stat-card.shifts .stat-icon {
+            background: linear-gradient(135deg, var(--warning), #fbbf24);
+        }
+        
+        .stat-card.accounts .stat-icon {
+            background: linear-gradient(135deg, var(--danger), #f87171);
+        }
+        
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+        
+        .stat-label {
+            color: var(--secondary);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        /* System Info Card */
+        .system-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        .system-card-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 20px 25px;
+        }
+        
+        .system-card-header h5 {
+            margin: 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .system-card-body {
+            padding: 25px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: var(--secondary);
+            font-weight: 500;
+        }
+        
+        .info-value {
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-online {
+            background: rgba(40, 167, 69, 0.15);
+            color: var(--success);
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+            }
+            
+            .sidebar-brand span,
+            .nav-link span {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+            }
+            
+            .sidebar-header {
+                padding: 20px 10px;
+            }
+            
+            .nav-link {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .nav-link i {
+                font-size: 1.3rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .stat-card, .system-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+    </style>
 </head>
+
 <body>
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <h4 class="text-center text-white">Admin Panel</h4>
-    <hr class="bg-secondary">
-    <a href="{{ url_for('employees') }}"><i class="fa-solid fa-users"></i> Quản lý nhân viên</a>
-    <a href="{{ url_for('departments') }}"><i class="fa-solid fa-building"></i> Quản lý phòng ban</a>
-    <a href="{{ url_for('shifts') }}"><i class="fa-solid fa-clock"></i> Quản lý ca làm</a>
-    <a href="{{ url_for('accounts') }}"><i class="fa-solid fa-user-shield"></i> Quản lý tài khoản</a>
-    <a href="{{ url_for('reports') }}"><i class="fa-solid fa-chart-line"></i> Báo cáo & Thống kê</a>
-    <hr class="bg-secondary">
-    <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
-  </div>
 
-  <!-- Content -->
-  <div class="content">
-    <h2 class="mb-4">📊 Dashboard Tổng Quan</h2>
-
-    <div class="row g-4">
-      <div class="col-md-3">
-        <div class="card shadow-sm p-3">
-          <h5><i class="fa-solid fa-users"></i> Nhân viên</h5>
-          <p class="fs-4 fw-bold text-primary">{{ total_employees }}</p>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand">
+                <i class="fas fa-id-card-alt"></i>
+                <span>FaceID System</span>
+            </a>
         </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card shadow-sm p-3">
-          <h5><i class="fa-solid fa-building"></i> Phòng ban</h5>
-          <p class="fs-4 fw-bold text-success">{{ total_departments }}</p>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card shadow-sm p-3">
-          <h5><i class="fa-solid fa-clock"></i> Ca làm</h5>
-          <p class="fs-4 fw-bold text-warning">{{ total_shifts }}</p>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card shadow-sm p-3">
-          <h5><i class="fa-solid fa-user-shield"></i> Tài khoản</h5>
-          <p class="fs-4 fw-bold text-danger">{{ total_accounts }}</p>
-        </div>
-      </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link active"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('shifts') }}" class="nav-link"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Báo cáo thống kê</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
     </div>
 
-    <div class="mt-5">
-      <h4><i class="fa-solid fa-chart-pie"></i> Biểu đồ thống kê</h4>
-      <div class="card shadow-sm p-3">
-        <canvas id="reportChart" height="100"></canvas>
-      </div>
-    </div>
-  </div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="header-title">
+                <h1>Bảng điều khiển quản trị</h1>
+                <p>Tổng quan hệ thống và thống kê</p>
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar">
+                    {{ session['username'][0]|upper }}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ session['username'] }}</div>
+                    <div class="user-role">{{ session['role'] }}</div>
+                </div>
+            </div>
+        </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    const ctx = document.getElementById('reportChart');
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Nhân viên', 'Phòng ban', 'Ca làm', 'Tài khoản'],
-        datasets: [{
-          label: 'Số lượng',
-          data: [{{ total_employees }}, {{ total_departments }}, {{ total_shifts }}, {{ total_accounts }}],
-          backgroundColor: ['#0d6efd','#198754','#ffc107','#dc3545']
-        }]
-      }
-    });
-  </script>
+        <!-- Dashboard Stats -->
+        <div class="stats-grid">
+            <div class="stat-card employees">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-value">{{ total_employees }}</div>
+                <div class="stat-label">Tổng nhân viên</div>
+            </div>
+            
+            <div class="stat-card departments">
+                <div class="stat-icon">
+                    <i class="fas fa-building"></i>
+                </div>
+                <div class="stat-value">{{ total_departments }}</div>
+                <div class="stat-label">Tổng phòng ban</div>
+            </div>
+            
+            <div class="stat-card shifts">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-value">{{ total_shifts }}</div>
+                <div class="stat-label">Tổng ca làm việc</div>
+            </div>
+            
+            <div class="stat-card accounts">
+                <div class="stat-icon">
+                    <i class="fas fa-user-gear"></i>
+                </div>
+                <div class="stat-value">{{ total_accounts }}</div>
+                <div class="stat-label">Tổng tài khoản</div>
+            </div>
+        </div>
+
+        <!-- System Information -->
+        <div class="system-card">
+            <div class="system-card-header">
+                <h5><i class="fas fa-info-circle"></i> Thông tin hệ thống</h5>
+            </div>
+            <div class="system-card-body">
+                <div class="info-item">
+                    <span class="info-label">Tên hệ thống:</span>
+                    <span class="info-value">FaceID - Hệ thống nhận diện khuôn mặt</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Phiên bản:</span>
+                    <span class="info-value">1.0.0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Ngày đăng nhập gần nhất:</span>
+                    <span class="info-value">{{ last_login }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Trạng thái máy chủ:</span>
+                    <span class="info-value">
+                        <span class="status-badge status-online">
+                            <i class="fas fa-circle me-1"></i> Hoạt động ổn định
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -149,7 +149,12 @@
             color: #6c757d;
             margin-bottom: 5px;
         }
-        
+        .sidebar-nav {
+    padding: 20px 0 80px;  /* chừa không gian cuối để thấy nút logout */
+    overflow-y: auto;      /* cho phép cuộn */
+    height: calc(100vh - 80px);
+}
+
         .info-value {
             font-weight: 600;
             color: var(--secondary-color);
@@ -573,6 +578,27 @@
     </style>
 </head>
 <body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand">
+                <i class="fas fa-id-card-alt"></i>
+                <span>FaceID System</span>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('shifts') }}" class="nav-link"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('accounts') }}" class="nav-link active"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Báo cáo thống kê</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
+    </div>
     <!-- Nút quay lại -->
     <div class="floating-back">
         <a href="accounts.html" class="btn-back">

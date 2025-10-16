@@ -8,25 +8,25 @@ def get_shifts():
     conn.close()
     return data
 
-def add_shift(ma_ca, gio_bat_dau, gio_ket_thuc):
+def add_shift(ma_LLV, ma_nv, gio_bat_dau, gio_ket_thuc):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO CaLamViec (MaCa, GioBatDau, GioKetThuc) VALUES (?, ?, ?)",
-                   (ma_ca, gio_bat_dau, gio_ket_thuc))
+    cursor.execute("INSERT INTO CaLamViec (MaLLV, MaNV, GioBatDau, GioKetThuc) VALUES (?, ?, ?, ?)",
+                   (ma_LLV, ma_nv, gio_bat_dau, gio_ket_thuc))
     conn.commit()
     conn.close()
 
-def update_shift(ma_ca, gio_bat_dau, gio_ket_thuc):
+def update_shift(ma_LLV, ma_nv, gio_bat_dau, gio_ket_thuc):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("UPDATE CaLamViec SET GioBatDau=?, GioKetThuc=? WHERE MaCa=?",
-                   (gio_bat_dau, gio_ket_thuc, ma_ca))
+    cursor.execute("UPDATE CaLamViec SET GioBatDau=?, GioKetThuc=? WHERE MaLLV=? WHERE MaNV=?",
+                   (gio_bat_dau, gio_ket_thuc, ma_LLV, ma_nv))
     conn.commit()
     conn.close()
 
-def delete_shift(ma_ca):
+def delete_shift(ma_LLV):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM CaLamViec WHERE MaCa=?", (ma_ca,))
+    cursor.execute("DELETE FROM CaLamViec WHERE MaLLV=?", (ma_LLV,))
     conn.commit()
     conn.close()

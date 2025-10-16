@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ employee.HoTen }} - Thông tin nhân viên | FaceID System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {--primary:#4361ee;--primary-dark:#3a56d4;--secondary:#6c757d;--success:#28a745;--info:#17a2b8;--warning:#ffc107;--danger:#dc3545;--light:#f8f9fa;--dark:#343a40;--sidebar-bg:#1e293b;--sidebar-hover:#334155;--sidebar-active:#4361ee;}
+        body {background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;min-height:100vh;overflow-x:hidden;}
+        .sidebar{min-height:100vh;width:280px;background:var(--sidebar-bg);position:fixed;top:0;left:0;z-index:1000;transition:all .3s ease;box-shadow:3px 0 15px rgba(0,0,0,.1);}
+        .sidebar-header{padding:25px 20px;border-bottom:1px solid rgba(255,255,255,.1);text-align:center;}
+        .sidebar-brand{color:#fff;text-decoration:none;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;}
+        .sidebar-brand i{background:linear-gradient(135deg,var(--primary),#4895ef);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.8rem;}
+        .sidebar-nav {
+    padding: 20px 0 80px;  /* chừa không gian cuối để thấy nút logout */
+    overflow-y: auto;      /* cho phép cuộn */
+    height: calc(100vh - 80px);
+}
+
+        .nav-item{margin-bottom:5px;}
+        .nav-link{color:rgba(255,255,255,.8);padding:15px 25px;text-decoration:none;display:flex;align-items:center;gap:12px;transition:all .3s ease;border-left:3px solid transparent;font-weight:500;}
+        .nav-link:hover{color:#fff;background:var(--sidebar-hover);border-left-color:var(--primary);transform:translateX(5px);}
+        .nav-link.active{color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-left-color:#fff;box-shadow:0 4px 15px rgba(67,97,238,.3);}
+        .nav-link i{width:20px;text-align:center;font-size:1.1rem;}
+        .logout-link{color:#f8d7da;border-top:1px solid rgba(255,255,255,.1);margin-top:20px;}
+        .logout-link:hover{color:#dc3545;background:rgba(220,53,69,.1);}
+        .main-content{margin-left:280px;padding:30px;transition:all .3s ease;}
+        .dashboard-header{background:#fff;border-radius:15px;padding:25px 30px;margin-bottom:30px;box-shadow:0 5px 15px rgba(0,0,0,.08);display:flex;justify-content:space-between;align-items:center;}
+        .header-title h1{color:var(--dark);font-weight:700;margin-bottom:5px;}
+        .header-title p{color:var(--secondary);margin:0;}
+        .user-profile{display:flex;align-items:center;gap:15px;background:var(--light);padding:12px 20px;border-radius:12px;border:1px solid rgba(0,0,0,.05);}
+        .user-avatar{width:45px;height:45px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:1.2rem;}
+        .user-info{line-height:1.4;}
+        .user-name{font-weight:600;color:var(--dark);margin:0;}
+        .user-role{color:var(--secondary);font-size:.9rem;margin:0;}
+        .employee-card{background:#fff;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.08);padding:30px;margin-bottom:30px;}
+        .profile-img{width:160px;height:160px;border-radius:50%;object-fit:cover;border:5px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.15);}
+        .profile-placeholder{width:160px;height:160px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-size:3rem;font-weight:600;border:5px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.15);}
+        .info-item{display:flex;align-items:center;margin-bottom:15px;padding:10px 0;border-bottom:1px solid rgba(0,0,0,.05);}
+        .info-item:last-child{border-bottom:none;}
+        .info-label{color:var(--secondary);font-weight:500;min-width:150px;}
+        .info-value{color:var(--dark);font-weight:400;}
+        .status-badge{padding:6px 12px;border-radius:20px;font-size:.85rem;font-weight:500;}
+        .status-active{background:rgba(40,167,69,.15);color:var(--success);}
+        .status-inactive{background:rgba(108,117,125,.15);color:var(--secondary);}
+        .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border:none;border-radius:8px;padding:10px 20px;font-weight:500;transition:all .3s;}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(67,97,238,.3);}
+        .btn-secondary{background:var(--secondary);border:none;border-radius:8px;padding:10px 20px;font-weight:500;transition:all .3s;}
+        .btn-secondary:hover{background:#5a6268;transform:translateY(-2px);}
+        .btn-warning{background:linear-gradient(135deg,var(--warning),#ffb300);border:none;border-radius:8px;padding:10px 20px;font-weight:500;transition:all .3s;}
+        .btn-warning:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(255,193,7,.3);}
+        @media(max-width:992px){.sidebar{width:80px;}.sidebar-brand span,.nav-link span{display:none;}.main-content{margin-left:80px;}.sidebar-header{padding:20px 10px;}.nav-link{justify-content:center;padding:15px;}.nav-link i{font-size:1.3rem;}}
+        @media(max-width:768px){.main-content{padding:20px;}.dashboard-header{flex-direction:column;gap:15px;text-align:center;}.info-item{flex-direction:column;align-items:flex-start;gap:5px;}.employee-actions{flex-direction:column;gap:10px;}.employee-actions .btn{width:100%;}}
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <a href="#" class="sidebar-brand">
+          <i class="fas fa-id-card-alt"></i>
+          <span>FaceID System</span>
+        </a>
+      </div>
+      <nav class="sidebar-nav">
+            <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_list') }}" class="nav-link active"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('shifts') }}" class="nav-link"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Báo cáo thống kê</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="header-title">
+                <h1>Thông tin nhân viên</h1>
+                <p>Chi tiết hồ sơ nhân viên trong hệ thống</p>
+            </div>
+            <div class="user-profile">
+    <div class="user-avatar">
+        {{ session['username'][0]|upper }}
+    </div>
+    <div class="user-info">
+        <div class="user-name">{{ session['username'] }}</div>
+        <div class="user-role">{{ session['role'] }}</div>
+    </div>
+</div>
+
+        </div>
+
+        <!-- Employee Details -->
+        <div class="employee-card">
+            <!-- Header -->
+            <div class="d-flex align-items-center mb-4">
+                <a href="{{ url_for('employee_list') }}" class="btn btn-secondary me-3">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h2 class="mb-0">Thông tin chi tiết nhân viên</h2>
+            </div>
+
+            <div class="row g-4">
+                <!-- Profile Image -->
+                <div class="col-md-4 text-center">
+                    {% if employee.DuongDanAnh %}
+                        <img src="/{{ employee.DuongDanAnh }}" alt="Ảnh nhân viên" class="profile-img mb-3">
+                    {% else %}
+                        <div class="profile-placeholder mx-auto mb-3">
+                            {{ employee.HoTen[0:2]|upper }}
+                        </div>
+                    {% endif %}
+                    <h4 class="mt-2">{{ employee.HoTen }}</h4>
+                    <p class="text-muted mb-2">{{ employee.ChucVu or '—' }}</p>
+                    <span class="status-badge 
+    {% if employee.TrangThai == 1 %}status-active{% else %}status-inactive{% endif %}">
+    
+    {% if employee.TrangThai == 1 %}
+        <i class="fas fa-check-circle me-1 text-success"></i> Đang làm việc
+    {% else %}
+        <i class="fas fa-pause-circle me-1 text-secondary"></i> Ngừng làm việc
+    {% endif %}
+</span>
+
+                </div>
+
+                <!-- Employee Information -->
+                <div class="col-md-8">
+                    <div class="info-item">
+                        <span class="info-label">Mã nhân viên:</span>
+                        <span class="info-value">{{ employee.MaNV }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">{{ employee.Email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Số điện thoại:</span>
+                        <span class="info-value">{{ employee.SDT or '—' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Giới tính:</span>
+                        <span class="info-value">
+                            {% if employee.GioiTinh == 1 %}
+                                Nam
+                            {% elif employee.GioiTinh == 0 %}
+                                Nữ
+                            {% else %}
+                                —
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Ngày sinh:</span>
+                        <span class="info-value">
+                            {{ employee.NgaySinh }}
+
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Địa chỉ:</span>
+                        <span class="info-value">{{ employee.DiaChi or '—' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Phòng ban:</span>
+                        <span class="info-value">{{ employee.TenPB }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Ngày vào làm:</span>
+                        <span class="info-value">
+                            {% if employee.NgayVaoLam %}
+                                {{ employee.NgayVaoLam.strftime('%d/%m/%Y') }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Ngày tạo hồ sơ:</span>
+                        <span class="info-value">
+                            {% if employee.NgayTao %}
+                                {{ employee.NgayTao.strftime('%d/%m/%Y') }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4">
+            
+            <!-- Actions -->
+            <div class="d-flex justify-content-between align-items-center employee-actions">
+                <div class="text-muted">
+                    <small><i class="fas fa-info-circle me-1"></i>Hồ sơ được cập nhật lần cuối: 
+                        {% if employee.NgayTao %}
+                            {{ employee.NgayTao.strftime('%d/%m/%Y') }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </small>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('edit_employee_web', ma_nv=employee.MaNV) }}" class="btn btn-warning">
+                        <i class="fas fa-edit me-1"></i> Chỉnh sửa
+                    </a>
+                    <a href="{{ url_for('employee_list') }}" class="btn btn-primary">
+                        <i class="fas fa-list me-1"></i> Danh sách nhân viên
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
