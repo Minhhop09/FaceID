@@ -187,7 +187,7 @@ body {background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Se
                 <div class="shift-body">
                     <div class="shift-meta">
                         <div class="meta-item"><i class="fa-solid fa-hashtag"></i><span>Mã ca: {{ shift.MaCa }}</span></div>
-                        <div class="meta-item"><i class="fa-solid fa-money-bill-wave"></i><span>Hệ số lương: {{ shift.HeSo }}</span></div>
+                        <div class="meta-item"><i class="fas fa-sack-dollar me-2"></i><span>Hệ số lương:  <strong>{{ '%.2f'|format(shift.HeSoLuong or 1.00) }}</strong></span></div>
                         <div class="meta-item"><i class="fa-solid fa-circle-info"></i><span>Mô tả: {{ shift.MoTa or "Không có" }}</span></div>
                         <div class="meta-item"><i class="fa-solid fa-circle-check"></i><span>Trạng thái: {{ shift.TrangThai }}</span></div>
                     </div>
@@ -199,7 +199,7 @@ body {background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Se
                 </div>
 
                 <div class="shift-footer">
-                    <div class="last-updated"><i class="fa-regular fa-clock me-1"></i>Cập nhật: {{ shift.LastUpdated or "—" }}</div>
+                    <div class="last-updated"><i class="fa-regular fa-clock me-1"></i>Cập nhật: {{ shift.LastUpdated }}</div>
                     <a href="{{ url_for('shift_detail', ma_ca=shift.MaCa) }}" class="view-details">Xem chi tiết <i class="fa-solid fa-arrow-right ms-1"></i></a>
                 </div>
             </div>

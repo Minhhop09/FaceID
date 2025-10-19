@@ -208,7 +208,7 @@ document.getElementById("btn-calc-salary").addEventListener("click", async () =>
     alert(data.message);
     if (data.success) location.reload();
   } catch {
-    alert("❌ Lỗi khi tính lương!");
+    alert("Lỗi khi tính lương!");
   }
   btn.disabled = false;
   btn.innerHTML = '<i class="fa-solid fa-calculator me-2"></i>Tính lương tháng này';
