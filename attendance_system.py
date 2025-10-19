@@ -120,73 +120,102 @@ def update_current_employee(ma_nv, ma_ca=None):
 # ======================
 # Chấm công tự động (nếu cần)
 # ======================
-def record_attendance(ma_nv):
+def record_attendance(ma_nv, ma_ca):
     try:
         conn = get_sql_connection()
         cursor = conn.cursor()
         today = date.today().strftime("%Y-%m-%d")
         now_time = datetime.now().strftime("%H:%M:%S")
-
-        # Lấy giờ hiện tại (kiểu datetime)
         now_dt = datetime.strptime(now_time, "%H:%M:%S").time()
 
-        # --- Xác định ca làm việc ---
-        if now_dt >= datetime.strptime("05:00", "%H:%M").time() and now_dt < datetime.strptime("12:00", "%H:%M").time():
-            ca_lam = "Ca sáng"
-            gio_bat_dau = datetime.strptime("08:00", "%H:%M").time()
-        elif now_dt >= datetime.strptime("12:00", "%H:%M").time() and now_dt < datetime.strptime("18:00", "%H:%M").time():
-            ca_lam = "Ca chiều"
-            gio_bat_dau = datetime.strptime("13:00", "%H:%M").time()
-        else:
-            ca_lam = "Ca tối"
-            gio_bat_dau = datetime.strptime("18:00", "%H:%M").time()
+        # ===============================
+        # 🔹 LẤY THÔNG TIN CA TỪ MÃ CA (bạn bấm chọn ca nào thì truyền vào)
+        # ===============================
+        cursor.execute("""
+            SELECT TenCa, GioBatDau, GioKetThuc
+            FROM CaLamViec
+            WHERE MaCa = ?
+        """, (ma_ca,))
+        ca = cursor.fetchone()
 
-        # --- Cho phép trễ 5 phút ---
+        if not ca:
+            conn.close()
+            return f"⚠️ Không tìm thấy thông tin ca làm {ma_ca}."
+
+        ten_ca, gio_bat_dau, gio_ket_thuc = ca
+
+        # ===============================
+        # 🔹 XÁC ĐỊNH TRẠNG THÁI: ĐÚNG GIỜ / ĐI MUỘN
+        # ===============================
         gio_bat_dau_dt = datetime.combine(datetime.today(), gio_bat_dau)
         now_dt_full = datetime.combine(datetime.today(), now_dt)
         tre = (now_dt_full - gio_bat_dau_dt).total_seconds()
+        trang_thai = 1 if tre <= 5 * 60 else 2  # <=5 phút: đúng giờ, ngược lại: đi muộn
 
-        if tre > 5 * 60:
-            trang_thai = 2  # Đi muộn
-        else:
-            trang_thai = 1  # Đúng giờ
+        # ===============================
+        # 🔹 ĐẢM BẢO LỊCH LÀM VIỆC CÓ BẢN GHI
+        # ===============================
+        cursor.execute("""
+            IF NOT EXISTS (
+                SELECT 1 FROM LichLamViec WHERE MaNV = ? AND NgayLam = ? AND MaCa = ?
+            )
+            INSERT INTO LichLamViec (MaNV, MaCa, NgayLam, TrangThai)
+            VALUES (?, ?, ?, 1);
+        """, (ma_nv, today, ma_ca, ma_nv, ma_ca, today))
 
-        # --- Kiểm tra đã có bản ghi chưa ---
+        # ===============================
+        # 🔹 KIỂM TRA ĐÃ CÓ BẢN GHI CHẤM CÔNG TRONG CA CHƯA
+        # ===============================
         cursor.execute("""
             SELECT GioVao, GioRa FROM ChamCong
-            WHERE MaNV=? AND NgayChamCong=?
-        """, (ma_nv, today))
+            WHERE MaNV = ? AND NgayChamCong = ? AND MaCa = ?
+        """, (ma_nv, today, ma_ca))
         row = cursor.fetchone()
 
+        # ===============================
+        # 🔹 GHI NHẬN GIỜ VÀO / GIỜ RA
+        # ===============================
         if not row:
-            # ➕ Ghi giờ vào
+            # ➕ Ghi giờ vào & lưu giờ ca thực tế (đóng băng)
             cursor.execute("""
-                INSERT INTO ChamCong (MaNV, NgayChamCong, GioVao, TrangThai)
-                VALUES (?, ?, ?, ?)
-            """, (ma_nv, today, now_time, trang_thai))
+                INSERT INTO ChamCong (
+                    MaNV, NgayChamCong, GioVao, TrangThai, MaCa,
+                    GioBatDauThucTe, GioKetThucThucTe
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (ma_nv, today, now_time, trang_thai, ma_ca, gio_bat_dau, gio_ket_thuc))
+
+            # Cập nhật lịch làm việc thành "Đã chấm công"
+            cursor.execute("""
+                UPDATE LichLamViec
+                SET TrangThai = 1
+                WHERE MaNV = ? AND NgayLam = ? AND MaCa = ?
+            """, (ma_nv, today, ma_ca))
+
             conn.commit()
-            status_text = f"✅ Vào ca thành công ({ca_lam} - {'Đúng giờ' if trang_thai == 1 else 'Đi muộn'})"
+            status_text = f"✅ Vào ca {ten_ca} ({'Đúng giờ' if trang_thai == 1 else 'Đi muộn'})"
 
         else:
             gio_vao, gio_ra = row
             if gio_ra is None:
-                # ➕ Ghi giờ ra
+                # ➕ Cập nhật giờ ra
                 cursor.execute("""
                     UPDATE ChamCong
-                    SET GioRa=?, TrangThai=?
-                    WHERE MaNV=? AND NgayChamCong=?
-                """, (now_time, trang_thai, ma_nv, today))
+                    SET GioRa = ?, TrangThai = ?
+                    WHERE MaNV = ? AND NgayChamCong = ? AND MaCa = ?
+                """, (now_time, trang_thai, ma_nv, today, ma_ca))
+
                 conn.commit()
-                status_text = f"👋 Ra ca thành công ({ca_lam})"
+                status_text = f"👋 Ra ca {ten_ca} thành công"
             else:
-                status_text = "⚠️ Hôm nay đã chấm đủ"
+                status_text = "⚠️ Hôm nay đã chấm đủ cho ca này"
 
         conn.close()
         return status_text
 
-    except Exception:
+    except Exception as e:
         logger.exception("❌ Lỗi khi chấm công cho MaNV=%s", ma_nv)
-        return "Lỗi khi chấm công"
+        return f"Lỗi khi chấm công: {str(e)}"
 
 # ======================
 # Xử lý từng frame camera

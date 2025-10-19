@@ -279,12 +279,12 @@
             }
 
             // Hiển thị thông báo
-            $("#toast-msg").text(`✅ ${res.username}: ${res.status_text}`)
+            $("#toast-msg").text(`${res.username}: ${res.status_text}`)
               .fadeIn(200).delay(1500).fadeOut(400);
           }
         },
         error: function () {
-          alert("❌ Lỗi khi cập nhật trạng thái!");
+          alert("Lỗi khi cập nhật trạng thái!");
         }
       });
     });

@@ -1,630 +1,266 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thêm ca làm việc mới</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #3498db;
-            --primary-dark: #2980b9;
-            --secondary-color: #2c3e50;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-            --light-bg: #f8f9fa;
-            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            --border-radius: 16px;
-            --transition: all 0.3s ease;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .add-shift-container {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .add-shift-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: var(--border-radius);
-            box-shadow: var(--card-shadow);
-            overflow: hidden;
-            transition: var(--transition);
-        }
-        
-        .add-shift-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-        
-        .card-header {
-            background: linear-gradient(135deg, var(--secondary-color), #34495e);
-            color: white;
-            padding: 40px 30px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .card-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
-        }
-        
-        .header-icon {
-            width: 90px;
-            height: 90px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 25px;
-            font-size: 2.2rem;
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            position: relative;
-            z-index: 2;
-            animation: bounce 2s ease-in-out infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .card-title {
-            font-weight: 800;
-            margin-bottom: 8px;
-            font-size: 2.2rem;
-            position: relative;
-            z-index: 2;
-        }
-        
-        .card-subtitle {
-            opacity: 0.9;
-            font-size: 1.1rem;
-            position: relative;
-            z-index: 2;
-        }
-        
-        .card-body {
-            padding: 40px;
-        }
-        
-        .form-section {
-            margin-bottom: 35px;
-            padding: 25px;
-            background: var(--light-bg);
-            border-radius: 12px;
-            border-left: 4px solid var(--primary-color);
-            transition: var(--transition);
-        }
-        
-        .form-section:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        }
-        
-        .section-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--secondary-color);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .section-title i {
-            margin-right: 12px;
-            color: var(--primary-color);
-            background: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
-        }
-        
-        .form-group {
-            margin-bottom: 25px;
-            position: relative;
-        }
-        
-        .form-label {
-            font-weight: 600;
-            color: var(--secondary-color);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            transition: var(--transition);
-        }
-        
-        .form-label i {
-            margin-right: 10px;
-            color: var(--primary-color);
-            width: 20px;
-            text-align: center;
-        }
-        
-        .required::after {
-            content: " *";
-            color: var(--danger-color);
-            font-weight: bold;
-        }
-        
-        .form-control {
-            border-radius: 10px;
-            border: 2px solid #e1e8ed;
-            padding: 14px 16px;
-            font-size: 1rem;
-            transition: var(--transition);
-            background: white;
-        }
-        
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.3rem rgba(52, 152, 219, 0.15);
-            transform: translateY(-2px);
-        }
-        
-        .time-input-group {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .time-separator {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--secondary-color);
-        }
-        
-        .shift-preview {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 15px;
-            border: 2px dashed #e1e8ed;
-            text-align: center;
-        }
-        
-        .shift-duration {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--primary-color);
-            margin-top: 10px;
-        }
-        
-        .coefficient-display {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 15px;
-            border: 2px solid #e1e8ed;
-            text-align: center;
-        }
-        
-        .coefficient-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-        
-        .coefficient-label {
-            font-size: 0.9rem;
-            color: #6c757d;
-        }
-        
-        .btn-group {
-            display: flex;
-            gap: 20px;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 2px solid var(--light-bg);
-        }
-        
-        .btn {
-            border-radius: 10px;
-            padding: 15px 30px;
-            font-weight: 600;
-            transition: var(--transition);
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 1.1rem;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: white;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
-        }
-        
-        .btn-secondary {
-            background: linear-gradient(135deg, #6c757d, #5a6268);
-            color: white;
-            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
-        }
-        
-        .btn-secondary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
-        }
-        
-        .floating-back {
-            position: fixed;
-            top: 25px;
-            left: 25px;
-            z-index: 1000;
-        }
-        
-        .btn-back {
-            background: white;
-            color: var(--secondary-color);
-            border-radius: 50%;
-            width: 55px;
-            height: 55px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--card-shadow);
-            transition: var(--transition);
-            text-decoration: none;
-            font-size: 1.2rem;
-        }
-        
-        .btn-back:hover {
-            transform: translateY(-3px) rotate(-5deg);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            color: var(--primary-color);
-        }
-        
-        .alert {
-            border-radius: 10px;
-            border: none;
-            padding: 18px 20px;
-            margin-bottom: 25px;
-            border-left: 4px solid;
-        }
-        
-        .alert-info {
-            background-color: #e1f5fe;
-            color: #01579b;
-            border-left-color: var(--primary-color);
-        }
-        
-        .feature-highlight {
-            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 10px;
-            border-left: 4px solid var(--warning-color);
-        }
-        
-        @media (max-width: 768px) {
-            body {
-                padding: 15px;
-            }
-            
-            .card-body {
-                padding: 25px;
-            }
-            
-            .form-section {
-                padding: 20px;
-            }
-            
-            .btn-group {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .floating-back {
-                top: 15px;
-                left: 15px;
-            }
-            
-            .time-input-group {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .time-separator {
-                transform: rotate(90deg);
-            }
-        }
-        
-        .loading-spinner {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #ffffff;
-            border-top: 2px solid transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .submit-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thêm ca làm việc - FaceID System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {--primary:#4361ee;--primary-dark:#3a56d4;--secondary:#6c757d;--success:#28a745;--info:#17a2b8;--warning:#ffc107;--danger:#dc3545;--light:#f8f9fa;--dark:#343a40;--sidebar-bg:#1e293b;--sidebar-hover:#334155;--sidebar-active:#4361ee;}
+    body {background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;min-height:100vh;overflow-x:hidden;}
+    .sidebar{min-height:100vh;width:280px;background:var(--sidebar-bg);position:fixed;top:0;left:0;z-index:1000;transition:all .3s ease;box-shadow:3px 0 15px rgba(0,0,0,.1);}
+    .sidebar-header{padding:25px 20px;border-bottom:1px solid rgba(255,255,255,.1);text-align:center;}
+    .sidebar-brand{color:#fff;text-decoration:none;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;}
+    .sidebar-brand i{background:linear-gradient(135deg,var(--primary),#4895ef);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.8rem;}
+    .sidebar-nav {padding:20px 0 80px;overflow-y:auto;height:calc(100vh - 80px);}
+    .nav-item{margin-bottom:5px;}
+    .nav-link{color:rgba(255,255,255,.8);padding:15px 25px;text-decoration:none;display:flex;align-items:center;gap:12px;transition:all .3s ease;border-left:3px solid transparent;font-weight:500;}
+    .nav-link:hover{color:#fff;background:var(--sidebar-hover);border-left-color:var(--primary);transform:translateX(5px);}
+    .nav-link.active{color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-left-color:#fff;box-shadow:0 4px 15px rgba(67,97,238,.3);}
+    .nav-link i{width:20px;text-align:center;font-size:1.1rem;}
+    .logout-link{color:#f8d7da;border-top:1px solid rgba(255,255,255,.1);margin-top:20px;}
+    .logout-link:hover{color:#dc3545;background:rgba(220,53,69,.1);}
+    .main-content{margin-left:280px;padding:30px;transition:all .3s ease;}
+    .dashboard-header{background:#fff;border-radius:15px;padding:25px 30px;margin-bottom:30px;box-shadow:0 5px 15px rgba(0,0,0,.08);display:flex;justify-content:space-between;align-items:center;}
+    .header-title h1{color:var(--dark);font-weight:700;margin-bottom:5px;}
+    .header-title p{color:var(--secondary);margin:0;}
+    .user-profile{display:flex;align-items:center;gap:15px;background:var(--light);padding:12px 20px;border-radius:12px;border:1px solid rgba(0,0,0,.05);}
+    .user-avatar{width:45px;height:45px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:1.2rem;}
+    .user-info{line-height:1.4;}
+    .user-name{font-weight:600;color:var(--dark);margin:0;}
+    .user-role{color:var(--secondary);font-size:.9rem;margin:0;}
+    
+    /* Form Styles */
+    .add-shift-container{width:100%;max-width:800px;margin:0 auto;}
+    .add-shift-card{background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.1);overflow:hidden;transition:all .3s ease;}
+    .add-shift-card:hover{transform:translateY(-5px);box-shadow:0 20px 40px rgba(0,0,0,.15);}
+    .card-header{background:linear-gradient(135deg,var(--dark),#34495e);color:white;padding:40px 30px;text-align:center;position:relative;overflow:hidden;}
+    .card-header::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);animation:float 6s ease-in-out infinite;}
+    @keyframes float{0%,100%{transform:translateY(0px) rotate(0deg);}50%{transform:translateY(-20px) rotate(180deg);}}
+    .header-icon{width:90px;height:90px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 25px;font-size:2.2rem;backdrop-filter:blur(10px);border:2px solid rgba(255,255,255,.2);position:relative;z-index:2;animation:bounce 2s ease-in-out infinite;}
+    @keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+    .card-title{font-weight:800;margin-bottom:8px;font-size:2.2rem;position:relative;z-index:2;}
+    .card-subtitle{opacity:.9;font-size:1.1rem;position:relative;z-index:2;}
+    .card-body{padding:40px;}
+    .form-section{margin-bottom:35px;padding:25px;background:var(--light);border-radius:12px;border-left:4px solid var(--primary);transition:all .3s ease;}
+    .form-section:hover{transform:translateX(5px);box-shadow:0 5px 15px rgba(0,0,0,.08);}
+    .section-title{font-size:1.3rem;font-weight:700;color:var(--dark);margin-bottom:20px;display:flex;align-items:center;}
+    .section-title i{margin-right:12px;color:var(--primary);background:white;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(67,97,238,.3);}
+    .form-group{margin-bottom:25px;position:relative;}
+    .form-label{font-weight:600;color:var(--dark);margin-bottom:10px;display:flex;align-items:center;transition:all .3s;}
+    .form-label i{margin-right:10px;color:var(--primary);width:20px;text-align:center;}
+    .required::after{content:" *";color:var(--danger);font-weight:bold;}
+    .form-control{border-radius:10px;border:2px solid #e1e8ed;padding:14px 16px;font-size:1rem;transition:all .3s;background:white;}
+    .form-control:focus{border-color:var(--primary);box-shadow:0 0 0 .3rem rgba(67,97,238,.15);transform:translateY(-2px);}
+    .time-input-group{display:flex;align-items:center;gap:15px;}
+    .time-separator{font-size:1.5rem;font-weight:bold;color:var(--dark);}
+    .shift-preview{background:white;border-radius:10px;padding:20px;margin-top:15px;border:2px dashed #e1e8ed;text-align:center;}
+    .shift-duration{font-size:1.1rem;font-weight:600;color:var(--primary);margin-top:10px;}
+    .coefficient-display{background:white;border-radius:10px;padding:20px;margin-top:15px;border:2px solid #e1e8ed;text-align:center;}
+    .coefficient-value{font-size:2rem;font-weight:700;color:var(--primary);}
+    .coefficient-label{font-size:.9rem;color:var(--secondary);}
+    .btn-group{display:flex;gap:20px;margin-top:40px;padding-top:20px;border-top:2px solid var(--light);}
+    .btn{border-radius:10px;padding:15px 30px;font-weight:600;transition:all .3s;flex:1;display:flex;align-items:center;justify-content:center;gap:10px;font-size:1.1rem;border:none;cursor:pointer;}
+    .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;box-shadow:0 4px 15px rgba(67,97,238,.3);}
+    .btn-primary:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(67,97,238,.4);background:linear-gradient(135deg,var(--primary-dark),var(--primary));}
+    .btn-secondary{background:linear-gradient(135deg,var(--secondary),#5a6268);color:white;box-shadow:0 4px 15px rgba(108,117,125,.3);}
+    .btn-secondary:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(108,117,125,.4);}
+    .alert{border-radius:10px;border:none;padding:18px 20px;margin-bottom:25px;border-left:4px solid;}
+    .alert-info{background-color:#e1f5fe;color:#01579b;border-left-color:var(--primary);}
+    .feature-highlight{background:linear-gradient(135deg,#fff3cd,#ffeaa7);border-radius:10px;padding:15px;margin-top:10px;border-left:4px solid var(--warning);}
+    .loading-spinner{display:none;width:20px;height:20px;border:2px solid #ffffff;border-top:2px solid transparent;border-radius:50%;animation:spin 1s linear infinite;}
+    @keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+    .submit-btn:disabled{opacity:.7;cursor:not-allowed;transform:none !important;}
+    .footer{text-align:center;padding:20px;color:var(--secondary);font-size:.8rem;}
+    
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+    
+    @media(max-width:992px){.sidebar{width:80px;}.sidebar-brand span,.nav-link span{display:none;}.main-content{margin-left:80px;}.sidebar-header{padding:20px 10px;}.nav-link{justify-content:center;padding:15px;}.nav-link i{font-size:1.3rem;}}
+    @media(max-width:768px){.main-content{padding:20px;}.dashboard-header{flex-direction:column;gap:15px;text-align:center;}.btn-group{flex-direction:column;gap:15px;}.time-input-group{flex-direction:column;gap:10px;}.time-separator{transform:rotate(90deg);}}
+  </style>
 </head>
 <body>
-    <!-- Nút quay lại -->
-    <div class="floating-back">
-        <a href="shifts.html" class="btn-back">
-            <i class="fas fa-arrow-left"></i>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <a href="#" class="sidebar-brand">
+          <i class="fas fa-id-card-alt"></i>
+          <span>FaceID System</span>
         </a>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+        <div class="nav-item"><a href="{{ url_for('employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
+        <div class="nav-item"><a href="{{ url_for('departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+        <div class="nav-item"><a href="{{ url_for('shifts') }}" class="nav-link active"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+        <div class="nav-item"><a href="{{ url_for('assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+        <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
+        <div class="nav-item"><a href="{{ url_for('salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+        <div class="nav-item"><a href="{{ url_for('accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
+        <div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Báo cáo thống kê</span></a></div>
+        <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+        <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+      </nav>
     </div>
 
-    <div class="add-shift-container">
-        <div class="add-shift-card">
-            <div class="card-header">
-                <div class="header-icon">
-                    <i class="fas fa-calendar-plus"></i>
-                </div>
-                <h1 class="card-title">Thêm Ca Làm Việc Mới</h1>
-                <p class="card-subtitle">Tạo ca làm việc mới trong hệ thống</p>
-            </div>
-            
-            <div class="card-body">
-                <!-- Thông báo -->
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    Vui lòng điền đầy đủ thông tin bắt buộc (<span class="required"></span>) để tạo ca làm việc mới.
-                </div>
-                
-                <form id="addShiftForm" method="POST" action="{{ url_for('add_shift') }}">
-                    <!-- Thông tin ca làm việc -->
-                    <div class="form-section">
-                        <h3 class="section-title">
-                            <i class="fas fa-clock"></i>Thông tin ca làm việc
-                        </h3>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="maCa" class="form-label required">
-                                        <i class="fas fa-tag"></i>Mã ca
-                                    </label>
-                                    <input type="text" class="form-control" id="maCa" name="ma_ca" 
-                                           placeholder="VD: Ca1, Ca2, Ca3..." required>
-                                    <div class="form-text">Mã ca phải là duy nhất trong hệ thống</div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="tenCa" class="form-label required">
-                                        <i class="fas fa-layer-group"></i>Tên ca
-                                    </label>
-                                    <input type="text" class="form-control" id="tenCa" name="ten_ca" 
-                                           placeholder="VD: Ca sáng, Ca chiều, Ca tối..." required>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-label required">
-                                        <i class="fas fa-clock"></i>Thời gian làm việc
-                                    </label>
-                                    <div class="time-input-group">
-                                        <input type="time" class="form-control" id="gioBatDau" name="gio_bat_dau" 
-                                               value="08:00" required>
-                                        <div class="time-separator">→</div>
-                                        <input type="time" class="form-control" id="gioKetThuc" name="gio_ket_thuc" 
-                                               value="12:00" required>
-                                    </div>
-                                    
-                                    <div class="shift-preview">
-                                        <div>Thời gian làm việc:</div>
-                                        <div class="shift-duration" id="shiftDuration">4 giờ</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="heSo" class="form-label required">
-                                        <i class="fas fa-calculator"></i>Hệ số lương
-                                    </label>
-                                    <input type="number" class="form-control" id="heSo" name="he_so" 
-                                           value="1.00" step="0.01" min="1.00" max="3.00" required>
-                                    <div class="form-text">Hệ số tính lương cho ca làm việc (1.00 - 3.00)</div>
-                                    
-                                    <div class="coefficient-display">
-                                        <div class="coefficient-value" id="coefficientDisplay">1.00</div>
-                                        <div class="coefficient-label">Hệ số lương hiện tại</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="moTa" class="form-label">
-                                <i class="fas fa-file-alt"></i>Mô tả ca làm việc
-                            </label>
-                            <textarea class="form-control" id="moTa" name="mo_ta" 
-                                      rows="3" placeholder="Mô tả chi tiết về ca làm việc..."></textarea>
-                        </div>
-                    </div>
-                    
-                    <!-- Thông tin bổ sung -->
-                    <div class="form-section">
-                        <h3 class="section-title">
-                            <i class="fas fa-info-circle"></i>Thông tin bổ sung
-                        </h3>
-                        
-                        <div class="feature-highlight">
-                            <i class="fas fa-lightbulb text-warning me-2"></i>
-                            <strong>Lưu ý:</strong> Ca làm việc sau khi tạo sẽ được áp dụng ngay lập tức và có thể được gán cho nhân viên trong hệ thống.
-                        </div>
-                        
-                        <div class="alert alert-info mt-3">
-                            <i class="fas fa-database me-2"></i>
-                            <strong>Thông tin từ hệ thống:</strong> Hiện tại có 3 ca làm việc mẫu: Ca sáng (08:00-12:00), Ca chiều (13:00-17:00), Ca tối (18:00-22:00)
-                        </div>
-                    </div>
-                    
-                    <!-- Nút hành động -->
-                    <div class="btn-group">
-                        <a href="{{ url_for('shifts') }}" class="btn btn-secondary">
-                            <i class="fas fa-times"></i>Hủy bỏ
-                        </a>
-                        <button type="submit" class="btn btn-primary submit-btn">
-                            <i class="fas fa-save"></i>
-                            <span class="btn-text">Tạo ca làm việc</span>
-                            <div class="loading-spinner"></div>
-                        </button>
-                    </div>
-                </form>
-            </div>
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="dashboard-header">
+        <div class="header-title">
+          <h1>Thêm ca làm việc mới</h1>
+          <p>Tạo ca làm việc mới trong hệ thống</p>
         </div>
-    </div>
+        <div class="user-profile">
+          <div class="user-avatar">{{ session['username'][0]|upper }}</div>
+          <div class="user-info">
+            <div class="user-name">{{ session['username'] }}</div>
+            <div class="user-role">{{ session['role'] }}</div>
+          </div>
+        </div>
+      </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('addShiftForm');
-            const gioBatDauInput = document.getElementById('gioBatDau');
-            const gioKetThucInput = document.getElementById('gioKetThuc');
-            const shiftDuration = document.getElementById('shiftDuration');
-            const heSoInput = document.getElementById('heSo');
-            const coefficientDisplay = document.getElementById('coefficientDisplay');
-            const submitBtn = document.querySelector('.submit-btn');
-            const btnText = document.querySelector('.btn-text');
-            const loadingSpinner = document.querySelector('.loading-spinner');
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show mb-4" role="alert">
+              <i class="fa-solid fa-{{ 'triangle-exclamation' if category == 'error' else 'circle-check' }} me-2"></i>
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <div class="add-shift-container">
+        <div class="add-shift-card">
+          <div class="card-header">
+            <div class="header-icon"><i class="fas fa-calendar-plus"></i></div>
+            <h1 class="card-title">Thêm Ca Làm Việc Mới</h1>
+            <p class="card-subtitle">Tạo ca làm việc mới trong hệ thống</p>
+          </div>
+          
+          <div class="card-body">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              <strong>Lưu ý:</strong> Mã ca sẽ được hệ thống tạo tự động (ví dụ: Ca4, Ca5...).
+            </div>
             
-            // Tính toán thời gian làm việc
-            function calculateDuration() {
-                const startTime = gioBatDauInput.value;
-                const endTime = gioKetThucInput.value;
+            <form id="addShiftForm" method="POST" action="{{ url_for('add_shift') }}">
+              <div class="form-section">
+                <h3 class="section-title">
+                  <i class="fas fa-clock"></i>Thông tin ca làm việc
+                </h3>
                 
-                if (startTime && endTime) {
-                    const start = new Date(`2000-01-01T${startTime}`);
-                    const end = new Date(`2000-01-01T${endTime}`);
-                    
-                    let diff = (end - start) / (1000 * 60 * 60); // Chênh lệch giờ
-                    
-                    // Xử lý trường hợp ca làm việc qua ngày
-                    if (diff < 0) {
-                        diff += 24;
-                    }
-                    
-                    shiftDuration.textContent = `${diff.toFixed(1)} giờ`;
-                }
-            }
-            
-            // Cập nhật hiển thị hệ số
-            function updateCoefficientDisplay() {
-                coefficientDisplay.textContent = heSoInput.value;
-            }
-            
-            // Gọi tính toán khi thời gian thay đổi
-            gioBatDauInput.addEventListener('change', calculateDuration);
-            gioKetThucInput.addEventListener('change', calculateDuration);
-            heSoInput.addEventListener('input', updateCoefficientDisplay);
-            
-            // Khởi tạo tính toán ban đầu
-            calculateDuration();
-            updateCoefficientDisplay();
-            
-            // Xử lý submit form
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="tenCa" class="form-label required">
+                        <i class="fas fa-layer-group"></i>Tên ca
+                      </label>
+                      <input type="text" class="form-control" id="tenCa" name="ten_ca" 
+                             placeholder="VD: Ca sáng, Ca chiều, Ca tối..." required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="heSo" class="form-label required">
+                        <i class="fas fa-calculator"></i>Hệ số lương
+                      </label>
+                      <input type="number" class="form-control" id="heSo" name="he_so" 
+                             value="1.00" step="0.01" min="1.00" max="3.00" required>
+                      <div class="form-text">Hệ số tính lương cho ca làm việc (1.00 - 3.00)</div>
+                      <div class="coefficient-display">
+                        <div class="coefficient-value" id="coefficientDisplay">1.00</div>
+                        <div class="coefficient-label">Hệ số lương hiện tại</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 
-                // Kiểm tra mã ca
-                const maCa = document.getElementById('maCa').value;
-                if (!maCa.trim()) {
-                    alert('Vui lòng nhập mã ca!');
-                    return;
-                }
-                
-                // Kiểm tra tên ca
-                const tenCa = document.getElementById('tenCa').value;
-                if (!tenCa.trim()) {
-                    alert('Vui lòng nhập tên ca!');
-                    return;
-                }
-                
-                // Kiểm tra thời gian
-                const gioBatDau = gioBatDauInput.value;
-                const gioKetThuc = gioKetThucInput.value;
-                if (gioBatDau >= gioKetThuc) {
-                    alert('Giờ kết thúc phải sau giờ bắt đầu!');
-                    return;
-                }
-                
-                // Kiểm tra hệ số
-                const heSo = parseFloat(heSoInput.value);
-                if (heSo < 1.00 || heSo > 3.00) {
-                    alert('Hệ số lương phải nằm trong khoảng từ 1.00 đến 3.00!');
-                    return;
-                }
-                
-                // Hiển thị loading
-                btnText.textContent = 'Đang tạo...';
-                loadingSpinner.style.display = 'block';
-                submitBtn.disabled = true;
-                
-                // Giả lập gửi dữ liệu
-                setTimeout(() => {
-                    alert('Ca làm việc đã được tạo thành công!');
-                    // Trong thực tế, bạn sẽ gửi form đến server ở đây
-                    // form.submit();
-                }, 1500);
-            });
-        });
-    </script>
+                <div class="form-group">
+                  <label class="form-label required">
+                    <i class="fas fa-clock"></i>Thời gian làm việc
+                  </label>
+                  <div class="time-input-group">
+                    <input type="time" class="form-control" id="gioBatDau" name="gio_bat_dau" value="08:00" required>
+                    <div class="time-separator">→</div>
+                    <input type="time" class="form-control" id="gioKetThuc" name="gio_ket_thuc" value="12:00" required>
+                  </div>
+                  <div class="shift-preview">
+                    <div>Thời gian làm việc:</div>
+                    <div class="shift-duration" id="shiftDuration">4 giờ</div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="moTa" class="form-label">
+                    <i class="fas fa-file-alt"></i>Mô tả ca làm việc
+                  </label>
+                  <textarea class="form-control" id="moTa" name="mo_ta" 
+                            rows="3" placeholder="Mô tả chi tiết về ca làm việc..."></textarea>
+                </div>
+              </div>
+              
+              <div class="btn-group">
+                <a href="{{ url_for('shifts') }}" class="btn btn-secondary">
+                  <i class="fas fa-times"></i>Hủy bỏ
+                </a>
+                <button type="submit" class="btn btn-primary submit-btn">
+                  <i class="fas fa-save"></i>
+                  <span class="btn-text">Tạo ca làm việc</span>
+                  <div class="loading-spinner"></div>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">© 2025 FaceID System — Developed with ❤️ by Trần Minh Hợp</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('addShiftForm');
+      const gioBatDauInput = document.getElementById('gioBatDau');
+      const gioKetThucInput = document.getElementById('gioKetThuc');
+      const shiftDuration = document.getElementById('shiftDuration');
+      const heSoInput = document.getElementById('heSo');
+      const coefficientDisplay = document.getElementById('coefficientDisplay');
+      const submitBtn = document.querySelector('.submit-btn');
+      const btnText = document.querySelector('.btn-text');
+      const loadingSpinner = document.querySelector('.loading-spinner');
+      
+      function calculateDuration() {
+        const start = new Date(`2000-01-01T${gioBatDauInput.value}`);
+        const end = new Date(`2000-01-01T${gioKetThucInput.value}`);
+        let diff = (end - start) / (1000 * 60 * 60);
+        if (diff < 0) diff += 24;
+        shiftDuration.textContent = `${diff.toFixed(1)} giờ`;
+      }
+
+      function updateCoefficientDisplay() {
+        coefficientDisplay.textContent = heSoInput.value;
+      }
+
+      gioBatDauInput.addEventListener('change', calculateDuration);
+      gioKetThucInput.addEventListener('change', calculateDuration);
+      heSoInput.addEventListener('input', updateCoefficientDisplay);
+
+      calculateDuration();
+      updateCoefficientDisplay();
+
+      form.addEventListener('submit', function(e) {
+        btnText.textContent = 'Đang tạo...';
+        loadingSpinner.style.display = 'block';
+        submitBtn.disabled = true;
+      });
+    });
+  </script>
 </body>
 </html>

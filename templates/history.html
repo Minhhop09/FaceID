@@ -13,12 +13,7 @@ body {background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Se
 .sidebar-header{padding:25px 20px;border-bottom:1px solid rgba(255,255,255,.1);text-align:center;}
 .sidebar-brand{color:#fff;text-decoration:none;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;}
 .sidebar-brand i{background:linear-gradient(135deg,var(--primary),#4895ef);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.8rem;}
-.sidebar-nav {
-    padding: 20px 0 80px;  /* chừa không gian cuối để thấy nút logout */
-    overflow-y: auto;      /* cho phép cuộn */
-    height: calc(100vh - 80px);
-}
-
+.sidebar-nav{padding:20px 0 80px;overflow-y:auto;height:calc(100vh - 80px);}
 .nav-item{margin-bottom:5px;}
 .nav-link{color:rgba(255,255,255,.8);padding:15px 25px;text-decoration:none;display:flex;align-items:center;gap:12px;transition:all .3s ease;border-left:3px solid transparent;font-weight:500;}
 .nav-link:hover{color:#fff;background:var(--sidebar-hover);border-left-color:var(--primary);transform:translateX(5px);}
@@ -95,8 +90,39 @@ body {background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Se
             </div>
         </div>
 
-        <!-- Content -->
         <div class="content-area">
+            <!-- Bộ lọc tìm kiếm -->
+            <form method="get" action="{{ url_for('history') }}" class="mb-4 d-flex flex-wrap align-items-center gap-2">
+    <label for="table" class="fw-semibold text-secondary mb-0">Bảng:</label>
+    <select name="table" id="table" class="form-select w-auto">
+        <option value="">-- Tất cả --</option>
+        {% for t in tables %}
+            <option value="{{ t }}" {% if t == selected_table %}selected{% endif %}>{{ t }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="action" class="fw-semibold text-secondary mb-0">Hành động:</label>
+    <select name="action" id="action" class="form-select w-auto">
+        <option value="">-- Tất cả --</option>
+        {% for a in actions %}
+            <option value="{{ a }}" {% if a == selected_action %}selected{% endif %}>{{ a }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="user" class="fw-semibold text-secondary mb-0">Người thực hiện:</label>
+    <input type="text" name="user" id="user" value="{{ keyword_user }}" class="form-control w-auto" placeholder="Tìm tên hoặc mã...">
+
+    <button type="submit" class="btn btn-primary">
+        <i class="fas fa-search"></i> Lọc
+    </button>
+
+    {% if selected_table or selected_action or keyword_user %}
+    <a href="{{ url_for('history') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-rotate-left"></i> Xem tất cả
+    </a>
+    {% endif %}
+</form>
+
             {% if histories %}
             <div class="table-responsive">
                 <table class="table table-hover">
@@ -134,9 +160,7 @@ body {background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Se
                             <td class="data-cell" title="{{ row.GiaTriCu }}">{{ row.GiaTriCu or '—' }}</td>
                             <td class="data-cell" title="{{ row.GiaTriMoi }}">{{ row.GiaTriMoi or '—' }}</td>
                             <td class="text-center">
-                                {% if row.ThoiGian %}
-                                    {{ row.ThoiGian.strftime('%d/%m/%Y %H:%M') }}
-                                {% else %}—{% endif %}
+                                {{ row.ThoiGian.strftime('%d/%m/%Y %H:%M') if row.ThoiGian else '—' }}
                             </td>
                             <td class="text-center">{{ row.TenDangNhap or '—' }}</td>
                         </tr>
