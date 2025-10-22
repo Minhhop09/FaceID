@@ -29,7 +29,7 @@ def encode_and_save(nhanvien_id, image_path, conn):
     cursor.execute("""
         SELECT COUNT(*) FROM KhuonMat
         WHERE MaNV=? AND TrangThai=1
-    """, nhanvien_id)
+    """, (nhanvien_id,))
     exists = cursor.fetchone()[0]
 
     if exists:
@@ -39,7 +39,7 @@ def encode_and_save(nhanvien_id, image_path, conn):
             SET DuongDanAnh=?, MaHoaNhanDang=?, NgayDangKy=?, MoTa=?
             WHERE MaNV=? AND TrangThai=1
         """
-        cursor.execute(sql, image_path, face_encoding_bytes, ngay_dang_ky, mo_ta, nhanvien_id)
+        cursor.execute(sql, (image_path, face_encoding_bytes, ngay_dang_ky, mo_ta, nhanvien_id))
         print(f"🔄 Cập nhật khuôn mặt của {nhanvien_id} trong CSDL.")
     else:
         # Nếu chưa có, insert mới
@@ -47,7 +47,7 @@ def encode_and_save(nhanvien_id, image_path, conn):
             INSERT INTO KhuonMat (MaNV, DuongDanAnh, MaHoaNhanDang, NgayDangKy, TrangThai, MoTa)
             VALUES (?, ?, ?, ?, ?, ?)
         """
-        cursor.execute(sql, nhanvien_id, image_path, face_encoding_bytes, ngay_dang_ky, trang_thai, mo_ta)
+        cursor.execute(sql, (nhanvien_id, image_path, face_encoding_bytes, ngay_dang_ky, trang_thai, mo_ta))
         print(f"✅ Khuôn mặt của {nhanvien_id} đã lưu vào CSDL.")
 
     conn.commit()

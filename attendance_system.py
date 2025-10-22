@@ -42,7 +42,7 @@ def load_known_faces():
             SELECT k.MaNV, n.HoTen, k.MaHoaNhanDang
             FROM KhuonMat k
             JOIN NhanVien n ON k.MaNV = n.MaNV
-            WHERE k.TrangThai = 1
+            WHERE n.TrangThai = 1  -- ✅ chỉ lấy nhân viên đang hoạt động
         """)
         for row in cursor.fetchall():
             blob = row.MaHoaNhanDang
@@ -60,6 +60,7 @@ def load_known_faces():
     except Exception:
         logger.exception("❌ Lỗi khi load known faces")
     return encodings, ids, names
+
 
 # ======================
 # Cập nhật thông tin nhân viên hiện tại
@@ -120,6 +121,9 @@ def update_current_employee(ma_nv, ma_ca=None):
 # ======================
 # Chấm công tự động (nếu cần)
 # ======================
+# ======================
+# Chấm công tự động (nếu cần)
+# ======================
 def record_attendance(ma_nv, ma_ca):
     try:
         conn = get_sql_connection()
@@ -128,83 +132,84 @@ def record_attendance(ma_nv, ma_ca):
         now_time = datetime.now().strftime("%H:%M:%S")
         now_dt = datetime.strptime(now_time, "%H:%M:%S").time()
 
-        # ===============================
-        # 🔹 LẤY THÔNG TIN CA TỪ MÃ CA (bạn bấm chọn ca nào thì truyền vào)
-        # ===============================
+        # 🔹 Kiểm tra nhân viên còn hoạt động không
+        cursor.execute("SELECT TrangThai FROM NhanVien WHERE MaNV = ?", (ma_nv,))
+        nv_status = cursor.fetchone()
+        if not nv_status:
+            conn.close()
+            return "⚠️ Không tìm thấy nhân viên trong hệ thống."
+        if nv_status[0] != 1:
+            conn.close()
+            return "🚫 Nhân viên này đã bị vô hiệu hóa hoặc xóa mềm — không thể chấm công."
+
+        # 🔹 Lấy thông tin ca
         cursor.execute("""
             SELECT TenCa, GioBatDau, GioKetThuc
-            FROM CaLamViec
-            WHERE MaCa = ?
+            FROM CaLamViec WHERE MaCa = ?
         """, (ma_ca,))
         ca = cursor.fetchone()
-
         if not ca:
             conn.close()
             return f"⚠️ Không tìm thấy thông tin ca làm {ma_ca}."
-
         ten_ca, gio_bat_dau, gio_ket_thuc = ca
 
-        # ===============================
-        # 🔹 XÁC ĐỊNH TRẠNG THÁI: ĐÚNG GIỜ / ĐI MUỘN
-        # ===============================
+        # 🔹 Xác định trạng thái đi muộn / đúng giờ
         gio_bat_dau_dt = datetime.combine(datetime.today(), gio_bat_dau)
         now_dt_full = datetime.combine(datetime.today(), now_dt)
         tre = (now_dt_full - gio_bat_dau_dt).total_seconds()
-        trang_thai = 1 if tre <= 5 * 60 else 2  # <=5 phút: đúng giờ, ngược lại: đi muộn
+        trang_thai = 1 if tre <= 5 * 60 else 2  # <= 5 phút là đúng giờ
 
-        # ===============================
-        # 🔹 ĐẢM BẢO LỊCH LÀM VIỆC CÓ BẢN GHI
-        # ===============================
+        # 🔹 Đảm bảo lịch làm việc tồn tại, đồng thời lấy MaLLV
         cursor.execute("""
-            IF NOT EXISTS (
-                SELECT 1 FROM LichLamViec WHERE MaNV = ? AND NgayLam = ? AND MaCa = ?
-            )
-            INSERT INTO LichLamViec (MaNV, MaCa, NgayLam, TrangThai)
-            VALUES (?, ?, ?, 1);
-        """, (ma_nv, today, ma_ca, ma_nv, ma_ca, today))
+            DECLARE @MaLLV INT;
+            SELECT TOP 1 @MaLLV = MaLLV
+            FROM LichLamViec
+            WHERE MaNV = ? AND MaCa = ? AND NgayLam = ? AND DaXoa = 1;
 
-        # ===============================
-        # 🔹 KIỂM TRA ĐÃ CÓ BẢN GHI CHẤM CÔNG TRONG CA CHƯA
-        # ===============================
+            IF @MaLLV IS NULL
+            BEGIN
+                INSERT INTO LichLamViec (MaNV, MaCa, NgayLam, TrangThai, DaXoa)
+                VALUES (?, ?, ?, 1, 1);
+                SET @MaLLV = SCOPE_IDENTITY();
+            END
+
+            SELECT @MaLLV;
+        """, (ma_nv, ma_ca, today, ma_nv, ma_ca, today))
+        ma_llv_row = cursor.fetchone()
+        ma_llv = ma_llv_row[0] if ma_llv_row else None
+
+        # 🔹 Kiểm tra xem đã có bản ghi chấm công chưa
         cursor.execute("""
             SELECT GioVao, GioRa FROM ChamCong
             WHERE MaNV = ? AND NgayChamCong = ? AND MaCa = ?
         """, (ma_nv, today, ma_ca))
         row = cursor.fetchone()
 
-        # ===============================
-        # 🔹 GHI NHẬN GIỜ VÀO / GIỜ RA
-        # ===============================
+        # 🔹 Ghi nhận giờ vào / giờ ra
         if not row:
-            # ➕ Ghi giờ vào & lưu giờ ca thực tế (đóng băng)
             cursor.execute("""
                 INSERT INTO ChamCong (
-                    MaNV, NgayChamCong, GioVao, TrangThai, MaCa,
-                    GioBatDauThucTe, GioKetThucThucTe
+                    MaNV, MaLLV, MaCa, NgayChamCong, GioVao, TrangThai, 
+                    GioBatDauThucTe, GioKetThucThucTe, DaXoa
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (ma_nv, today, now_time, trang_thai, ma_ca, gio_bat_dau, gio_ket_thuc))
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
+            """, (ma_nv, ma_llv, ma_ca, today, now_time, trang_thai, gio_bat_dau, gio_ket_thuc))
 
-            # Cập nhật lịch làm việc thành "Đã chấm công"
             cursor.execute("""
-                UPDATE LichLamViec
-                SET TrangThai = 1
-                WHERE MaNV = ? AND NgayLam = ? AND MaCa = ?
-            """, (ma_nv, today, ma_ca))
-
+                UPDATE LichLamViec SET TrangThai = 1
+                WHERE MaLLV = ?
+            """, (ma_llv,))
             conn.commit()
             status_text = f"✅ Vào ca {ten_ca} ({'Đúng giờ' if trang_thai == 1 else 'Đi muộn'})"
 
         else:
             gio_vao, gio_ra = row
             if gio_ra is None:
-                # ➕ Cập nhật giờ ra
                 cursor.execute("""
                     UPDATE ChamCong
                     SET GioRa = ?, TrangThai = ?
                     WHERE MaNV = ? AND NgayChamCong = ? AND MaCa = ?
                 """, (now_time, trang_thai, ma_nv, today, ma_ca))
-
                 conn.commit()
                 status_text = f"👋 Ra ca {ten_ca} thành công"
             else:

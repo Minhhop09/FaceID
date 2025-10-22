@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dữ liệu đã xóa - FaceID System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary:#4361ee;--primary-dark:#3a56d4;--secondary:#6c757d;
+            --success:#28a745;--info:#17a2b8;--warning:#ffc107;--danger:#dc3545;
+            --light:#f8f9fa;--dark:#343a40;--sidebar-bg:#1e293b;
+            --sidebar-hover:#334155;--sidebar-active:#4361ee;
+        }
+        body {
+            background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);
+            font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+            min-height:100vh;overflow-x:hidden;
+        }
+        .sidebar{min-height:100vh;width:280px;background:var(--sidebar-bg);position:fixed;top:0;left:0;z-index:1000;transition:all .3s ease;box-shadow:3px 0 15px rgba(0,0,0,.1);}
+        .sidebar-header{padding:25px 20px;border-bottom:1px solid rgba(255,255,255,.1);text-align:center;}
+        .sidebar-brand{color:#fff;text-decoration:none;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;}
+        .sidebar-brand i{background:linear-gradient(135deg,var(--primary),#4895ef);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.8rem;}
+        .sidebar-nav{padding:20px 0 80px;overflow-y:auto;height:calc(100vh - 80px);}
+        .nav-item{margin-bottom:5px;}
+        .nav-link{color:rgba(255,255,255,.8);padding:15px 25px;text-decoration:none;display:flex;align-items:center;gap:12px;transition:all .3s ease;border-left:3px solid transparent;font-weight:500;}
+        .nav-link:hover{color:#fff;background:var(--sidebar-hover);border-left-color:var(--primary);transform:translateX(5px);}
+        .nav-link.active{color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-left-color:#fff;box-shadow:0 4px 15px rgba(67,97,238,.3);}
+        .nav-link i{width:20px;text-align:center;font-size:1.1rem;}
+        .logout-link{color:#f8d7da;border-top:1px solid rgba(255,255,255,.1);margin-top:20px;}
+        .logout-link:hover{color:#dc3545;background:rgba(220,53,69,.1);}
+        .main-content{margin-left:280px;padding:30px;transition:all .3s ease;}
+        .dashboard-header{background:#fff;border-radius:15px;padding:25px 30px;margin-bottom:30px;box-shadow:0 5px 15px rgba(0,0,0,.08);display:flex;justify-content:space-between;align-items:center;}
+        .header-title h1{color:var(--dark);font-weight:700;margin-bottom:5px;}
+        .header-title p{color:var(--secondary);margin:0;}
+        .user-profile{display:flex;align-items:center;gap:15px;background:var(--light);padding:12px 20px;border-radius:12px;border:1px solid rgba(0,0,0,.05);}
+        .user-avatar{width:45px;height:45px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:1.2rem;}
+        .user-info{line-height:1.4;}
+        .user-name{font-weight:600;color:var(--dark);margin:0;}
+        .user-role{color:var(--secondary);font-size:.9rem;margin:0;}
+        .tab-content{background:#fff;border-radius:15px;padding:30px;box-shadow:0 5px 15px rgba(0,0,0,.08);animation:fadeInUp .6s ease-out;}
+        .nav-tabs {
+    border-bottom: 2px solid #e9ecef;
+    margin-bottom: 25px;
+    flex-wrap: nowrap; /* Ngăn xuống dòng */
+    overflow-x: auto; /* Cho phép cuộn ngang nếu cần */
+}
+
+.nav-tabs .nav-link {
+    color: var(--secondary);
+    background: none;
+    border: none;
+    padding: 12px 20px; /* Giảm padding ngang */
+    font-weight: 500;
+    border-radius: 8px 8px 0 0;
+    margin-bottom: -2px;
+    white-space: nowrap; /* Quan trọng: ngăn chữ xuống dòng */
+}
+
+.nav-tabs .nav-link i {
+    margin-right: 0.4rem; /* Giảm khoảng cách icon */
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--primary);
+    background: rgba(67,97,238,.05);
+    border: none;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--primary);
+    background: #fff;
+    border-bottom: 2px solid var(--primary);
+    font-weight: 600;
+}
+        .table-container{overflow-x:auto;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+        .table th{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;font-weight:600;padding:15px;text-align:center;border:none;}
+        .table td{padding:15px;vertical-align:middle;border-bottom:1px solid #e9ecef;}
+        .table tbody tr:hover{background-color:rgba(67,97,238,.03);}
+        .empty-state{text-align:center;padding:60px 20px;background:var(--light);border-radius:15px;}
+        .empty-icon{font-size:4rem;color:var(--secondary);margin-bottom:20px;}
+        .empty-title{color:var(--dark);margin-bottom:10px;}
+        .empty-text{color:var(--secondary);max-width:400px;margin:0 auto 25px;}
+        .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border:none;border-radius:8px;padding:12px 24px;font-weight:500;transition:all .3s;}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(67,97,238,.3);}
+        .btn-success{background:linear-gradient(135deg,var(--success),#20c374);border:none;border-radius:8px;padding:8px 16px;font-weight:500;transition:all .3s;}
+        .btn-success:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(40,167,69,.3);}
+        .badge{font-size:.85rem;padding:6px 12px;border-radius:20px;}
+        .badge-secondary{background:rgba(108,117,125,.1);color:var(--secondary);}
+        .badge-success{background:rgba(40,167,69,.1);color:var(--success);}
+        .badge-warning{background:rgba(255,193,7,.1);color:var(--warning);}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+        @media(max-width:992px){.sidebar{width:80px;}.sidebar-brand span,.nav-link span{display:none;}.main-content{margin-left:80px;}.sidebar-header{padding:20px 10px;}.nav-link{justify-content:center;padding:15px;}.nav-link i{font-size:1.3rem;}}
+        @media(max-width:768px){.main-content{padding:20px;}.dashboard-header{flex-direction:column;gap:15px;text-align:center;}.table-container{font-size:.9rem;}.nav-tabs .nav-link{padding:10px 16px;font-size:.9rem;}}
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand"><i class="fas fa-id-card-alt"></i><span>FaceID System</span></a>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('shifts') }}" class="nav-link"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('faces') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Báo cáo thống kê</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_list_deleted') }}" class="nav-link active"><i class="fas fa-trash"></i><span>Dữ liệu đã xóa</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="dashboard-header">
+            <div class="header-title">
+                <h1>Dữ liệu đã xóa</h1>
+                <p>Xem và khôi phục các đối tượng đã bị xóa khỏi hệ thống</p>
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar">{{ session['username'][0]|upper }}</div>
+                <div class="user-info">
+                    <div class="user-name">{{ session['username'] }}</div>
+                    <div class="user-role">{{ session['role'] }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show mb-4" role="alert">
+                        <i class="fa-solid fa-{{ 'triangle-exclamation' if category == 'error' else 'circle-check' }} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs" id="deletedTabs">
+    <!-- Nhân viên -->
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'employees' %}active{% endif %}" href="{{ url_for('employee_list_deleted') }}">
+                    <i class="fas fa-users me-2"></i>Nhân viên
+                </a>
+            </li>
+
+            <!-- Phòng ban -->
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'departments' %}active{% endif %}" href="{{ url_for('deleted_departments_list') }}">
+                    <i class="fas fa-building me-2"></i>Phòng ban
+                </a>
+            </li>
+
+            <!-- Ca làm việc -->
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'shifts' %}active{% endif %}" href="{{ url_for('deleted_shifts') }}">
+                    <i class="fas fa-clock me-2"></i>Ca làm việc
+                </a>
+            </li>
+
+            <!-- Phân ca -->
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'shift_assignments' %}active{% endif %}"
+                href="{{ url_for('deleted_shift_assignments_list') }}">
+                    <i class="fas fa-calendar-check me-2"></i>Phân ca
+                </a>
+            </li>
+
+            <!-- Tài khoản -->
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'accounts' %}active{% endif %}" href="{{ url_for('deleted_data', tab='accounts') }}">
+                    <i class="fas fa-user-gear me-2"></i>Tài khoản
+                </a>
+            </li>
+
+            <!-- Chấm công -->
+            <li class="nav-item">
+                <a class="nav-link {% if active_tab == 'attendance' %}active{% endif %}" href="{{ url_for('deleted_data', tab='attendance') }}">
+                    <i class="fas fa-fingerprint me-2"></i>Chấm công
+                </a>
+            </li>
+
+            <!-- Lương -->
+            <li class="nav-item">
+    <a class="nav-link {% if active_tab == 'salary' %}active{% endif %}"
+       href="{{ url_for('deleted_salaries') }}">
+        <i class="fas fa-money-bill-wave me-2"></i>Lương
+    </a>
+</li>
+
+            <li class="nav-item">
+    <a class="nav-link {% if active_tab == 'faces' %}active{% endif %}"
+       href="{{ url_for('deleted_data', tab='faces') }}">
+        <i class="fas fa-face-smile me-1"></i> Khuôn mặt
+    </a>
+</li>
+
+
+
+        </ul>
+
+
+        <div class="tab-content">
+<!-- ================= TAB NHÂN VIÊN ================= -->
+{% if active_tab == 'employees' %}
+<div class="tab-pane fade show active">
+    {% if deleted_employees %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0"><i class="fas fa-user-slash text-danger me-2"></i>Nhân viên đã xóa</h4>
+            <p class="text-muted mb-0 mt-1">Tổng cộng: {{ deleted_employees|length }} nhân viên</p>
+        </div>
+        <a href="{{ url_for('employee_list') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-left me-2"></i> Quay lại danh sách nhân viên
+        </a>
+    </div>
+
+    <!-- ✅ Form khôi phục nhiều nhân viên -->
+    <form method="POST" action="{{ url_for('restore_selected_employees') }}">
+        <div class="table-container">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:40px;">
+                            <input type="checkbox" id="select-all-employees" class="form-check-input">
+                        </th>
+                        <th>Ảnh</th>
+                        <th>Mã NV</th>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>Chức vụ</th>
+                        <th>Phòng ban</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for nv in deleted_employees %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="selected_employees" value="{{ nv.MaNV }}" class="form-check-input employee-checkbox">
+                        </td>
+
+                        <!-- ✅ Cột ảnh -->
+                        <td class="text-center">
+    {% if nv.DuongDanAnh %}
+        <img src="/photos/{{ nv.DuongDanAnh|replace('photos/', '') }}"
+             alt="Ảnh nhân viên"
+             class="rounded-circle border shadow-sm"
+             style="width:40px; height:40px; object-fit:cover; transition:transform 0.2s;"
+             onmouseover="this.style.transform='scale(1.3)'"
+             onmouseout="this.style.transform='scale(1)'">
+    {% else %}
+        <img src="{{ url_for('static', filename='images/no_image.png') }}"
+             alt="Không có ảnh"
+             class="rounded-circle border shadow-sm"
+             style="width:40px; height:40px; object-fit:cover;">
+    {% endif %}
+</td>
+
+
+                        <td class="fw-bold">{{ nv.MaNV }}</td>
+                        <td>{{ nv.HoTen }}</td>
+                        <td>{{ nv.Email or '—' }}</td>
+                        <td>
+                            {% if nv.ChucVu %}
+                            <span class="badge bg-secondary">{{ nv.ChucVu }}</span>
+                            {% else %} — {% endif %}
+                        </td>
+                        <td>{{ nv.TenPB or '—' }}</td>
+                        <td class="text-center">
+                            <!-- ✅ Nút khôi phục từng nhân viên -->
+                            <a href="{{ url_for('restore_employee', ma_nv=nv.MaNV) }}" 
+                               class="btn btn-success btn-sm"
+                               onclick="return confirm('Khôi phục nhân viên {{ nv.HoTen }}?')">
+                                <i class="fas fa-rotate-left me-1"></i> Khôi phục
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ✅ Thanh khôi phục nhiều -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="text-muted">
+                <span id="selected-count-employees">0</span> nhân viên được chọn
+            </div>
+            <button type="submit" id="restore-selected-employees-btn" class="btn btn-success" disabled
+                onclick="return confirm('Khôi phục các nhân viên đã chọn?')">
+                <i class="fas fa-rotate-left me-2"></i>Khôi phục đã chọn
+            </button>
+        </div>
+    </form>
+
+    {% else %}
+    <div class="empty-state text-center py-5">
+        <div class="empty-icon mb-3"><i class="fas fa-user-slash fa-3x text-muted"></i></div>
+        <h4 class="empty-title">Không có nhân viên nào đã xóa</h4>
+        <p class="text-muted">Tất cả nhân viên đang hoạt động trong hệ thống. Nhân viên bị xóa sẽ xuất hiện tại đây.</p>
+        <a href="{{ url_for('employee_list') }}" class="btn btn-primary">
+            <i class="fas fa-users me-2"></i>Quản lý nhân viên
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- ✅ Script chọn checkbox hàng loạt -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const selectAll = document.getElementById("select-all-employees");
+    const checkboxes = document.querySelectorAll(".employee-checkbox");
+    const countLabel = document.getElementById("selected-count-employees");
+    const restoreBtn = document.getElementById("restore-selected-employees-btn");
+
+    function updateCount() {
+        const count = document.querySelectorAll(".employee-checkbox:checked").length;
+        countLabel.textContent = count;
+        restoreBtn.disabled = count === 0;
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener("change", function() {
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            updateCount();
+        });
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener("change", updateCount));
+});
+</script>
+
+
+<!-- Tab phòng ban -->
+{% if active_tab == 'departments' %}
+<div class="tab-pane fade show active">
+    {% if deleted_departments %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0"><i class="fas fa-building text-danger me-2"></i>Phòng ban đã xóa</h4>
+            <p class="text-muted mb-0 mt-1">Tổng cộng: {{ deleted_departments|length }} phòng ban</p>
+        </div>
+        <a href="{{ url_for('departments') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-left me-2"></i> Quay lại danh sách phòng ban
+        </a>
+    </div>
+
+    <!-- ✅ Form khôi phục nhiều -->
+    <form method="POST" action="{{ url_for('restore_multiple_departments') }}">
+        <div class="table-container">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th style="width:40px;">
+                            <input type="checkbox" id="select-all-departments" class="form-check-input">
+                        </th>
+                        <th>Mã PB</th>
+                        <th>Tên phòng ban</th>
+                        <th>Quản lý</th>
+                        <th>Số nhân viên</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pb in deleted_departments %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="selected_departments" value="{{ pb.MaPB }}" class="form-check-input department-checkbox">
+                        </td>
+                        <td class="fw-bold">{{ pb.MaPB }}</td>
+                        <td>{{ pb.TenPB }}</td>
+                        <td>{{ pb.QuanLy or '—' }}</td>
+                        <td>{{ pb.SoNhanVien or 0 }}</td>
+                        <td class="text-center">
+                            <!-- ✅ Nút khôi phục từng phòng ban -->
+                            <form method="POST" action="{{ url_for('restore_department', ma_pb=pb.MaPB) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-success btn-sm"
+                                        onclick="return confirm('Bạn có chắc muốn khôi phục phòng ban {{ pb.TenPB }}?')">
+                                    <i class="fas fa-rotate-left me-1"></i> Khôi phục
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ✅ Hành động nhóm -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="text-muted"><span id="selected-count-departments">0</span> phòng ban được chọn</div>
+            <button type="submit" id="restore-selected-departments-btn" class="btn btn-success" disabled
+                onclick="return confirm('Khôi phục các phòng ban đã chọn?')">
+                <i class="fas fa-rotate-left me-2"></i>Khôi phục đã chọn
+            </button>
+        </div>
+    </form>
+
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><i class="fas fa-building"></i></div>
+        <h3 class="empty-title">Không có phòng ban nào đã xóa</h3>
+        <p class="empty-text">Tất cả phòng ban đang hoạt động trong hệ thống. Phòng ban bị xóa sẽ xuất hiện tại đây.</p>
+        <a href="{{ url_for('departments') }}" class="btn btn-primary">
+            <i class="fas fa-building me-2"></i>Quản lý phòng ban
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const selectAll = document.getElementById("select-all-departments");
+    const checkboxes = document.querySelectorAll(".department-checkbox");
+    const countLabel = document.getElementById("selected-count-departments");
+    const restoreBtn = document.getElementById("restore-selected-departments-btn");
+
+    function updateCount() {
+        const count = document.querySelectorAll(".department-checkbox:checked").length;
+        countLabel.textContent = count;
+        restoreBtn.disabled = count === 0;
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener("change", function() {
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            updateCount();
+        });
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener("change", updateCount));
+});
+</script>
+
+{% if active_tab == 'shifts' %}
+<div class="tab-pane fade show active">
+    {% if deleted_shifts %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0"><i class="fas fa-clock text-danger me-2"></i>Ca làm việc đã ngưng hoạt động</h4>
+            <p class="text-muted mb-0 mt-1">Tổng cộng: {{ deleted_shifts|length }} ca làm việc</p>
+        </div>
+        <a href="{{ url_for('shifts') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-left me-2"></i> Quay lại danh sách ca làm việc
+        </a>
+    </div>
+
+    <!-- ✅ Form khôi phục nhiều ca -->
+    <form method="POST" action="{{ url_for('restore_shift') }}">
+        <div class="table-container">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th style="width:40px;">
+                            <input type="checkbox" id="select-all-shifts" class="form-check-input">
+                        </th>
+                        <th>Mã ca</th>
+                        <th>Tên ca</th>
+                        <th>Giờ bắt đầu</th>
+                        <th>Giờ kết thúc</th>
+                        <th>Hệ số</th>
+                        <th>Ngày cập nhật</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ca in deleted_shifts %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="selected_ids" value="{{ ca.MaCa }}" class="form-check-input shift-checkbox">
+                        </td>
+                        <td class="fw-bold">{{ ca.MaCa }}</td>
+                        <td>{{ ca.TenCa }}</td>
+                        <td>
+                            {% if ca.GioBatDau %}
+                                {{ ca.GioBatDau[:5] if ca.GioBatDau is string else ca.GioBatDau.strftime("%H:%M") }}
+                            {% else %} — {% endif %}
+                        </td>
+                        <td>
+                            {% if ca.GioKetThuc %}
+                                {{ ca.GioKetThuc[:5] if ca.GioKetThuc is string else ca.GioKetThuc.strftime("%H:%M") }}
+                            {% else %} — {% endif %}
+                        </td>
+                        <td>{{ ca.HeSo }}</td>
+                        <td>{{ ca.NgayCapNhat.strftime("%d/%m/%Y") if ca.NgayCapNhat else "—" }}</td>
+                        <td class="text-center">
+                            <!-- ✅ Nút khôi phục từng ca -->
+                            <form method="POST" action="{{ url_for('restore_shift') }}" style="display:inline;">
+                                <input type="hidden" name="selected_ids" value="{{ ca.MaCa }}">
+                                <button type="submit" class="btn btn-success btn-sm"
+                                    onclick="return confirm('Khôi phục ca {{ ca.TenCa }}?')">
+                                    <i class="fas fa-rotate-left me-1"></i> Khôi phục
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ✅ Hành động nhóm -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="text-muted">
+                <span id="selected-count-shifts">0</span> ca làm việc được chọn
+            </div>
+            <button type="submit" id="restore-selected-shifts-btn" class="btn btn-success" disabled
+                onclick="return confirm('Khôi phục các ca làm việc đã chọn?')">
+                <i class="fas fa-rotate-left me-2"></i>Khôi phục đã chọn
+            </button>
+        </div>
+    </form>
+
+    {% else %}
+    <div class="empty-state text-center">
+        <div class="empty-icon"><i class="fas fa-clock"></i></div>
+        <h3 class="empty-title">Không có ca làm việc nào đã ngưng hoạt động</h3>
+        <p class="empty-text">Tất cả ca làm việc đều đang hoạt động trong hệ thống.</p>
+        <a href="{{ url_for('shifts') }}" class="btn btn-primary">
+            <i class="fas fa-clock me-2"></i>Quản lý ca làm việc
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const selectAll = document.getElementById("select-all-shifts");
+    const checkboxes = document.querySelectorAll(".shift-checkbox");
+    const countLabel = document.getElementById("selected-count-shifts");
+    const restoreBtn = document.getElementById("restore-selected-shifts-btn");
+
+    function updateCount() {
+        const count = document.querySelectorAll(".shift-checkbox:checked").length;
+        countLabel.textContent = count;
+        restoreBtn.disabled = count === 0;
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener("change", function() {
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            updateCount();
+        });
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener("change", updateCount));
+});
+</script>
+
+{% if active_tab == 'shift_assignments' %}
+<div class="tab-pane fade show active">
+    {% if deleted_shift_assignments %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0"><i class="fas fa-calendar-times text-danger me-2"></i>Phân ca đã xóa</h4>
+            <p class="text-muted mb-0 mt-1">
+                Tổng cộng: {{ deleted_shift_assignments|length }} phân ca
+            </p>
+        </div>
+        <a href="{{ url_for('assigned_employees') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-left me-2"></i> Quay lại danh sách phân ca
+        </a>
+    </div>
+
+    <!-- ✅ Form khôi phục nhiều -->
+    <form method="POST" action="{{ url_for('restore_multiple_shift_assignments') }}">
+        <div class="table-container">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:40px;">
+                            <input type="checkbox" id="select-all-shift-assignments" class="form-check-input">
+                        </th>
+                        <th>Mã LLV</th>
+                        <th>Mã NV</th>
+                        <th>Họ tên</th>
+                        <th>Ngày làm</th>
+                        <th>Ca làm</th>
+                        <th>Trạng thái</th>
+                        <th class="text-center">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for shift in deleted_shift_assignments %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="selected_assignments"
+                                   value="{{ shift.MaLLV }}" class="form-check-input shift-assignment-checkbox">
+                        </td>
+                        <td class="fw-bold">{{ shift.MaLLV }}</td>
+                        <td>{{ shift.MaNV }}</td>
+                        <td>{{ shift.HoTen or 'Không rõ' }}</td>
+                        <td>{{ shift.NgayLam[:10] if shift.NgayLam else '—' }}</td>
+                        <td>{{ shift.TenCa or shift.MaCa }}</td>
+                        <td>
+                            {% if shift.TrangThai == 1 %}
+                                <span class="badge bg-success">Đã chấm công</span>
+                            {% elif shift.TrangThai == 2 %}
+                                <span class="badge bg-danger">Vắng</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Chưa chấm công</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <!-- ✅ Nút khôi phục từng bản ghi -->
+                            <form method="POST"
+                                  action="{{ url_for('restore_shift_assignment', id=shift.MaLLV) }}"
+                                  style="display:inline;">
+                                <button type="submit" class="btn btn-success btn-sm"
+                                    onclick="return confirm('Khôi phục phân ca của {{ shift.HoTen }} ngày {{ shift.NgayLam[:10] if shift.NgayLam else '' }}?')">
+                                    <i class="fas fa-rotate-left me-1"></i> Khôi phục
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ✅ Thanh khôi phục nhóm -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="text-muted">
+                <span id="selected-count-shift-assignments">0</span> phân ca được chọn
+            </div>
+            <button type="submit" id="restore-selected-shift-assignments-btn"
+                    class="btn btn-success" disabled
+                    onclick="return confirm('Khôi phục các phân ca đã chọn?')">
+                <i class="fas fa-rotate-left me-2"></i>Khôi phục đã chọn
+            </button>
+        </div>
+    </form>
+
+    {% else %}
+    <div class="empty-state text-center">
+        <div class="empty-icon"><i class="fas fa-calendar-times"></i></div>
+        <h3 class="empty-title">Không có phân ca nào đã xóa</h3>
+        <p class="text-muted">Tất cả phân ca đều đang hoạt động trong hệ thống.</p>
+        <a href="{{ url_for('assigned_employees') }}" class="btn btn-primary">
+            <i class="fas fa-calendar-check me-2"></i>Quản lý phân ca
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const selectAll = document.getElementById("select-all-shift-assignments");
+    const checkboxes = document.querySelectorAll(".shift-assignment-checkbox");
+    const countLabel = document.getElementById("selected-count-shift-assignments");
+    const restoreBtn = document.getElementById("restore-selected-shift-assignments-btn");
+
+    function updateCount() {
+        const count = document.querySelectorAll(".shift-assignment-checkbox:checked").length;
+        countLabel.textContent = count;
+        restoreBtn.disabled = count === 0;
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener("change", function() {
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            updateCount();
+        });
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener("change", updateCount));
+});
+</script>
+
+
+<!-- ================= TAB CHẤM CÔNG ================= -->
+{% if active_tab == 'attendance' %}
+<div class="tab-pane fade show active" id="attendance-tab">
+    {% if deleted_attendance %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0">
+                <i class="fas fa-user-clock text-danger me-2"></i>
+                Chấm công đã xóa
+            </h4>
+            <p class="text-muted mb-0 mt-1">
+                Tổng cộng: {{ deleted_attendance|length }} bản ghi
+            </p>
+        </div>
+        <a href="{{ url_for('attendance_report') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-left me-2"></i> Quay lại danh sách chấm công
+        </a>
+    </div>
+
+    <!-- ✅ Form khôi phục nhiều -->
+    <form method="POST" action="{{ url_for('restore_multiple_attendance') }}">
+        <div class="table-container">
+            <table class="table table-hover align-middle text-center">
+                <thead class="table-light">
+                    <tr>
+                        <th><input type="checkbox" id="select-all" class="form-check-input"></th>
+                        <th>Mã NV</th>
+                        <th>Họ tên</th>
+                        <th>Phòng ban</th>
+                        <th>Ngày</th>
+                        <th>Ca làm</th>
+                        <th>Giờ vào</th>
+                        <th>Giờ ra</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in deleted_attendance %}
+                    <tr>
+                        <!-- Checkbox -->
+                        <td>
+                            <input type="checkbox" name="selected_ids"
+                                   value="{{ r.MaChamCong }}"
+                                   class="form-check-input record-checkbox">
+                        </td>
+
+                        <!-- Mã NV -->
+                        <td class="fw-bold text-primary">
+                            {{ r.MaNV or '—' }}
+                        </td>
+
+                        <!-- Họ tên -->
+                        <td>{{ r.HoTen or 'Không rõ' }}</td>
+
+                        <!-- Phòng ban -->
+                        <td>{{ r.TenPB or '—' }}</td>
+
+                        <!-- Ngày -->
+                        <td>{{ r.NgayChamCong[:10] if r.NgayChamCong else '—' }}</td>
+
+                        <!-- Ca làm -->
+                        <td>{{ r.TenCa or '—' }}</td>
+
+                        <!-- Giờ vào -->
+                        <td>
+                            {% if r.GioVao %}
+                                {{ r.GioVao.replace('1900-01-01', '').strip() }}
+                            {% else %}—{% endif %}
+                        </td>
+
+                        <!-- Giờ ra -->
+                        <td>
+                            {% if r.GioRa %}
+                                {{ r.GioRa.replace('1900-01-01', '').strip() }}
+                            {% else %}—{% endif %}
+                        </td>
+
+                        <!-- Trạng thái -->
+                        <td>
+                            {% set trang_thai = r.TrangThai|int %}
+                            {% if trang_thai == 1 %}
+                                <span class="badge bg-success px-3 py-2">Đúng giờ</span>
+                            {% elif trang_thai == 2 %}
+                                <span class="badge bg-warning text-dark px-3 py-2">Đi muộn</span>
+                            {% elif trang_thai == 0 %}
+                                <span class="badge bg-danger px-3 py-2">Vắng</span>
+                            {% else %}
+                                <span class="badge bg-secondary px-3 py-2">Không xác định</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Hành động -->
+                        <td>
+                            <button type="submit"
+                                    formaction="{{ url_for('restore_attendance', id=r.MaChamCong) }}"
+                                    class="btn btn-success btn-sm"
+                                    onclick="return confirm('Khôi phục bản ghi của {{ r.HoTen }} ngày {{ r.NgayChamCong[:10] if r.NgayChamCong else '' }}?')">
+                                <i class="fas fa-rotate-left me-1"></i> Khôi phục
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ✅ Bulk action -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="text-muted">
+                <span id="selected-count">0</span> bản ghi được chọn
+            </div>
+            <button type="submit" class="btn btn-success" id="restore-selected-btn" disabled
+                    onclick="return confirm('Khôi phục các bản ghi chấm công đã chọn?')">
+                <i class="fas fa-rotate-left me-2"></i> Khôi phục đã chọn
+            </button>
+        </div>
+    </form>
+
+    {% else %}
+    <div class="empty-state text-center mt-4">
+        <div class="empty-icon">
+            <i class="fas fa-user-clock fa-2x text-muted mb-3"></i>
+        </div>
+        <h5 class="empty-title">Không có bản ghi chấm công nào đã xóa</h5>
+        <p class="text-muted">Tất cả bản ghi chấm công đều đang hoạt động trong hệ thống.</p>
+        <a href="{{ url_for('attendance_report') }}" class="btn btn-primary">
+            <i class="fas fa-user-check me-2"></i> Quản lý chấm công
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+
+<!-- Tab tài khoản -->
+{% if active_tab == 'accounts' %}
+<div class="tab-pane fade show active">
+    {% if deleted_accounts %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-0">
+                <i class="fas fa-user-gear text-danger me-2"></i>
+                Tài khoản đã vô hiệu hóa
+            </h4>
+            <p class="text-muted mb-0 mt-1">
+                Tổng cộng: {{ deleted_accounts|length }} tài khoản
+            </p>
+        </div>
+        <a href="{{ url_for('accounts') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-left me-2"></i> Quay lại danh sách tài khoản
+        </a>
+    </div>
+
+    <!-- ✅ Form khôi phục nhiều tài khoản -->
+    <form method="POST" action="{{ url_for('restore_multiple_accounts') }}">
+        <div class="table-container">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th style="width:40px;">
+                            <input type="checkbox" id="select-all-accounts" class="form-check-input">
+                        </th>
+                        <th>Mã TK</th>
+                        <th>Tên đăng nhập</th>
+                        <th>Họ tên</th>
+                        <th>Vai trò</th>
+                        <th>Ngày tạo</th>
+                        <th class="text-center">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for acc in deleted_accounts %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="selected_accounts"
+                                   value="{{ acc.TenDangNhap }}" class="form-check-input account-checkbox">
+                        </td>
+                        <td class="fw-bold">{{ acc.MaTK }}</td>
+                        <td>{{ acc.TenDangNhap }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="user-avatar me-2" style="width:35px;height:35px;font-size:0.9rem;">
+                                    {{ acc.HoTen[0]|upper if acc.HoTen else 'U' }}
+                                </div>
+                                {{ acc.HoTen or 'Không rõ' }}
+                            </div>
+                        </td>
+                        <td>
+                            {% if acc.VaiTro == 'admin' %}
+                                <span class="badge bg-danger">Quản trị</span>
+                            {% elif acc.VaiTro == 'manager' %}
+                                <span class="badge bg-warning text-dark">Quản lý</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Nhân viên</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ acc.NgayTao.strftime("%d/%m/%Y") if acc.NgayTao else "—" }}</td>
+                        <td class="text-center">
+                            <!-- ✅ Nút khôi phục từng tài khoản -->
+                            <form method="POST" action="{{ url_for('restore_account', username=acc.TenDangNhap) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-success btn-sm"
+                                    onclick="return confirm('Khôi phục tài khoản {{ acc.TenDangNhap }}?')">
+                                    <i class="fas fa-rotate-left me-1"></i> Khôi phục
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ✅ Thanh khôi phục nhóm -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="text-muted">
+                <span id="selected-count-accounts">0</span> tài khoản được chọn
+            </div>
+            <button type="submit" id="restore-selected-accounts-btn"
+                    class="btn btn-success" disabled
+                    onclick="return confirm('Khôi phục các tài khoản đã chọn?')">
+                <i class="fas fa-rotate-left me-2"></i>Khôi phục đã chọn
+            </button>
+        </div>
+    </form>
+
+    {% else %}
+    <div class="empty-state text-center">
+        <div class="empty-icon"><i class="fas fa-user-gear"></i></div>
+        <h3 class="empty-title">Không có tài khoản nào đã vô hiệu</h3>
+        <p class="text-muted">Tất cả tài khoản đều đang hoạt động trong hệ thống.</p>
+        <a href="{{ url_for('accounts') }}" class="btn btn-primary">
+            <i class="fas fa-user-gear me-2"></i>Quản lý tài khoản
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const selectAll = document.getElementById("select-all-accounts");
+    const checkboxes = document.querySelectorAll(".account-checkbox");
+    const countLabel = document.getElementById("selected-count-accounts");
+    const restoreBtn = document.getElementById("restore-selected-accounts-btn");
+
+    function updateCount() {
+        const count = document.querySelectorAll(".account-checkbox:checked").length;
+        countLabel.textContent = count;
+        restoreBtn.disabled = count === 0;
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener("change", function() {
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            updateCount();
+        });
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener("change", updateCount));
+});
+</script>
+<!-- ==================== TAB LƯƠNG ==================== -->
+<div
+  class="tab-pane fade {% if active_tab == 'salaries' %}show active{% endif %}"
+  id="tab-salaries"
+>
+  {% if deleted_salaries and deleted_salaries|length > 0 %}
+  <!-- ✅ Có dữ liệu -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h4 class="mb-0">
+        <i class="fas fa-coins text-danger me-2"></i> Lương đã xóa mềm
+      </h4>
+      <p class="text-muted mb-0 mt-1">
+        Tổng cộng: {{ deleted_salaries|length }} bản ghi
+      </p>
+    </div>
+    <a href="{{ url_for('salary_view') }}" class="btn btn-primary">
+      <i class="fas fa-arrow-left me-2"></i> Quay lại danh sách lương
+    </a>
+  </div>
+
+  <!-- ✅ Form khôi phục nhiều -->
+  <form method="POST" action="{{ url_for('restore_multiple_salaries') }}">
+    <div class="table-responsive shadow-sm rounded">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 40px;">
+              <input
+                type="checkbox"
+                id="select-all-salaries"
+                class="form-check-input"
+              />
+            </th>
+            <th>Mã lương</th>
+            <th>Mã NV</th>
+            <th>Họ tên</th>
+            <th>Phòng ban</th>
+            <th>Tháng</th>
+            <th>Số giờ làm</th>
+            <th>Tổng tiền (VND)</th>
+            <th class="text-center">Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for l in deleted_salaries %}
+          <tr>
+            <td>
+              <input
+                type="checkbox"
+                name="selected_salaries"
+                value="{{ l.MaLuong }}"
+                class="form-check-input salary-checkbox"
+              />
+            </td>
+            <td class="fw-bold text-primary">{{ l.MaLuong }}</td>
+            <td>{{ l.MaNV }}</td>
+            <td>{{ l.HoTen }}</td>
+            <td>{{ l.TenPB or '—' }}</td>
+
+            <!-- ✅ Hiển thị Tháng/Năm -->
+            <td>
+              {% if l.ThangNam %}
+                {{ l.ThangNam[:7].replace('-', '/') }}
+              {% else %}
+                —
+              {% endif %}
+            </td>
+
+            <td>{{ "%.2f"|format(l.SoGioLam or 0) }}</td>
+            <td>{{ "{:,.0f}".format(l.TongTien or 0) }}</td>
+
+            <!-- ✅ Nút khôi phục -->
+            <td class="text-center">
+              <button
+                type="submit"
+                name="selected_salaries"
+                value="{{ l.MaLuong }}"
+                class="btn btn-success btn-sm"
+                onclick="return confirm('Khôi phục bản ghi lương của {{ l.HoTen }} tháng {{ l.ThangNam[:7].replace('-', '/') if l.ThangNam else '' }}?')"
+              >
+                <i class="fas fa-rotate-left me-1"></i> Khôi phục
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ✅ Thanh hành động nhóm -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <div class="text-muted">
+        <span id="selected-count-salaries">0</span> bản ghi được chọn
+      </div>
+      <button
+        type="submit"
+        id="restore-selected-salaries-btn"
+        class="btn btn-success"
+        disabled
+        onclick="return confirm('Khôi phục các bản ghi lương đã chọn?')"
+      >
+        <i class="fas fa-rotate-left me-2"></i> Khôi phục đã chọn
+      </button>
+    </div>
+  </form>
+
+  {% else %}
+  <!-- ⚠️ Không có dữ liệu -->
+  <div class="empty-state text-center py-5">
+    <div class="empty-icon mb-3">
+      <i class="fas fa-coins fa-3x text-secondary"></i>
+    </div>
+    <h4 class="empty-title mb-2">Không có bản ghi lương nào đã xóa</h4>
+    <p class="text-muted mb-4">
+      Tất cả bản ghi lương hiện đang hoạt động trong hệ thống.
+    </p>
+    <a href="{{ url_for('salary_view') }}" class="btn btn-primary">
+      <i class="fas fa-coins me-2"></i> Quản lý lương
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ==================== SCRIPT ==================== -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const selectAll = document.getElementById("select-all-salaries");
+  const checkboxes = document.querySelectorAll(".salary-checkbox");
+  const countLabel = document.getElementById("selected-count-salaries");
+  const restoreBtn = document.getElementById("restore-selected-salaries-btn");
+
+  function updateCount() {
+    const count = document.querySelectorAll(".salary-checkbox:checked").length;
+    if (countLabel) countLabel.textContent = count;
+    if (restoreBtn) restoreBtn.disabled = count === 0;
+  }
+
+  if (selectAll) {
+    selectAll.addEventListener("change", function () {
+      checkboxes.forEach((cb) => (cb.checked = selectAll.checked));
+      updateCount();
+    });
+  }
+
+  checkboxes.forEach((cb) => cb.addEventListener("change", updateCount));
+});
+</script>
+
+
+
+<!-- ==================== TAB KHUÔN MẶT ==================== -->
+{% if active_tab == 'faces' %}
+<div class="tab-pane fade show active">
+    {% if deleted_faces %}
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-hover align-middle text-center">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Mã khuôn mặt</th>
+                        <th>Mã NV</th>
+                        <th>Họ tên</th>
+                        <th>Phòng ban</th>
+                        <th>Ảnh khuôn mặt</th>
+                        <th>Ngày đăng ký</th>
+                        <th>Trạng thái</th>
+                        <th>Mô tả</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for face in deleted_faces %}
+                    <tr>
+                        <td>{{ face.FaceID }}</td>
+                        <td>{{ face.MaNV }}</td>
+                        <td>{{ face.HoTen }}</td>
+                        <td>{{ face.TenPB or '—' }}</td>
+                        <td>
+                            {% if face.DuongDanAnh %}
+                                <img src="{{ '/photos/' + face.DuongDanAnh.split('/')[-1] }}" alt="Ảnh khuôn mặt" width="60" height="60" class="rounded-circle border">
+                            {% else %}
+                                <span class="text-muted">Không có ảnh</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ face.NgayDangKy.strftime("%d/%m/%Y") if face.NgayDangKy else "—" }}</td>
+                        <td>
+                            {% if face.TrangThai == 1 %}
+                                <span class="badge bg-success">Hoạt động</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Đã xóa</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ face.MoTa or "—" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-face-smile fa-3x text-primary mb-3"></i>
+            <h5>Không có khuôn mặt nào đã xóa</h5>
+            <p class="text-muted">Tất cả khuôn mặt hiện đang hoạt động trong hệ thống.</p>
+            <a href="{{ url_for('faces') }}" class="btn btn-primary mt-3">
+                <i class="fas fa-arrow-left me-2"></i>Quản lý khuôn mặt
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endif %}
+
+        </div>
+    
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+    const selectAll = document.getElementById("select-all");
+    const checkboxes = document.querySelectorAll(".record-checkbox");
+    const selectedCount = document.getElementById("selected-count");
+    const restoreBtn = document.getElementById("restore-selected-btn");
+
+    function updateCount() {
+        const count = document.querySelectorAll(".record-checkbox:checked").length;
+        selectedCount.textContent = count;
+        restoreBtn.disabled = count === 0;
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener("change", function() {
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            updateCount();
+        });
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener("change", updateCount));
+});
+</script>
+
+</body>
+</html>

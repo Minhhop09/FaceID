@@ -1,222 +1,368 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quản Lý Ca Làm Việc - FaceID System</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-:root {--primary:#4361ee;--primary-dark:#3a56d4;--secondary:#6c757d;--success:#28a745;--info:#17a2b8;--warning:#ffc107;--danger:#dc3545;--light:#f8f9fa;--dark:#343a40;--sidebar-bg:#1e293b;--sidebar-hover:#334155;--sidebar-active:#4361ee;}
-body {background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;min-height:100vh;overflow-x:hidden;}
-.sidebar{min-height:100vh;width:280px;background:var(--sidebar-bg);position:fixed;top:0;left:0;z-index:1000;transition:all .3s ease;box-shadow:3px 0 15px rgba(0,0,0,.1);}
-.sidebar-header{padding:25px 20px;border-bottom:1px solid rgba(255,255,255,.1);text-align:center;}
-.sidebar-brand{color:#fff;text-decoration:none;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;}
-.sidebar-brand i{background:linear-gradient(135deg,var(--primary),#4895ef);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.8rem;}
-.sidebar-nav {
-    padding: 20px 0 80px;  /* chừa không gian cuối để thấy nút logout */
-    overflow-y: auto;      /* cho phép cuộn */
-    height: calc(100vh - 80px);
-}
-
-.nav-item{margin-bottom:5px;}
-.nav-link{color:rgba(255,255,255,.8);padding:15px 25px;text-decoration:none;display:flex;align-items:center;gap:12px;transition:all .3s ease;border-left:3px solid transparent;font-weight:500;}
-.nav-link:hover{color:#fff;background:var(--sidebar-hover);border-left-color:var(--primary);transform:translateX(5px);}
-.nav-link.active{color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-left-color:#fff;box-shadow:0 4px 15px rgba(67,97,238,.3);}
-.nav-link i{width:20px;text-align:center;font-size:1.1rem;}
-.logout-link{color:#f8d7da;border-top:1px solid rgba(255,255,255,.1);margin-top:20px;}
-.logout-link:hover{color:#dc3545;background:rgba(220,53,69,.1);}
-.main-content{margin-left:280px;padding:30px;transition:all .3s ease;}
-.dashboard-header{background:#fff;border-radius:15px;padding:25px 30px;margin-bottom:30px;box-shadow:0 5px 15px rgba(0,0,0,.08);display:flex;justify-content:space-between;align-items:center;}
-.header-title h1{color:var(--dark);font-weight:700;margin-bottom:5px;}
-.header-title p{color:var(--secondary);margin:0;}
-.user-profile{display:flex;align-items:center;gap:15px;background:var(--light);padding:12px 20px;border-radius:12px;border:1px solid rgba(0,0,0,.05);}
-.user-avatar{width:45px;height:45px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:1.2rem;}
-.user-info{line-height:1.4;}
-.user-name{font-weight:600;color:var(--dark);margin:0;}
-.user-role{color:var(--secondary);font-size:.9rem;margin:0;}
-.stats-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px;margin-bottom:30px;}
-.stat-card{background:#fff;border-radius:15px;padding:25px;box-shadow:0 5px 15px rgba(0,0,0,.08);transition:all .3s ease;position:relative;overflow:hidden;animation:fadeInUp .6s ease-out;text-decoration:none!important;color:inherit!important;}
-.stat-card:hover{transform:translateY(-5px);box-shadow:0 10px 25px rgba(0,0,0,.12);}
-.stat-card::before{content:'';position:absolute;top:0;right:0;width:80px;height:80px;background:rgba(0,0,0,.03);border-radius:0 0 0 80px;}
-.stat-icon{width:60px;height:60px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:15px;color:#fff;}
-.stat-icon.blue{background:linear-gradient(135deg,var(--info),#39d4ff);}
-.stat-icon.green{background:linear-gradient(135deg,var(--success),#34d399);}
-.stat-icon.orange{background:linear-gradient(135deg,var(--warning),#fbbf24);}
-.stat-value{font-size:2.2rem;font-weight:700;margin-bottom:5px;color:var(--dark);}
-.stat-label{color:var(--secondary);font-weight:500;font-size:.95rem;}
-.shifts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:25px;margin-bottom:30px;}
-.shift-card{background:#fff;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.08);overflow:hidden;animation:fadeInUp .6s ease-out;}
-.shift-header{padding:20px 25px;color:#fff;display:flex;justify-content:space-between;align-items:center;}
-.shift-morning{background:linear-gradient(135deg,#4cc9f0,#4895ef);}
-.shift-afternoon{background:linear-gradient(135deg,#f72585,#b5179e);}
-.shift-evening{background:linear-gradient(135deg,#7209b7,#560bad);}
-.shift-info h3{margin:0 0 5px;color:#fff;font-weight:600;}
-.shift-time{font-size:.9rem;opacity:.9;}
-.shift-code{background:rgba(255,255,255,.2);padding:4px 12px;border-radius:20px;font-size:.85rem;font-weight:500;}
-.shift-body{padding:20px 25px;}
-.shift-meta{display:flex;flex-direction:column;gap:12px;margin-bottom:20px;}
-.meta-item{display:flex;align-items:center;gap:10px;color:var(--secondary);}
-.shift-actions{display:flex;gap:10px;margin-top:15px;}
-.btn-action{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .3s ease;border:none;}
-.btn-action:hover{transform:scale(1.1);}
-.btn-edit{background:linear-gradient(135deg,var(--warning),#ffb300);color:#fff;}
-.btn-delete{background:linear-gradient(135deg,var(--danger),#e53935);color:#fff;}
-.shift-footer{padding:15px 25px;background:var(--light);display:flex;justify-content:space-between;align-items:center;font-size:.85rem;}
-.last-updated{color:var(--secondary);}
-.view-details{color:var(--primary);text-decoration:none;font-weight:500;}
-.empty-state{text-align:center;padding:60px 20px;background:#fff;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.08);}
-.empty-icon{font-size:4rem;color:var(--secondary);margin-bottom:20px;}
-.empty-title{color:var(--dark);margin-bottom:10px;}
-.empty-text{color:var(--secondary);max-width:400px;margin:0 auto 25px;}
-.footer{text-align:center;padding:20px;color:var(--secondary);font-size:.9rem;}
-.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border:none;border-radius:8px;padding:12px 24px;font-weight:500;transition:all .3s;}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(67,97,238,.3);}
-.btn-secondary{background:var(--secondary);border:none;border-radius:8px;padding:12px 24px;font-weight:500;transition:all .3s;}
-.btn-secondary:hover{background:#5a6268;transform:translateY(-2px);}
-@keyframes fadeInUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
-@media(max-width:992px){.sidebar{width:80px;}.sidebar-brand span,.nav-link span{display:none;}.main-content{margin-left:80px;}.sidebar-header{padding:20px 10px;}.nav-link{justify-content:center;padding:15px;}.nav-link i{font-size:1.3rem;}}
-@media(max-width:768px){.main-content{padding:20px;}.dashboard-header{flex-direction:column;gap:15px;text-align:center;}.stats-container{grid-template-columns:1fr;}.shifts-grid{grid-template-columns:1fr;}.shift-footer{flex-direction:column;gap:10px;text-align:center;}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý ca làm việc - FaceID System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary:#4361ee;--primary-dark:#3a56d4;--secondary:#6c757d;
+      --success:#28a745;--info:#17a2b8;--warning:#ffc107;--danger:#dc3545;
+      --light:#f8f9fa;--dark:#343a40;--sidebar-bg:#1e293b;
+      --sidebar-hover:#334155;--sidebar-active:#4361ee;
+    }
+    body {
+      background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);
+      font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+      min-height:100vh;overflow-x:hidden;
+    }
+    .sidebar{min-height:100vh;width:280px;background:var(--sidebar-bg);position:fixed;top:0;left:0;z-index:1000;transition:all .3s ease;box-shadow:3px 0 15px rgba(0,0,0,.1);}
+    .sidebar-header{padding:25px 20px;border-bottom:1px solid rgba(255,255,255,.1);text-align:center;}
+    .sidebar-brand{color:#fff;text-decoration:none;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;}
+    .sidebar-brand i{background:linear-gradient(135deg,var(--primary),#4895ef);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.8rem;}
+    .sidebar-nav{padding:20px 0 80px;overflow-y:auto;height:calc(100vh - 80px);}
+    .nav-item{margin-bottom:5px;}
+    .nav-link{color:rgba(255,255,255,.8);padding:15px 25px;text-decoration:none;display:flex;align-items:center;gap:12px;transition:all .3s ease;border-left:3px solid transparent;font-weight:500;}
+    .nav-link:hover{color:#fff;background:var(--sidebar-hover);border-left-color:var(--primary);transform:translateX(5px);}
+    .nav-link.active{color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-left-color:#fff;box-shadow:0 4px 15px rgba(67,97,238,.3);}
+    .nav-link i{width:20px;text-align:center;font-size:1.1rem;}
+    .logout-link{color:#f8d7da;border-top:1px solid rgba(255,255,255,.1);margin-top:20px;}
+    .logout-link:hover{color:#dc3545;background:rgba(220,53,69,.1);}
+    .main-content{margin-left:280px;padding:30px;transition:all .3s ease;}
+    .dashboard-header{background:#fff;border-radius:15px;padding:25px 30px;margin-bottom:30px;box-shadow:0 5px 15px rgba(0,0,0,.08);display:flex;justify-content:space-between;align-items:center;}
+    .header-title h1{color:var(--dark);font-weight:700;margin-bottom:5px;}
+    .header-title p{color:var(--secondary);margin:0;}
+    .user-profile{display:flex;align-items:center;gap:15px;background:var(--light);padding:12px 20px;border-radius:12px;border:1px solid rgba(0,0,0,.05);}
+    .user-avatar{width:45px;height:45px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:1.2rem;}
+    .user-info{line-height:1.4;}
+    .user-name{font-weight:600;color:var(--dark);margin:0;}
+    .user-role{color:var(--secondary);font-size:.9rem;margin:0;}
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px;margin-bottom:30px;}
+    .stats-card{background:#fff;border-radius:15px;padding:25px;box-shadow:0 5px 15px rgba(0,0,0,.08);transition:all .3s ease;position:relative;overflow:hidden;animation:fadeInUp .6s ease-out;}
+    .stats-card:hover{transform:translateY(-5px);box-shadow:0 10px 25px rgba(0,0,0,.12);}
+    .stats-card::before{content:'';position:absolute;top:0;right:0;width:80px;height:80px;background:rgba(0,0,0,.03);border-radius:0 0 0 80px;}
+    .stats-icon{width:60px;height:60px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:15px;color:#fff;}
+    .stats-card.shifts .stats-icon{background:linear-gradient(135deg,var(--info),#39d4ff);}
+    .stats-card.active-shifts .stats-icon{background:linear-gradient(135deg,var(--success),#34d399);}
+    .stats-card.employees .stats-icon{background:linear-gradient(135deg,var(--warning),#fbbf24);}
+    .stats-card.coefficient .stats-icon{background:linear-gradient(135deg,var(--danger),#f87171);}
+    .stats-number{font-size:2.2rem;font-weight:700;margin-bottom:5px;color:var(--dark);}
+    .stats-label{color:var(--secondary);font-weight:500;font-size:.95rem;}
+    .shifts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:25px;margin-bottom:30px;}
+    .shift-card{background:#fff;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.08);overflow:hidden;animation:fadeInUp .6s ease-out;transition:all .3s ease;position:relative;}
+    .shift-card:hover{transform:translateY(-5px);box-shadow:0 10px 25px rgba(0,0,0,.12);}
+    .shift-header{padding:20px 25px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start;}
+    .shift-morning{background:linear-gradient(135deg,#4cc9f0,#4895ef);}
+    .shift-afternoon{background:linear-gradient(135deg,#f72585,#b5179e);}
+    .shift-evening{background:linear-gradient(135deg,#7209b7,#560bad);}
+    .shift-info h3{margin:0 0 5px;color:#fff;font-weight:600;}
+    .shift-code{background:rgba(255,255,255,.2);padding:4px 12px;border-radius:20px;font-size:.85rem;font-weight:500;}
+    .shift-checkbox{position:absolute;top:15px;right:15px;z-index:2;}
+    .shift-checkbox .form-check-input{transform:scale(1.2);}
+    .shift-body{padding:20px 25px;}
+    .shift-meta{display:flex;flex-direction:column;gap:12px;margin-bottom:20px;}
+    .meta-item{display:flex;align-items:center;gap:10px;color:var(--secondary);}
+    .status-badge{font-size:.8rem;padding:6px 12px;border-radius:20px;font-weight:500;display:inline-flex;align-items:center;gap:5px;}
+    .status-active{background:rgba(40,167,69,.1);color:var(--success);}
+    .status-inactive{background:rgba(108,117,125,.1);color:var(--secondary);}
+    .shift-actions{display:flex;gap:10px;margin-top:15px;}
+    .btn-action{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .3s ease;border:none;}
+    .btn-action:hover{transform:scale(1.1);}
+    .btn-edit{background:linear-gradient(135deg,var(--warning),#ffb300);color:#fff;}
+    .btn-delete{background:linear-gradient(135deg,var(--danger),#e53935);color:#fff;}
+    .shift-footer{padding:15px 25px;background:var(--light);display:flex;justify-content:space-between;align-items:center;font-size:.85rem;}
+    .last-updated{color:var(--secondary);}
+    .view-details{color:var(--primary);text-decoration:none;font-weight:500;}
+    .empty-state{text-align:center;padding:60px 20px;background:#fff;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.08);}
+    .empty-icon{font-size:4rem;color:var(--secondary);margin-bottom:20px;}
+    .empty-title{color:var(--dark);margin-bottom:10px;}
+    .empty-text{color:var(--secondary);max-width:400px;margin:0 auto 25px;}
+    .footer{text-align:center;padding:20px;color:var(--secondary);font-size:.9rem;}
+    .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border:none;border-radius:8px;padding:12px 24px;font-weight:500;transition:all .3s;}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(67,97,238,.3);}
+    .btn-secondary{background:var(--secondary);border:none;border-radius:8px;padding:12px 24px;font-weight:500;transition:all .3s;}
+    .btn-secondary:hover{background:#5a6268;transform:translateY(-2px);}
+    .btn-danger{background:linear-gradient(135deg,var(--danger),#e53935);border:none;border-radius:8px;padding:12px 24px;font-weight:500;transition:all .3s;}
+    .btn-danger:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(220,53,69,.3);}
+    .btn-outline-secondary{background:transparent;border:1px solid var(--secondary);color:var(--secondary);border-radius:8px;padding:12px 24px;font-weight:500;transition:all .3s;}
+    .btn-outline-secondary:hover{background:var(--secondary);color:#fff;transform:translateY(-2px);}
+    .form-check-input:checked{background-color:var(--primary);border-color:var(--primary);}
+    
+    /* Các style cho phần chọn và xóa */
+    .bulk-actions-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .select-all-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .select-all-checkbox {
+      transform: scale(1.5);
+      margin-right: 10px;
+    }
+    .select-all-label {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    .bulk-actions-buttons {
+      display: flex;
+      gap: 15px;
+    }
+    .delete-selected-container {
+      margin-top: 20px;
+      text-align: center;
+      padding: 15px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .selected-count {
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      margin-left: 8px;
+    }
+    
+    @keyframes fadeInUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+    @media(max-width:992px){.sidebar{width:80px;}.sidebar-brand span,.nav-link span{display:none;}.main-content{margin-left:80px;}.sidebar-header{padding:20px 10px;}.nav-link{justify-content:center;padding:15px;}.nav-link i{font-size:1.3rem;}}
+    @media(max-width:768px){.main-content{padding:20px;}.dashboard-header{flex-direction:column;gap:15px;text-align:center;}.stats-grid{grid-template-columns:1fr;}.shifts-grid{grid-template-columns:1fr;}.shift-footer{flex-direction:column;gap:10px;text-align:center;}.bulk-actions-container{flex-direction:column;gap:15px;}.bulk-actions-buttons{flex-direction:column;width:100%;}}
+  </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <a href="#" class="sidebar-brand">
-                <i class="fas fa-id-card-alt"></i>
-                <span>FaceID System</span>
-            </a>
-        </div>
-        <div class="sidebar">
-        <div class="sidebar-header">
-            <a href="#" class="sidebar-brand">
-                <i class="fas fa-id-card-alt"></i>
-                <span>FaceID System</span>
-            </a>
-        </div>
-        <nav class="sidebar-nav">
-            <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('shifts') }}" class="nav-link active"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Báo cáo thống kê</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
-        </nav>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="sidebar-brand"><i class="fas fa-id-card-alt"></i><span>FaceID System</span></a>
     </div>
-    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('shifts') }}" class="nav-link active"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('faces') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt nhân viên</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Báo cáo thống kê</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('employee_list_deleted') }}" class="nav-link"><i class="fas fa-trash"></i><span>Dữ liệu đã xóa</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+    </nav>
+  </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <div class="dashboard-header">
-            <div class="header-title">
-                <h1>Quản lý ca làm việc</h1>
-                <p>Quản lý và phân công ca làm việc cho nhân viên</p>
-            </div>
-            <div class="user-profile">
-                <div class="user-avatar">{{ session['username'][0]|upper }}</div>
-                <div class="user-info">
-                    <div class="user-name">{{ session['username'] }}</div>
-                    <div class="user-role">{{ session['role'] }}</div>
-                </div>
-            </div>
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="dashboard-header">
+      <div class="header-title">
+        <h1>Quản lý ca làm việc</h1>
+        <p>Quản lý và phân công ca làm việc cho nhân viên</p>
+      </div>
+      <div class="user-profile">
+        <div class="user-avatar">{{ session['username'][0]|upper }}</div>
+        <div class="user-info">
+          <div class="user-name">{{ session['username'] }}</div>
+          <div class="user-role">{{ session['role'] }}</div>
         </div>
-
-        <!-- Flash messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show mb-4" role="alert">
-                        <i class="fa-solid fa-{{ 'triangle-exclamation' if category == 'error' else 'circle-check' }} me-2"></i>
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <!-- Header actions + Search -->
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-            <div class="d-flex gap-2">
-                <button class="btn btn-outline-secondary"><i class="fa-solid fa-file-export me-2"></i>Xuất báo cáo</button>
-                <a href="{{ url_for('add_shift') }}" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Thêm ca làm</a>
-            </div>
-            <form class="d-flex" method="get" action="{{ url_for('shifts') }}">
-                <input class="form-control me-2" type="search" name="q" placeholder="🔍 Tìm theo mã hoặc tên ca làm..." value="{{ keyword or '' }}" style="max-width:260px;">
-                <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
-            </form>
-        </div>
-
-        <!-- Stats Cards -->
-        <div class="stats-container">
-            <div class="stat-card">
-                <div class="stat-icon blue"><i class="fa-solid fa-clock"></i></div>
-                <div class="stat-value">{{ shifts|length }}</div>
-                <div class="stat-label">Tổng số ca làm</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon green"><i class="fa-solid fa-user-check"></i></div>
-                <div class="stat-value">{{ active_shifts }}</div>
-                <div class="stat-label">Ca đang hoạt động</div>
-            </div>
-            <a href="{{ url_for('assigned_employees') }}" class="stat-card text-decoration-none">
-                <div class="stat-icon orange"><i class="fa-solid fa-users"></i></div>
-                <div class="stat-value">{{ total_employees }}</div>
-                <div class="stat-label">Nhân viên đã phân ca</div>
-            </a>
-        </div>
-
-        <!-- Shifts Grid -->
-        {% if shifts %}
-        <div class="shifts-grid">
-            {% for shift in shifts %}
-            <div class="shift-card">
-                <div class="shift-header {% if loop.index == 1 %}shift-morning{% elif loop.index == 2 %}shift-afternoon{% else %}shift-evening{% endif %}">
-                    <div class="shift-info">
-                        <h3>{{ shift.TenCa }}</h3>
-                        <div class="shift-time">{{ shift.GioBatDau }} - {{ shift.GioKetThuc }}</div>
-                    </div>
-                    <div class="shift-code">{{ shift.MaCa }}</div>
-                </div>
-
-                <div class="shift-body">
-                    <div class="shift-meta">
-                        <div class="meta-item"><i class="fa-solid fa-hashtag"></i><span>Mã ca: {{ shift.MaCa }}</span></div>
-                        <div class="meta-item"><i class="fas fa-sack-dollar me-2"></i><span>Hệ số lương:  <strong>{{ '%.2f'|format(shift.HeSoLuong or 1.00) }}</strong></span></div>
-                        <div class="meta-item"><i class="fa-solid fa-circle-info"></i><span>Mô tả: {{ shift.MoTa or "Không có" }}</span></div>
-                        <div class="meta-item"><i class="fa-solid fa-circle-check"></i><span>Trạng thái: {{ shift.TrangThai }}</span></div>
-                    </div>
-
-                    <div class="shift-actions">
-                        <a href="{{ url_for('edit_shift', ma_ca=shift.MaCa) }}" class="btn btn-action btn-edit"><i class="fas fa-edit"></i></a>
-                        <a href="{{ url_for('delete_shift', ma_ca=shift.MaCa) }}" class="btn btn-action btn-delete" onclick="return confirm('Bạn có chắc muốn xóa ca {{ shift.TenCa }}?')"><i class="fas fa-trash"></i></a>
-                    </div>
-                </div>
-
-                <div class="shift-footer">
-                    <div class="last-updated"><i class="fa-regular fa-clock me-1"></i>Cập nhật: {{ shift.LastUpdated }}</div>
-                    <a href="{{ url_for('shift_detail', ma_ca=shift.MaCa) }}" class="view-details">Xem chi tiết <i class="fa-solid fa-arrow-right ms-1"></i></a>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state">
-            <div class="empty-icon"><i class="fa-solid fa-clock"></i></div>
-            <h3 class="empty-title">Chưa có ca làm việc nào</h3>
-            <p class="empty-text">Hãy thêm ca làm việc đầu tiên để quản lý thời gian làm việc của nhân viên hiệu quả hơn.</p>
-            <a href="{{ url_for('add_shift') }}" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Thêm ca làm đầu tiên</a>
-        </div>
-        {% endif %}
-
-        <div class="footer">© 2025 FaceID System — Developed with ❤️ by Trần Minh Hợp</div>
+      </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show mb-4" role="alert">
+            <i class="fa-solid fa-{{ 'triangle-exclamation' if category == 'error' else 'circle-check' }} me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Header actions + Search -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary"><i class="fa-solid fa-file-export me-2"></i>Xuất báo cáo</button>
+        <a href="{{ url_for('add_shift') }}" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Thêm ca làm việc</a>
+      </div>
+      <form class="d-flex" method="get" action="{{ url_for('shifts') }}">
+        <input class="form-control me-2" type="search" name="q" placeholder="🔍 Tìm theo mã hoặc tên ca..." value="{{ keyword or '' }}" style="max-width:260px;">
+        <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+      </form>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stats-card shifts">
+        <div class="stats-icon"><i class="fas fa-clock"></i></div>
+        <div class="stats-number">{{ total_shifts }}</div>
+        <div class="stats-label">Tổng số ca</div>
+      </div>
+      <div class="stats-card active-shifts">
+        <div class="stats-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="stats-number">{{ active_shifts }}</div>
+        <div class="stats-label">Ca đang hoạt động</div>
+      </div>
+      <div class="stats-card employees">
+        <div class="stats-icon"><i class="fas fa-users"></i></div>
+        <div class="stats-number">{{ employees_in_shifts }}</div>
+        <div class="stats-label">Nhân viên có ca</div>
+      </div>
+      <div class="stats-card coefficient">
+        <div class="stats-icon"><i class="fas fa-percentage"></i></div>
+        <div class="stats-number">{{ avg_coefficient }}</div>
+        <div class="stats-label">Hệ số lương TB</div>
+      </div>
+    </div>
+
+    <!-- Shifts Grid -->
+    {% if shifts %}
+    <form method="POST" action="{{ url_for('delete_shift') }}" onsubmit="return confirm('Bạn có chắc muốn xóa các ca làm việc đã chọn?')">
+      <!-- Phần chọn tất cả và hủy chọn -->
+      <div class="bulk-actions-container">
+        <div class="select-all-container">
+          <input class="form-check-input select-all-checkbox" type="checkbox" id="select-all">
+          <label class="select-all-label" for="select-all">
+            Chọn tất cả ca làm việc
+            <span class="selected-count" id="selected-count">0</span>
+          </label>
+        </div>
+        <div class="bulk-actions-buttons">
+          <button type="button" class="btn btn-outline-secondary" id="deselect-all">
+            <i class="fa-solid fa-times me-2"></i>Hủy chọn
+          </button>
+        </div>
+      </div>
+
+      <div class="shifts-grid">
+        {% for shift in shifts %}
+        <div class="shift-card">
+          <!-- Checkbox ở góc phải trên cùng -->
+          <div class="shift-checkbox">
+            <input type="checkbox" name="ma_ca" value="{{ shift.MaCa }}" class="form-check-input shift-checkbox-item">
+          </div>
+          
+          <div class="shift-header {% if loop.index % 3 == 1 %}shift-morning{% elif loop.index % 3 == 2 %}shift-afternoon{% else %}shift-evening{% endif %}">
+            <div class="shift-info">
+              <h3>{{ shift.TenCa }}</h3>
+              <div class="shift-code">{{ shift.MaCa }}</div>
+            </div>
+          </div>
+
+          <div class="shift-body">
+            <div class="shift-meta">
+              <div class="meta-item"><i class="fa-solid fa-hashtag"></i><span>Mã ca: {{ shift.MaCa }}</span></div>
+              <div class="meta-item"><i class="fa-solid fa-clock"></i><span>Thời gian: {{ shift.GioBatDau }} - {{ shift.GioKetThuc }}</span></div>
+              <div class="meta-item"><i class="fa-solid fa-sack-dollar"></i><span>Hệ số lương: {{ '%.2f'|format(shift.HeSoLuong or 1.00) }}</span></div>
+              <div class="meta-item">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Trạng thái: 
+                  {% if shift.TrangThai == 'Hoạt động' %}
+                  <span class="status-badge status-active"><i class="fa-solid fa-circle"></i> {{ shift.TrangThai }}</span>
+                  {% else %}
+                  <span class="status-badge status-inactive"><i class="fa-regular fa-circle"></i> {{ shift.TrangThai }}</span>
+                  {% endif %}
+                </span>
+              </div>
+              <div class="meta-item"><i class="fa-solid fa-file-lines"></i><span>Mô tả: {{ shift.MoTa or "Không có" }}</span></div>
+            </div>
+
+            <div class="shift-actions">
+              <a href="{{ url_for('edit_shift', ma_ca=shift.MaCa) }}" class="btn btn-action btn-edit"><i class="fas fa-edit"></i></a>
+              <a href="{{ url_for('delete_shift', ma_ca=shift.MaCa) }}" class="btn btn-action btn-delete" onclick="return confirm('Bạn có chắc muốn xóa ca làm việc {{ shift.TenCa }}?')"><i class="fas fa-trash"></i></a>
+            </div>
+          </div>
+
+          <div class="shift-footer">
+            <div class="last-updated"><i class="fa-regular fa-clock me-1"></i>Cập nhật: {{ shift.LastUpdated or "—" }}</div>
+            <a href="{{ url_for('shift_detail', ma_ca=shift.MaCa) }}" class="view-details">Xem chi tiết <i class="fa-solid fa-arrow-right ms-1"></i></a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      
+      <!-- Phần xóa đã chọn - ĐẨY XUỐNG PHÍA DƯỚI -->
+      <div class="delete-selected-container">
+        <button type="submit" class="btn btn-danger btn-lg">
+          <i class="fa-solid fa-trash me-2"></i> Xóa các ca làm việc đã chọn
+        </button>
+      </div>
+    </form>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon"><i class="fa-solid fa-clock"></i></div>
+      <h3 class="empty-title">Chưa có ca làm việc nào</h3>
+      <p class="empty-text">Hãy thêm ca làm việc đầu tiên để bắt đầu quản lý lịch làm việc của công ty.</p>
+      <a href="{{ url_for('add_shift') }}" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Thêm ca làm việc đầu tiên</a>
+    </div>
+    {% endif %}
+
+    <div class="footer">© 2025 FaceID System — Developed with ❤️ by Trần Minh Hợp</div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Chọn tất cả checkbox
+    const selectAllCheckbox = document.getElementById("select-all");
+    const shiftCheckboxes = document.querySelectorAll(".shift-checkbox-item");
+    const deselectAllButton = document.getElementById("deselect-all");
+    const selectedCountElement = document.getElementById("selected-count");
+    
+    // Cập nhật số lượng ca làm việc đã chọn
+    function updateSelectedCount() {
+      const selectedCount = document.querySelectorAll(".shift-checkbox-item:checked").length;
+      selectedCountElement.textContent = selectedCount;
+      
+      // Cập nhật trạng thái của checkbox "Chọn tất cả"
+      if (selectedCount === shiftCheckboxes.length) {
+        selectAllCheckbox.checked = true;
+        selectAllCheckbox.indeterminate = false;
+      } else if (selectedCount > 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = true;
+      } else {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+      }
+    }
+    
+    // Xử lý sự kiện chọn tất cả
+    selectAllCheckbox?.addEventListener("click", function() {
+      shiftCheckboxes.forEach(cb => cb.checked = this.checked);
+      updateSelectedCount();
+    });
+    
+    // Xử lý sự kiện hủy chọn tất cả
+    deselectAllButton?.addEventListener("click", function() {
+      shiftCheckboxes.forEach(cb => cb.checked = false);
+      updateSelectedCount();
+    });
+    
+    // Xử lý sự kiện khi click vào từng checkbox ca làm việc
+    shiftCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener("change", updateSelectedCount);
+    });
+    
+    // Khởi tạo số lượng đã chọn khi trang được tải
+    document.addEventListener("DOMContentLoaded", updateSelectedCount);
+  </script>
 </body>
 </html>
