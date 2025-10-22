@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lịch sử thay đổi - FaceID System</title>
+    <title>Khuôn mặt nhân viên - FaceID System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #4361ee;
@@ -27,7 +26,6 @@
             background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
-            overflow-x: hidden;
         }
         
         /* Sidebar Styles */
@@ -189,112 +187,101 @@
             margin: 0;
         }
         
-        /* Filter Section */
-        .filter-section {
+        /* Face Cards */
+        .face-card {
             background: white;
             border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 25px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        }
-        
-        .filter-label {
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 8px;
-        }
-        
-        /* Table Styles */
-        .table-responsive {
-            border-radius: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            position: relative;
         }
         
-        .table {
-            margin-bottom: 0;
+        .face-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .face-img {
             width: 100%;
-            min-width: 1100px;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 15px 15px 0 0;
+            transition: transform 0.5s ease;
         }
         
-        .table thead th {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            padding: 15px 12px;
-            font-weight: 600;
+        .face-card:hover .face-img {
+            transform: scale(1.05);
+        }
+        
+        .face-card-body {
+            padding: 20px;
             text-align: center;
-            vertical-align: middle;
-            white-space: nowrap;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+        }
+        
+        .face-name {
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+        
+        .face-department {
+            color: var(--secondary);
             font-size: 0.9rem;
+            margin-bottom: 10px;
         }
         
-        .table tbody td {
-            padding: 12px 10px;
-            vertical-align: middle;
-            border-color: #f0f0f0;
-            text-align: center;
+        .face-details {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .face-detail {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
             font-size: 0.85rem;
+            color: var(--secondary);
         }
         
-        .table tbody tr:hover {
-            background-color: rgba(67, 97, 238, 0.03);
-        }
-        
-        /* Column widths - Tối ưu độ rộng cột */
-        .table th:nth-child(1), .table td:nth-child(1) { width: 50px; min-width: 50px; } /* # */
-        .table th:nth-child(2), .table td:nth-child(2) { width: 100px; min-width: 100px; text-align: left; } /* Bảng */
-        .table th:nth-child(3), .table td:nth-child(3) { width: 90px; min-width: 90px; } /* Mã bản ghi */
-        .table th:nth-child(4), .table td:nth-child(4) { width: 80px; min-width: 80px; } /* Hành động */
-        .table th:nth-child(5), .table td:nth-child(5) { width: 120px; min-width: 120px; } /* Trường thay đổi */
-        .table th:nth-child(6), .table td:nth-child(6) { width: 180px; min-width: 180px; text-align: left; } /* Dữ liệu cũ */
-        .table th:nth-child(7), .table td:nth-child(7) { width: 180px; min-width: 180px; text-align: left; } /* Dữ liệu mới */
-        .table th:nth-child(8), .table td:nth-child(8) { width: 130px; min-width: 130px; } /* Thời gian */
-        .table th:nth-child(9), .table td:nth-child(9) { width: 110px; min-width: 110px; } /* Người thực hiện */
-        
-        .badge-action {
-            font-size: 0.75rem;
-            padding: 4px 8px;
-            border-radius: 4px;
+        .face-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
             font-weight: 500;
         }
         
-        .badge-insert {
-            background: rgba(40, 167, 69, 0.1);
-            color: #28a745;
+        .status-active {
+            background: rgba(40, 167, 69, 0.15);
+            color: var(--success);
         }
         
-        .badge-update {
-            background: rgba(255, 193, 7, 0.1);
-            color: #ffc107;
+        .status-inactive {
+            background: rgba(108, 117, 125, 0.15);
+            color: var(--secondary);
         }
         
-        .badge-delete {
-            background: rgba(220, 53, 69, 0.1);
-            color: #dc3545;
+        /* Modal Styles */
+        .modal-img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
-        .data-cell {
-            max-width: 170px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            display: inline-block;
-            vertical-align: middle;
-            cursor: help;
+        .modal-table th {
+            width: 30%;
+            color: var(--secondary);
+            font-weight: 500;
         }
         
-        .data-cell:hover {
-            overflow: visible;
-            white-space: normal;
-            background: #fff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            z-index: 5;
-            position: relative;
-            max-width: none;
+        .modal-table td {
+            color: var(--dark);
+            font-weight: 500;
         }
         
         /* Empty State */
@@ -306,22 +293,20 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
         }
         
-        .empty-icon {
+        .empty-state-icon {
             font-size: 4rem;
-            color: #dee2e6;
+            color: #e9ecef;
             margin-bottom: 20px;
         }
         
-        .empty-title {
-            font-weight: 600;
-            color: var(--dark);
+        .empty-state-title {
+            color: var(--secondary);
             margin-bottom: 10px;
         }
         
-        .empty-text {
+        .empty-state-text {
             color: var(--secondary);
-            max-width: 500px;
-            margin: 0 auto;
+            margin-bottom: 20px;
         }
         
         /* Responsive */
@@ -363,32 +348,6 @@
                 gap: 15px;
                 text-align: center;
             }
-            
-            .filter-section {
-                padding: 20px;
-            }
-            
-            .table-responsive {
-                font-size: 0.8rem;
-            }
-            
-            .table thead th, .table tbody td {
-                padding: 8px 6px;
-            }
-            
-            .table {
-                min-width: 1000px;
-            }
-            
-            .data-cell {
-                max-width: 120px;
-            }
-            
-            .table th:nth-child(6), .table td:nth-child(6),
-            .table th:nth-child(7), .table td:nth-child(7) {
-                width: 150px;
-                min-width: 150px;
-            }
         }
         
         /* Animation */
@@ -403,13 +362,14 @@
             }
         }
         
-        .filter-section, .table-responsive, .empty-state {
+        .face-card {
             animation: fadeInUp 0.6s ease-out;
         }
     </style>
 </head>
 
 <body>
+
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
@@ -428,10 +388,10 @@
             <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
             <div class="nav-item"><a href="{{ url_for('salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
             <div class="nav-item"><a href="{{ url_for('accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('faces') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('faces') }}" class="nav-link active"><i class="fas fa-id-card"></i><span>Khuôn mặt nhân viên</span></a></div>
             <div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Báo cáo thống kê</span></a></div>
             <div class="nav-item"><a href="{{ url_for('employee_list_deleted') }}" class="nav-link"><i class="fas fa-trash"></i><span>Dữ liệu đã xóa</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link active"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
             <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
         </nav>
     </div>
@@ -441,8 +401,8 @@
         <!-- Header -->
         <div class="dashboard-header">
             <div class="header-title">
-                <h1>Lịch sử thay đổi</h1>
-                <p>Theo dõi toàn bộ hoạt động thay đổi dữ liệu trong hệ thống</p>
+                <h1><i class="fas fa-user-circle me-2"></i>Khuôn mặt nhân viên</h1>
+                <p>Quản lý và xem thông tin khuôn mặt nhân viên</p>
             </div>
             <div class="user-profile">
                 <div class="user-avatar">
@@ -455,103 +415,142 @@
             </div>
         </div>
 
-        <!-- Filter Section -->
-        <div class="filter-section">
-            <form method="get" action="{{ url_for('history') }}" class="row g-3 align-items-end">
-                <div class="col-md-3">
-                    <label for="table" class="filter-label">Bảng:</label>
-                    <select name="table" id="table" class="form-select">
-                        <option value="">-- Tất cả --</option>
-                        {% for t in tables %}
-                            <option value="{{ t }}" {% if t == selected_table %}selected{% endif %}>{{ t }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                <div class="col-md-3">
-                    <label for="action" class="filter-label">Hành động:</label>
-                    <select name="action" id="action" class="form-select">
-                        <option value="">-- Tất cả --</option>
-                        {% for a in actions %}
-                            <option value="{{ a }}" {% if a == selected_action %}selected{% endif %}>{{ a }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                <div class="col-md-3">
-                    <label for="user" class="filter-label">Người thực hiện:</label>
-                    <input type="text" name="user" id="user" value="{{ keyword_user }}" class="form-control" placeholder="Tìm tên hoặc mã...">
-                </div>
-                
-                <div class="col-md-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary flex-fill">
-                        <i class="fas fa-search"></i> Lọc
-                    </button>
-                    
-                    {% if selected_table or selected_action or keyword_user %}
-                    <a href="{{ url_for('history') }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-rotate-left"></i>
-                    </a>
-                    {% endif %}
-                </div>
-            </form>
+        <!-- Stats and Actions -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h5 class="fw-bold text-primary mb-1">Tổng cộng: {{ faces|length }} khuôn mặt</h5>
+                <p class="text-muted mb-0">Tất cả khuôn mặt nhân viên đã đăng ký</p>
+            </div>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>Quay lại trang quản trị
+            </a>
         </div>
 
-        <!-- History Table -->
-        <div class="content-area">
-            {% if histories %}
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Bảng</th>
-                            <th>Mã bản ghi</th>
-                            <th>Hành động</th>
-                            <th>Trường thay đổi</th>
-                            <th>Dữ liệu cũ</th>
-                            <th>Dữ liệu mới</th>
-                            <th>Thời gian</th>
-                            <th>Người thực hiện</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in histories %}
-                        <tr>
-                            <td>{{ loop.index }}</td>
-                            <td class="fw-bold text-primary">{{ row.TenBang }}</td>
-                            <td>{{ row.MaBanGhi }}</td>
-                            <td>
-                                {% if row.HanhDong == 'Thêm' %}
-                                    <span class="badge badge-action badge-insert">THÊM</span>
-                                {% elif row.HanhDong == 'Sửa' %}
-                                    <span class="badge badge-action badge-update">SỬA</span>
-                                {% elif row.HanhDong == 'Xóa' %}
-                                    <span class="badge badge-action badge-delete">XÓA</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">{{ row.HanhDong }}</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ row.TruongThayDoi or '—' }}</td>
-                            <td><span class="data-cell" title="{{ row.GiaTriCu }}">{{ row.GiaTriCu or '—' }}</span></td>
-                            <td><span class="data-cell" title="{{ row.GiaTriMoi }}">{{ row.GiaTriMoi or '—' }}</span></td>
-                            <td>{{ row.ThoiGian.strftime('%d/%m/%Y %H:%M') if row.ThoiGian else '—' }}</td>
-                            <td>{{ row.TenDangNhap or '—' }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        <!-- Danh sách khuôn mặt -->
+        {% if faces %}
+        <div class="row g-4">
+            {% for f in faces %}
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="face-card" 
+                     data-bs-toggle="modal" 
+                     data-bs-target="#faceModal"
+                     data-hotennv="{{ f.HoTen }}"
+                     data-manv="{{ f.MaNV }}"
+                     data-tenpb="{{ f.TenPB or 'Chưa phân phòng ban' }}"
+                     data-ngaydangky="{{ f.NgayDangKy.strftime('%d/%m/%Y') }}"
+                     data-trangthai="{{ 'Hoạt động' if f.TrangThai == 1 else 'Không hoạt động' }}"
+                     data-mota="{{ f.MoTa }}"
+                     data-anh="{{ url_for('serve_photos', filename=f.DuongDanAnh.replace('photos/', '')) }}">
+                    <img src="{{ url_for('serve_photos', filename=f.DuongDanAnh.replace('photos/', '')) }}" 
+                         class="face-img" alt="Ảnh khuôn mặt">
+                    <div class="face-card-body">
+                        <h5 class="face-name">{{ f.HoTen }}</h5>
+                        <p class="face-department">{{ f.TenPB or 'Chưa phân phòng ban' }}</p>
+                        
+                        <div class="face-details">
+                            <div class="face-detail">
+                                <i class="fas fa-id-badge"></i>
+                                <span>{{ f.MaNV }}</span>
+                            </div>
+                            <div class="face-detail">
+                                <i class="fas fa-calendar"></i>
+                                <span>{{ f.NgayDangKy.strftime('%d/%m/%Y') }}</span>
+                            </div>
+                        </div>
+                        
+                        <span class="face-status {% if f.TrangThai == 1 %}status-active{% else %}status-inactive{% endif %}">
+                            {% if f.TrangThai == 1 %}
+                                <i class="fas fa-circle me-1"></i>Hoạt động
+                            {% else %}
+                                <i class="fas fa-circle me-1"></i>Không hoạt động
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
             </div>
-            {% else %}
-            <div class="empty-state">
-                <div class="empty-icon"><i class="fas fa-history"></i></div>
-                <h3 class="empty-title">Chưa có lịch sử thay đổi</h3>
-                <p class="empty-text">Hệ thống sẽ ghi lại tất cả thay đổi dữ liệu khi bạn thực hiện thao tác quản lý.</p>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fas fa-user-circle"></i>
             </div>
-            {% endif %}
+            <h4 class="empty-state-title">Chưa có khuôn mặt nhân viên nào</h4>
+            <p class="empty-state-text">Hệ thống chưa có dữ liệu khuôn mặt nhân viên nào được đăng ký.</p>
+            <a href="{{ url_for('employee_list') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Thêm nhân viên
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Modal xem chi tiết khuôn mặt -->
+    <div class="modal fade" id="faceModal" tabindex="-1" aria-labelledby="faceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="faceModalLabel">
+                        <i class="fas fa-user-circle me-2"></i>Thông tin khuôn mặt nhân viên
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 text-center mb-4 mb-md-0">
+                            <img id="modalFaceImg" class="modal-img" src="" alt="Ảnh khuôn mặt">
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table modal-table">
+                                <tr>
+                                    <th><i class="fas fa-user me-2"></i>Họ tên:</th>
+                                    <td id="modalHoTen"></td>
+                                </tr>
+                                <tr>
+                                    <th><i class="fas fa-id-badge me-2"></i>Mã NV:</th>
+                                    <td id="modalMaNV"></td>
+                                </tr>
+                                <tr>
+                                    <th><i class="fas fa-building me-2"></i>Phòng ban:</th>
+                                    <td id="modalTenPB"></td>
+                                </tr>
+                                <tr>
+                                    <th><i class="fas fa-calendar me-2"></i>Ngày đăng ký:</th>
+                                    <td id="modalNgayDangKy"></td>
+                                </tr>
+                                <tr>
+                                    <th><i class="fas fa-circle me-2"></i>Trạng thái:</th>
+                                    <td id="modalTrangThai"></td>
+                                </tr>
+                                <tr>
+                                    <th><i class="fas fa-file-alt me-2"></i>Mô tả:</th>
+                                    <td id="modalMoTa"></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Đóng
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const faceModal = document.getElementById('faceModal');
+        faceModal.addEventListener('show.bs.modal', function (event) {
+            const card = event.relatedTarget;
+            document.getElementById('modalFaceImg').src = card.getAttribute('data-anh');
+            document.getElementById('modalHoTen').innerText = card.getAttribute('data-hotennv');
+            document.getElementById('modalMaNV').innerText = card.getAttribute('data-manv');
+            document.getElementById('modalTenPB').innerText = card.getAttribute('data-tenpb');
+            document.getElementById('modalNgayDangKy').innerText = card.getAttribute('data-ngaydangky');
+            document.getElementById('modalTrangThai').innerText = card.getAttribute('data-trangthai');
+            document.getElementById('modalMoTa').innerText = card.getAttribute('data-mota');
+        });
+    </script>
 </body>
 </html>

@@ -68,7 +68,7 @@ def capture_photo_and_save(ma_nv):
             "UID=sa;PWD=123456"
         )
 
-        encode_and_save(ma_nv, file_path, conn)
+        #encode_and_save(ma_nv, file_path, conn)
         cursor = conn.cursor()
 
         cursor.execute("SELECT COUNT(*) FROM KhuonMat WHERE MaNV=?", (ma_nv,))

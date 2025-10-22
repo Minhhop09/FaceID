@@ -32,6 +32,7 @@
     .user-info{line-height:1.4;}
     .user-name{font-weight:600;color:var(--dark);margin:0;}
     .user-role{color:var(--secondary);font-size:.9rem;margin:0;}
+    .content-area{background:#fff;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.08);padding:30px;margin-bottom:30px;}
     .card{border:none;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.08);margin-bottom:25px;transition:all .3s ease;}
     .card:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,.12);}
     .card-header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border-radius:15px 15px 0 0!important;padding:20px 25px;border:none;}
@@ -59,8 +60,12 @@
     .shift-night{background:#5f3dc4!important;color:white!important;}
     .quick-actions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
     .quick-actions .btn{padding:8px 16px;font-size:.9rem;}
+    .form-select[multiple]{min-height:150px;}
+    .form-select[multiple] option{padding:10px 15px;border-bottom:1px solid #f0f0f0;transition:all .3s;}
+    .form-select[multiple] option:hover{background:var(--primary);color:#fff;}
+    .form-select[multiple] option:checked{background:var(--primary);color:#fff;}
     @media(max-width:992px){.sidebar{width:80px;}.sidebar-brand span,.nav-link span{display:none;}.main-content{margin-left:80px;}.sidebar-header{padding:20px 10px;}.nav-link{justify-content:center;padding:15px;}.nav-link i{font-size:1.3rem;}}
-    @media(max-width:768px){.main-content{padding:20px;}.dashboard-header{flex-direction:column;gap:15px;text-align:center;}.quick-actions{justify-content:center;}}
+    @media(max-width:768px){.main-content{padding:20px;}.dashboard-header{flex-direction:column;gap:15px;text-align:center;}.quick-actions{justify-content:center;}.content-area{padding:20px;}.card-body{padding:20px;}}
   </style>
 </head>
 
@@ -79,7 +84,9 @@
       <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
       <div class="nav-item"><a href="{{ url_for('salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
       <div class="nav-item"><a href="{{ url_for('accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Báo cáo thống kê</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('faces') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt nhân viên</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Báo cáo thống kê</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('employee_list_deleted') }}" class="nav-link"><i class="fas fa-trash"></i><span>Dữ liệu đã xóa</span></a></div>
       <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
       <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
     </nav>
@@ -124,16 +131,20 @@
           <h4 class="mb-0"><i class="fa-solid fa-calendar-plus me-2"></i>Thêm phân ca làm việc nâng cao</h4>
         </div>
         <div class="card-body">
-          <form method="POST">
+          <form method="POST" action="{{ url_for('assign_shift') }}">
             <div class="row">
               <div class="col-md-6 mb-4">
-                <label class="form-label"><i class="fa-solid fa-user me-2"></i>Chọn nhân viên</label>
-                <select name="MaNV" class="form-select" id="MaNV" required>
-                  <option value="">-- Chọn nhân viên --</option>
+                <label class="form-label">
+                  <i class="fa-solid fa-user me-2"></i>Chọn nhân viên (có thể chọn nhiều)
+                </label>
+                <select name="MaNV[]" class="form-select" multiple required size="8">
                   {% for nv in employees %}
-                  <option value="{{ nv[0] }}">{{ nv[1] }} ({{ nv[0] }})</option>
+                    <option value="{{ nv[0] }}">{{ nv[1] }} ({{ nv[0] }})</option>
                   {% endfor %}
                 </select>
+                <small class="text-muted mt-2 d-block">
+                  Giữ <strong>Ctrl</strong> (hoặc <strong>Cmd</strong> trên Mac) để chọn nhiều nhân viên.
+                </small>
               </div>
 
               <div class="col-md-6 mb-4">
@@ -153,7 +164,7 @@
 
             <div class="mb-4">
               <label class="form-label"><i class="fa-solid fa-calendar-days me-2"></i>Chọn nhiều ngày</label>
-              <input id="multiDates" name="NgayLam[]" class="form-control" placeholder="Chọn nhiều ngày..." required>
+              <input id="multiDates" name="NgayLam[]" class="form-control" placeholder="Chọn nhiều ngày..." required readonly>
               <div class="quick-actions">
                 <button type="button" class="btn btn-outline-primary" id="thisWeek"><i class="fa-solid fa-calendar-week me-1"></i>Tuần này</button>
                 <button type="button" class="btn btn-outline-primary" id="nextWeek"><i class="fa-solid fa-calendar-plus me-1"></i>Tuần tới</button>
@@ -184,33 +195,6 @@
       inline: true,
       minDate: "today",
       showMonths: 2
-    });
-
-    // Khi chọn nhân viên -> load lịch phân ca thật
-    document.getElementById("MaNV").addEventListener("change", async function() {
-      const maNV = this.value;
-      if (!maNV) return;
-
-      const res = await fetch(`/api/schedule/${maNV}`);
-      const data = await res.json();
-
-      // Xóa đánh dấu cũ
-      document.querySelectorAll(".flatpickr-day").forEach(d => {
-        d.classList.remove("has-shift","shift-morning","shift-afternoon","shift-night");
-        d.removeAttribute("title");
-      });
-
-      // Tô màu theo từng ca
-      data.forEach(item => {
-        const el = document.querySelector(`[aria-label="${item.date}"]`);
-        if (el) {
-          el.classList.add("has-shift");
-          if (item.shift.includes("sáng")) el.classList.add("shift-morning");
-          else if (item.shift.includes("chiều")) el.classList.add("shift-afternoon");
-          else if (item.shift.includes("tối")) el.classList.add("shift-night");
-          el.title = `Đã phân: ${item.shift}`;
-        }
-      });
     });
 
     // Nút tuần này / tuần tới / xóa
