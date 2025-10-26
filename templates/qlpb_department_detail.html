@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết phòng ban - FaceID System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <style>
+        :root{--primary:#f472b6;--primary-light:#fce7f3;--primary-dark:#db2777;--secondary:#9ca3af;--success:#10b981;--info:#06b6d4;--warning:#f59e0b;--danger:#ef4444;--light:#fdf2f8;--dark:#4b5563;--sidebar-bg:#fdf2f8;--sidebar-hover:#fce7f3;--sidebar-active:#f472b6;--text-dark:#4b5563;--text-light:#6b7280;}
+        body{background:#ffffff;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;min-height:100vh;color:var(--text-dark);}
+        .sidebar{min-height:100vh;width:280px;background:var(--sidebar-bg);position:fixed;box-shadow:3px 0 15px rgba(0,0,0,0.03);border-right:1px solid #f9a8d4;}
+        .sidebar-header{padding:25px 20px;border-bottom:1px solid #fbcfe8;text-align:center;}
+        .sidebar-brand{color:var(--text-dark);text-decoration:none;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;}
+        .sidebar-brand i{color:var(--primary);font-size:1.8rem;}
+        .sidebar-nav{padding:20px 0 80px;height:calc(100vh - 80px);}
+        .nav-link{color:var(--text-light);padding:15px 25px;text-decoration:none;display:flex;align-items:center;gap:12px;transition:all 0.3s ease;border-left:3px solid transparent;font-weight:500;}
+        .nav-link:hover{color:var(--primary-dark);background:var(--sidebar-hover);border-left-color:var(--primary);}
+        .nav-link.active{color:var(--primary-dark);background:var(--primary-light);border-left-color:var(--primary);font-weight:600;}
+        .logout-link{color:var(--danger);border-top:1px solid #fbcfe8;margin-top:20px;}
+        .logout-link:hover{color:white;background:var(--danger);}
+        .main-content{margin-left:280px;padding:30px;}
+        .dashboard-header{background:white;border-radius:15px;padding:25px 30px;margin-bottom:30px;box-shadow:0 5px 15px rgba(0,0,0,0.03);display:flex;justify-content:space-between;align-items:center;border-left:5px solid var(--primary);}
+        .user-profile{display:flex;align-items:center;gap:15px;background:var(--light);padding:12px 20px;border-radius:12px;border:1px solid var(--primary-light);}
+        .user-avatar{width:45px;height:45px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:1.2rem;}
+        .content-area{background:white;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,0.03);padding:30px;margin-bottom:30px;}
+        .card{border:none;border-radius:12px;box-shadow:0 3px 10px rgba(0,0,0,0.1);}
+        .card-header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;border-radius:12px 12px 0 0!important;padding:20px 25px;}
+        .card-body{padding:25px;}
+        .info-item{display:flex;align-items:center;margin-bottom:15px;padding-bottom:15px;border-bottom:1px solid rgba(0,0,0,0.05);}
+        .info-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+        .info-label{font-weight:600;color:var(--secondary);min-width:120px;}
+        .info-value{color:var(--dark);}
+        .table-responsive{border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+        .table{table-layout:fixed;margin:0;}
+        .table thead th{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;border:none;padding:15px;font-weight:600;text-align:center;vertical-align:middle;}
+        .table tbody td{padding:12px 15px;vertical-align:middle;border-color:#f0f0f0;}
+        .table tbody tr:hover{background-color:rgba(244,114,182,0.03);}
+        .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border:none;border-radius:8px;padding:10px 20px;font-weight:500;transition:all 0.3s;}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(244,114,182,0.3);}
+        .btn-secondary{background:var(--secondary);border:none;border-radius:8px;padding:10px 20px;font-weight:500;transition:all 0.3s;}
+        .btn-secondary:hover{background:#5a6268;transform:translateY(-2px);}
+        .search-sort-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;gap:15px;}
+        @media(max-width:992px){.sidebar{width:80px;}.sidebar-brand span,.nav-link span{display:none;}.main-content{margin-left:80px;}.sidebar-header{padding:20px 10px;}.nav-link{justify-content:center;padding:15px;}}
+        @media(max-width:768px){.main-content{padding:20px;}.dashboard-header{flex-direction:column;gap:15px;text-align:center;}.search-sort-bar{flex-direction:column;align-items:stretch;}.table-responsive{font-size:.9rem;}.table thead th,.table tbody td{padding:8px 10px;}}
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand">
+                <i class="fas fa-id-card-alt"></i>
+                <span>FaceID System</span>
+            </a>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-item"><a href="{{ url_for('qlpb_bp.qlpb_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('department_bp.departments') }}" class="nav-link active"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Nhân viên phòng</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('schedule_bp.assigned_employees') }}" class="nav-link"><i class="fas fa-calendar"></i><span>Lịch làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('attendance_bp.attendance_report') }}" class="nav-link"><i class="fas fa-clipboard-list"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('reports_bp.qlpb_reports_view') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Báo cáo năng suất</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('auth_bp.login') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="header-title">
+                <h1>Chi tiết phòng ban</h1>
+                <p>Thông tin chi tiết và danh sách nhân viên trong phòng ban</p>
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar">{{ session['username'][0]|upper }}</div>
+                <div class="user-info">
+                    <div class="user-name">{{ session['username'] }}</div>
+                    <div class="user-role">Quản lý phòng ban</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Navigation -->
+           
+
+            <!-- Thông tin phòng ban -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fa-solid fa-building me-2"></i>{{ pb.ten_pb }}</h4>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <span class="info-label">Mã phòng:</span>
+                        <span class="info-value">{{ pb.ma_pb }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Quản lý:</span>
+                        <span class="info-value">{{ pb.quan_ly or '—' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Trạng thái:</span>
+                        <span class="info-value {{ 'text-success' if pb.trang_thai == 'Đang hoạt động' else 'text-secondary' }}">
+                            <i class="fa-solid fa-circle me-1" style="font-size:.7rem;"></i>
+                            {{ pb.trang_thai }}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Mô tả:</span>
+                        <span class="info-value">{{ pb.mo_ta or '—' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thanh tìm kiếm & sắp xếp -->
+            <div class="search-sort-bar">
+                <form method="get" class="d-flex gap-2 flex-wrap">
+                    <input type="text" class="form-control" name="q" placeholder="🔍 Tìm theo tên, mã hoặc chức vụ..." value="{{ keyword or '' }}" style="max-width:300px;">
+                    <select name="sort" class="form-select w-auto">
+                        <option value="ten" {% if order=='ten' %}selected{% endif %}>Sắp xếp theo tên</option>
+                        <option value="chucvu" {% if order=='chucvu' %}selected{% endif %}>Sắp xếp theo chức vụ</option>
+                        <option value="ma" {% if order=='ma' %}selected{% endif %}>Sắp xếp theo mã NV</option>
+                    </select>
+                    <button class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm</button>
+                </form>
+                <div class="text-muted">
+                    <small><i class="fas fa-users me-1"></i>Tổng: {{ nhanviens|length }} nhân viên</small>
+                </div>
+            </div>
+
+            <!-- Danh sách nhân viên -->
+            {% if nhanviens %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px">Mã NV</th>
+                            <th style="width: 200px">Họ tên</th>
+                            <th style="width: 150px">Chức vụ</th>
+                            <th style="width: 120px">Ngày vào làm</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for nv in nhanviens %}
+                        <tr>
+                            <td class="text-center fw-bold">{{ nv.MaNV }}</td>
+                            <td>{{ nv.HoTen }}</td>
+                            <td>{{ nv.ChucVu or '—' }}</td>
+                            <td class="text-center">
+                                {% if nv.NgayVaoLam %}
+                                    {{ nv.NgayVaoLam.strftime('%d/%m/%Y') }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center py-4">
+                <i class="fa-solid fa-circle-info me-2 fa-lg"></i>
+                <strong>Chưa có nhân viên nào trong phòng ban này.</strong>
+                <p class="mb-0 mt-2">Hãy thêm nhân viên vào phòng ban để bắt đầu quản lý.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    
+    // Search functionality
+    document.getElementById("searchInput").addEventListener("keyup", function() {
+        const keyword = this.value.toLowerCase();
+        document.querySelectorAll("tbody tr").forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(keyword) ? "" : "none";
+        });
+    });
+
+    // Select all checkboxes
+    const selectAll = document.getElementById("selectAll");
+    const checkboxes = document.querySelectorAll(".attendance-checkbox");
+    const selectedCount = document.getElementById("selectedCount");
+    const deleteBtn = document.getElementById("deleteSelectedBtn");
+    const deselectAllBtn = document.getElementById("deselectAllBtn");
+
+    function updateCount() {
+        const count = document.querySelectorAll(".attendance-checkbox:checked").length;
+        selectedCount.textContent = count;
+        deleteBtn.disabled = count === 0;
+    }
+
+    selectAll.addEventListener("change", () => {
+        checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        updateCount();
+    });
+
+    checkboxes.forEach(cb => cb.addEventListener("change", updateCount));
+    
+    // Deselect all checkboxes
+    deselectAllBtn.addEventListener("click", () => {
+        selectAll.checked = false;
+        checkboxes.forEach(cb => cb.checked = false);
+        updateCount();
+    });
+</script>
+</body>
+</html>

@@ -72,20 +72,20 @@ body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#f5f7fa
             </a>
         </div>
         
-        <nav class="sidebar-nav">
+       <nav class="sidebar-nav">
             <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('shifts') }}" class="nav-link"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('faces') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt nhân viên</span></a></div>
-<div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link active"><i class="fas fa-chart-bar"></i><span>Báo cáo thống kê</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('employee_list_deleted') }}" class="nav-link"><i class="fas fa-trash"></i><span>Dữ liệu đã xóa</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
-            <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('department_bp.departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('shift_bp.shifts') }}" class="nav-link"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('schedule_bp.assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('attendance_bp.attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('salary_bp.salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('account_bp.accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('faces_bp.faces') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('reports_bp.reports_view') }}" class="nav-link active"><i class="fas fa-chart-bar"></i><span>Báo cáo thống kê</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.employee_list_deleted') }}" class="nav-link"><i class="fas fa-trash"></i><span>Dữ liệu đã xóa</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('history_bp.history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('auth_bp.login') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
         </nav>
     </div>
 
@@ -123,8 +123,8 @@ body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#f5f7fa
       <i class="fa-solid fa-download"></i> Xuất báo cáo
     </button>
     <ul class="dropdown-menu">
-      <li><a class="dropdown-item" href="{{ url_for('export_report_word') }}">📘 Xuất file Word</a></li>
-      <li><a class="dropdown-item" href="{{ url_for('export_report_excel') }}">📗 Xuất file Excel</a></li>
+      <li><a class="dropdown-item" href="{{ url_for('reports_bp.export_report_word') }}">📘 Xuất file Word</a></li>
+      <li><a class="dropdown-item" href="{{ url_for('reports_bp.export_report_excel') }}">📗 Xuất file Excel</a></li>
     </ul>
   </div>
 </div>

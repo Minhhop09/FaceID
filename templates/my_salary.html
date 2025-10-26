@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lương của tôi - Hệ thống FaceID</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee; --primary-dark: #3a56d4; --secondary: #6c757d; 
+            --success: #28a745; --info: #17a2b8; --warning: #ffc107; 
+            --danger: #dc3545; --light: #f8f9fa; --dark: #343a40; 
+            --sidebar-bg: #ffffff; --sidebar-hover: #f1f5f9; --sidebar-active: #4361ee;
+        }
+        
+        body { 
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            min-height: 100vh; 
+        }
+        
+        .sidebar { 
+            min-height: 100vh; 
+            width: 280px; 
+            background: var(--sidebar-bg); 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            z-index: 1000; 
+            transition: all 0.3s ease; 
+            box-shadow: 3px 0 15px rgba(0, 0, 0, 0.05); 
+            border-right: 1px solid rgba(0, 0, 0, 0.05); 
+        }
+        
+        .sidebar-header { 
+            padding: 25px 20px; 
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
+            text-align: center; 
+        }
+        
+        .sidebar-brand { 
+            color: var(--dark); 
+            text-decoration: none; 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px; 
+        }
+        
+        .sidebar-brand i { 
+            background: linear-gradient(135deg, var(--primary), #4895ef); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            font-size: 1.8rem; 
+        }
+        
+        .sidebar-nav { 
+            padding: 20px 0 80px; 
+            overflow-y: auto; 
+            height: calc(100vh - 80px); 
+        }
+        
+        .nav-item { 
+            margin-bottom: 5px; 
+        }
+        
+        .nav-link { 
+            color: var(--secondary); 
+            padding: 15px 25px; 
+            text-decoration: none; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            transition: all 0.3s ease; 
+            border-left: 3px solid transparent; 
+            font-weight: 500; 
+        }
+        
+        .nav-link:hover { 
+            color: var(--primary); 
+            background: var(--sidebar-hover); 
+            border-left-color: var(--primary); 
+            transform: translateX(5px); 
+        }
+        
+        .nav-link.active { 
+            color: white; 
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+            border-left-color: white; 
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3); 
+        }
+        
+        .nav-link i { 
+            width: 20px; 
+            text-align: center; 
+            font-size: 1.1rem; 
+        }
+        
+        .logout-link { 
+            color: var(--danger); 
+            border-top: 1px solid rgba(0, 0, 0, 0.05); 
+            margin-top: 20px; 
+        }
+        
+        .logout-link:hover { 
+            color: white; 
+            background: var(--danger); 
+        }
+        
+        .main-content { 
+            margin-left: 280px; 
+            padding: 30px; 
+            transition: all 0.3s ease; 
+        }
+        
+        .dashboard-header { 
+            background: white; 
+            border-radius: 15px; 
+            padding: 25px 30px; 
+            margin-bottom: 30px; 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        
+        .header-title h1 { 
+            color: var(--dark); 
+            font-weight: 700; 
+            margin-bottom: 5px; 
+        }
+        
+        .header-title p { 
+            color: var(--secondary); 
+            margin: 0; 
+        }
+        
+        .user-profile { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            background: var(--light); 
+            padding: 12px 20px; 
+            border-radius: 12px; 
+            border: 1px solid rgba(0, 0, 0, 0.05); 
+        }
+        
+        .user-avatar { 
+            width: 45px; 
+            height: 45px; 
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            font-weight: 600; 
+            font-size: 1.2rem; 
+        }
+        
+        .user-info { 
+            line-height: 1.4; 
+        }
+        
+        .user-name { 
+            font-weight: 600; 
+            color: var(--dark); 
+            margin: 0; 
+        }
+        
+        .user-role { 
+            color: var(--secondary); 
+            font-size: 0.9rem; 
+            margin: 0; 
+        }
+        
+        .system-card { 
+            background: white; 
+            border-radius: 15px; 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); 
+            overflow: hidden; 
+            margin-bottom: 30px;
+        }
+        
+        .system-card-header { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+            color: white; 
+            padding: 20px 25px; 
+        }
+        
+        .system-card-header h5 { 
+            margin: 0; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
+        
+        .system-card-body { 
+            padding: 25px; 
+        }
+        
+        .salary-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+        }
+        
+        .salary-table th { 
+            background: #fff9e6; 
+            border-bottom: 2px solid var(--warning); 
+            font-weight: 600; 
+            padding: 12px 15px;
+            text-align: left;
+        }
+        
+        .salary-table td { 
+            padding: 12px 15px; 
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
+        }
+        
+        .salary-table tbody tr:hover { 
+            background: rgba(67, 97, 238, 0.05); 
+            transition: 0.3s; 
+        }
+        
+        .salary-amount { 
+            font-weight: 700; 
+            color: var(--success); 
+            font-size: 1.1rem; 
+        }
+        
+        .empty-state { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 50px 30px; 
+            text-align: center; 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .empty-state i { 
+            font-size: 3rem; 
+            color: var(--info); 
+            margin-bottom: 20px; 
+        }
+        
+        .btn-secondary { 
+            background: white; 
+            color: var(--secondary); 
+            border: 1px solid rgba(0, 0, 0, 0.1); 
+            border-radius: 8px; 
+            transition: 0.3s; 
+            padding: 10px 20px;
+            font-weight: 500;
+        }
+        
+        .btn-secondary:hover { 
+            background: var(--light); 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .system-card { 
+            animation: fadeInUp 0.6s ease-out; 
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar { width: 80px; }
+            .sidebar-brand span, .nav-link span { display: none; }
+            .main-content { margin-left: 80px; }
+            .sidebar-header { padding: 20px 10px; }
+            .nav-link { justify-content: center; padding: 15px; }
+            .nav-link i { font-size: 1.3rem; }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content { padding: 20px; }
+            .dashboard-header { flex-direction: column; gap: 15px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand">
+                <i class="fas fa-id-card-alt"></i>
+                <span>FaceID System</span>
+            </a>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-item"><a href="{{ url_for('employee_bp.employee_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.employee_profile') }}" class="nav-link"><i class="fas fa-user"></i><span>Hồ sơ cá nhân</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.my_schedule') }}" class="nav-link"><i class="fas fa-calendar"></i><span>Lịch làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.employee_attendance') }}" class="nav-link"><i class="fas fa-check-circle"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.my_salary') }}" class="nav-link active"><i class="fas fa-coins"></i><span>Lương của tôi</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.my_face') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt của tôi</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('auth_bp.login') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
+    </div>
+ 
+<div class="main-content">
+    <!-- 🌟 Header -->
+    <div class="dashboard-header d-flex justify-content-between align-items-center mb-4">
+        <div class="header-title">
+            <h1 class="fw-bold mb-1">
+                <i class="fa-solid fa-coins text-warning me-2"></i>Lương của tôi
+            </h1>
+            <p class="text-muted mb-0">Xem thông tin lương và chi tiết các ca làm việc</p>
+        </div>
+
+        <div class="user-profile d-flex align-items-center">
+            {% if anh_nv %}
+                <img src="/{{ anh_nv }}" alt="Ảnh nhân viên"
+                     class="rounded-circle me-3 shadow-sm"
+                     width="60" height="60"
+                     style="object-fit: cover; border: 2px solid #4361ee;">
+            {% else %}
+                <div class="user-avatar rounded-circle bg-primary text-white fw-bold d-flex align-items-center justify-content-center me-3"
+                     style="width:60px; height:60px; font-size:24px;">
+                    {{ session['username'][0]|upper }}
+                </div>
+            {% endif %}
+            <div class="user-info text-end">
+                <div class="user-name fw-semibold">{{ ho_ten }}</div>
+                <div class="user-role text-muted small">Nhân viên</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔙 Nút quay lại -->
+    <div class="d-flex justify-content-end mb-4">
+        <a href="{{ url_for('employee_bp.employee_dashboard') }}" class="btn btn-secondary shadow-sm">
+            <i class="fa-solid fa-arrow-left me-2"></i>Quay lại trang chính
+        </a>
+    </div>
+
+    <!-- 📅 Tổng hợp lương tháng -->
+    <div class="system-card shadow-sm mb-4">
+        <div class="system-card-header bg-gradient text-white fw-semibold"
+             style="background: linear-gradient(90deg, #4361ee, #3a56d4);">
+            <i class="fas fa-calendar me-2"></i>Tổng hợp lương tháng {{ "%02d"|format(current_month) }}/{{ current_year }}
+        </div>
+        <div class="system-card-body py-4">
+            <div class="row text-center">
+                <div class="col-md-4 mb-3">
+                    <h6 class="text-muted mb-1">Số giờ làm</h6>
+                    <h4 class="fw-bold text-primary">{{ "%.2f"|format(tong_gio or 0) }}</h4>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h6 class="text-muted mb-1">Tổng tiền (VNĐ)</h6>
+                    <h4 class="fw-bold text-success">{{ "{:,.0f}".format(tong_tien or 0) }}</h4>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h6 class="text-muted mb-1">Ngày tính</h6>
+                    <h4 class="fw-bold">{{ now.strftime("%d/%m/%Y") if now else "" }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📋 Chi tiết từng ca -->
+    {% if salary_details and salary_details|length > 0 %}
+    <div class="system-card shadow-sm">
+        <div class="system-card-header bg-primary text-white fw-semibold">
+            <i class="fas fa-list me-2"></i>Chi tiết lương theo từng ca làm việc
+        </div>
+        <div class="system-card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0 text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ngày làm</th>
+                            <th>Tên ca</th>
+                            <th>Giờ bắt đầu (chuẩn)</th>
+                            <th>Giờ kết thúc (chuẩn)</th>
+                            <th>Giờ vào (thực tế)</th>
+                            <th>Giờ ra (thực tế)</th>
+                            <th>Số giờ</th>
+                            <th>Hệ số</th>
+                            <th>Tiền ca (VNĐ)</th>
+                            <th>Ghi chú</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in salary_details %}
+                        <tr>
+                            <td>{{ row.NgayLam }}</td>
+                            <td>{{ row.TenCa or "—" }}</td>
+                            <td>{{ row.GioBatDau or "—" }}</td>
+                            <td>{{ row.GioKetThuc or "—" }}</td>
+                            <td {% if "trễ" in (row.LyDo or "").lower() %}class="text-danger fw-semibold"{% endif %}>
+                                {{ row.GioVao or "—" }}
+                            </td>
+                            <td>{{ row.GioRa or "—" }}</td>
+                            <td>{{ "%.2f"|format(row.SoGio or 0) }}</td>
+                            <td>{{ row.HeSo or 1 }}</td>
+                            <td class="fw-bold text-success">{{ "{:,.0f}".format(row.ThanhTien or 0) }}</td>
+                            <td>
+                                {% if row.LyDo %}
+                                    {% if "trễ" in row.LyDo.lower() %}
+                                        <span class="text-danger">{{ row.LyDo }}</span>
+                                    {% elif "thưởng" in row.LyDo.lower() %}
+                                        <span class="text-success">{{ row.LyDo }}</span>
+                                    {% else %}
+                                        {{ row.LyDo }}
+                                    {% endif %}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state text-center mt-5">
+        <i class="fas fa-info-circle text-secondary fs-1 mb-2"></i>
+        <h5>Chưa có dữ liệu chi tiết lương</h5>
+        <p class="text-muted">Hiện tại bạn chưa có bản ghi chấm công nào để tính lương.</p>
+    </div>
+    {% endif %}
+</div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

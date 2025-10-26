@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chỉnh Sửa Ca Làm Việc - FaceID System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #8B5FBF;
+      --primary-dark: #7A4FA8;
+      --primary-light: #9D7BC6;
+      --secondary: #6c757d;
+      --success: #2ECC71;
+      --info: #3498DB;
+      --warning: #F39C12;
+      --danger: #E74C3C;
+      --light: #f8f9fa;
+      --dark: #2C3E50;
+      --sidebar-bg: #2C3E50;
+      --sidebar-hover: #34495E;
+      --sidebar-active: #8B5FBF;
+      --card-bg: #FFFFFF;
+      --header-bg: #FFFFFF;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #ECF0F1 0%, #D6DBDF 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    .sidebar {
+      min-height: 100vh;
+      width: 280px;
+      background: var(--sidebar-bg);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      transition: all 0.3s ease;
+      box-shadow: 3px 0 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .sidebar-header {
+      padding: 25px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+    
+    .sidebar-brand {
+      color: white;
+      text-decoration: none;
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .sidebar-brand i {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 1.8rem;
+    }
+    
+    .sidebar-nav {
+      padding: 20px 0 80px;
+      overflow-y: auto;
+      height: calc(100vh - 80px);
+    }
+    
+    .nav-item {
+      margin-bottom: 5px;
+    }
+    
+    .nav-link {
+      color: rgba(255, 255, 255, 0.8);
+      padding: 15px 25px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+      font-weight: 500;
+    }
+    
+    .nav-link:hover {
+      color: white;
+      background: var(--sidebar-hover);
+      border-left-color: var(--primary);
+      transform: translateX(5px);
+    }
+    
+    .nav-link.active {
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-left-color: white;
+      box-shadow: 0 4px 15px rgba(139, 95, 191, 0.3);
+    }
+    
+    .nav-link i {
+      width: 20px;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+    
+    .logout-link {
+      color: #F1948A;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 20px;
+    }
+    
+    .logout-link:hover {
+      color: white;
+      background: var(--danger);
+    }
+    
+    .main-content {
+      margin-left: 280px;
+      padding: 30px;
+      transition: all 0.3s ease;
+    }
+    
+    .dashboard-header {
+      background: var(--header-bg);
+      border-radius: 15px;
+      padding: 25px 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header-title h1 {
+      color: var(--dark);
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+    
+    .header-title p {
+      color: var(--secondary);
+      margin: 0;
+    }
+    
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: var(--light);
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .user-avatar {
+      width: 45px;
+      height: 45px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 1.2rem;
+    }
+    
+    .user-info {
+      line-height: 1.4;
+    }
+    
+    .user-name {
+      font-weight: 600;
+      color: var(--dark);
+      margin: 0;
+    }
+    
+    .user-role {
+      color: var(--secondary);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+    
+    .edit-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    
+    .edit-header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      padding: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .shift-badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    
+    .edit-body {
+      padding: 30px;
+    }
+    
+    /* Card hiển thị thông tin cũ */
+    .current-info-card {
+      background: var(--light);
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 30px;
+      border-left: 4px solid var(--primary);
+    }
+    
+    .current-info-title {
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1rem;
+    }
+    
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .info-label {
+      font-weight: 600;
+      color: var(--secondary);
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+    }
+    
+    .info-value {
+      color: var(--dark);
+      font-weight: 500;
+    }
+    
+    /* Form chỉnh sửa */
+    .edit-form-section {
+      background: #fff;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      border: 1px solid #e1e5ee;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    
+    .section-title {
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1rem;
+    }
+    
+    /* Form controls với so sánh */
+    .form-group-compare {
+      margin-bottom: 20px;
+    }
+    
+    .form-label-compare {
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: between;
+      gap: 10px;
+    }
+    
+    .compare-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 10px;
+    }
+    
+    .current-value {
+      flex: 1;
+      padding: 12px 15px;
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+      font-weight: 500;
+      color: var(--dark);
+    }
+    
+    .change-arrow {
+      color: var(--primary);
+      font-size: 1.2rem;
+    }
+    
+    .new-value {
+      flex: 1;
+    }
+    
+    .form-control-edit {
+      border-radius: 8px;
+      padding: 12px 16px;
+      border: 2px solid #e1e5ee;
+      transition: all 0.3s;
+      width: 100%;
+    }
+    
+    .form-control-edit:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 0.2rem rgba(139, 95, 191, 0.15);
+    }
+    
+    /* Hệ số lương */
+    .coefficient-section {
+      background: linear-gradient(135deg, #f8f9ff, #e8edff);
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+    }
+    
+    .coefficient-display {
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .coefficient-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 5px;
+    }
+    
+    .coefficient-label {
+      color: var(--secondary);
+      font-size: 0.9rem;
+    }
+    
+    /* Nút hành động */
+    .action-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e9ecef;
+    }
+    
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.3s;
+      border: none;
+    }
+    
+    .btn-secondary {
+      background: var(--secondary);
+      color: #fff;
+    }
+    
+    .btn-secondary:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, var(--danger), #e53935);
+      color: #fff;
+    }
+    
+    .btn-danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(139, 95, 191, 0.3);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(139, 95, 191, 0.4);
+    }
+    
+    /* Preview */
+    .preview-card {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(139, 95, 191, 0.3);
+    }
+    
+    .preview-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    
+    .preview-subtitle {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    
+    @media (max-width: 992px) {
+      .sidebar {
+        width: 80px;
+      }
+      
+      .sidebar-brand span,
+      .nav-link span {
+        display: none;
+      }
+      
+      .main-content {
+        margin-left: 80px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .compare-container {
+        flex-direction: column;
+      }
+      
+      .change-arrow {
+        transform: rotate(90deg);
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .action-buttons>div {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="sidebar-brand">
+        <i class="fas fa-id-card-alt"></i>
+        <span>FaceID System</span>
+      </a>
+    </div>
+    
+     <nav class="sidebar-nav">
+            <div class="nav-item"><a href="{{ url_for('dashboard_bp.hr_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('department_bp.departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('shift_bp.shifts') }}" class="nav-link active"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('schedule_bp.assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('attendance_bp.attendance_report') }}" class="nav-link"><i class="fas fa-clipboard-check"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('salary_bp.salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('faces_bp.faces') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('reports_bp.hr_reports_view') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Báo cáo thống kê</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('auth_bp.login') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
+  </div>
+
+  <!-- Main content -->
+  <div class="main-content">
+    <div class="dashboard-header">
+      <div class="header-title">
+        <h1>Chỉnh sửa ca làm việc</h1>
+        <p>Cập nhật thông tin ca làm việc trong hệ thống</p>
+      </div>
+      <div class="user-profile">
+        <div class="user-avatar">{{ session['username'][0]|upper }}</div>
+        <div class="user-info">
+          <div class="user-name">{{ session['username'] }}</div>
+          <div class="user-role">{{ session['role'] }}</div>
+        </div>
+        <a href="{{ url_for('auth_bp.login') }}" class="text-decoration-none text-secondary ms-2"><i class="fa-solid fa-right-from-bracket"></i></a>
+      </div>
+    </div>
+
+    <div class="edit-container">
+      <div class="edit-header">
+        <h3><i class="fas fa-edit"></i> Chỉnh sửa ca làm việc</h3>
+        <div class="shift-badge"><i class="fas fa-id-badge me-1"></i> Mã ca: {{ ca.MaCa }}</div>
+      </div>
+
+      <div class="edit-body">
+        <!-- Thông tin hiện tại -->
+        <div class="current-info-card">
+          <h5 class="current-info-title"><i class="fas fa-info-circle"></i> Thông tin hiện tại</h5>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Mã ca</span>
+              <span class="info-value">{{ ca.MaCa }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Tên ca</span>
+              <span class="info-value">{{ ca.TenCa }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Thời gian</span>
+              <span class="info-value">{{ ca.GioBatDau }} - {{ ca.GioKetThuc }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Hệ số lương</span>
+              <span class="info-value">{{ '%.2f'|format(ca.HeSo or 0) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="preview-card">
+          <div class="preview-title" id="previewName">{{ ca.TenCa }}</div>
+          <div class="preview-subtitle" id="previewTime">
+            {{ ca.GioBatDau }} - {{ ca.GioKetThuc }} | Hệ số: {{ '%.2f'|format(ca.HeSo or 0) }}
+          </div>
+        </div>
+
+        <!-- Form chỉnh sửa -->
+        <form method="POST" action="{{ url_for('shift_bp.edit_shift', ma_ca=ca.MaCa) }}">
+          <!-- Thông tin cơ bản -->
+          <div class="edit-form-section">
+            <h5 class="section-title"><i class="fas fa-info-circle"></i> Thông tin cơ bản</h5>
+            
+            <!-- Mã ca (chỉ hiển thị) -->
+            <div class="form-group-compare">
+              <label class="form-label-compare">Mã ca</label>
+              <div class="compare-container">
+                <div class="current-value">{{ ca.MaCa }}</div>
+                <div class="change-arrow"><i class="fas fa-arrow-right"></i></div>
+                <div class="new-value">
+                  <input type="text" class="form-control-edit" value="{{ ca.MaCa }}" readonly style="background:#f8f9fa;">
+                </div>
+              </div>
+              <small class="form-text text-muted mt-2">Mã ca không thể thay đổi</small>
+            </div>
+            
+            <!-- Tên ca -->
+            <div class="form-group-compare">
+              <label class="form-label-compare">Tên ca</label>
+              <div class="compare-container">
+                <div class="current-value">{{ ca.TenCa }}</div>
+                <div class="change-arrow"><i class="fas fa-arrow-right"></i></div>
+                <div class="new-value">
+                  <select class="form-control-edit" name="ten_ca" id="tenCa">
+                    <option value="Ca sáng" {% if ca.TenCa == 'Ca sáng' %}selected{% endif %}>Ca sáng</option>
+                    <option value="Ca chiều" {% if ca.TenCa == 'Ca chiều' %}selected{% endif %}>Ca chiều</option>
+                    <option value="Ca tối" {% if ca.TenCa == 'Ca tối' %}selected{% endif %}>Ca tối</option>
+                    <option value="Ca đêm" {% if ca.TenCa == 'Ca đêm' %}selected{% endif %}>Ca đêm</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Thời gian -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group-compare">
+                  <label class="form-label-compare">Giờ bắt đầu</label>
+                  <div class="compare-container">
+                    <div class="current-value">{{ ca.GioBatDau }}</div>
+                    <div class="change-arrow"><i class="fas fa-arrow-right"></i></div>
+                    <div class="new-value">
+                      <input type="time" class="form-control-edit" name="gio_bat_dau" id="gioBatDau" value="{{ ca.GioBatDau }}" required>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group-compare">
+                  <label class="form-label-compare">Giờ kết thúc</label>
+                  <div class="compare-container">
+                    <div class="current-value">{{ ca.GioKetThuc }}</div>
+                    <div class="change-arrow"><i class="fas fa-arrow-right"></i></div>
+                    <div class="new-value">
+                      <input type="time" class="form-control-edit" name="gio_ket_thuc" id="gioKetThuc" value="{{ ca.GioKetThuc }}" required>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hệ số lương -->
+          <div class="coefficient-section">
+            <h5 class="section-title"><i class="fas fa-calculator"></i> Hệ số lương</h5>
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="form-group-compare">
+                  <label class="form-label-compare">Hệ số lương</label>
+                  <div class="compare-container">
+                    <div class="current-value">{{ '%.2f'|format(ca.HeSo or 1.00) }}</div>
+                    <div class="change-arrow"><i class="fas fa-arrow-right"></i></div>
+                    <div class="new-value">
+                      <input type="number" step="0.01" min="1" max="3" class="form-control-edit" id="heSo" name="he_so" value="{{ '%.2f'|format(ca.HeSo or 1.00) }}">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="coefficient-display">
+                  <div class="coefficient-value" id="coefficientDisplay">{{ '%.2f'|format(ca.HeSo or 1.00) }}</div>
+                  <div class="coefficient-label">Hệ số lương hiện tại</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nút hành động -->
+          <div class="action-buttons">
+            <a href="{{ url_for('shift_bp.shifts') }}" class="btn btn-secondary">
+              <i class="fas fa-arrow-left me-2"></i> Quay lại
+            </a>
+            <div>
+              <a href="{{ url_for('shift_bp.delete_shift', ma_ca=ca.MaCa) }}" class="btn btn-danger me-2" onclick="return confirm('Bạn có chắc chắn muốn xóa ca làm việc này?')">
+                <i class="fas fa-trash me-2"></i> Xóa ca
+              </a>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i> Lưu thay đổi
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const tenCa = document.getElementById('tenCa');
+      const gioBatDau = document.getElementById('gioBatDau');
+      const gioKetThuc = document.getElementById('gioKetThuc');
+      const heSo = document.getElementById('heSo');
+
+      function updatePreview() {
+        document.getElementById('previewName').textContent = tenCa.value;
+        document.getElementById('previewTime').textContent =
+          `${gioBatDau.value} - ${gioKetThuc.value} | Hệ số: ${heSo.value}`;
+        document.getElementById('coefficientDisplay').textContent = heSo.value;
+      }
+
+      [tenCa, gioBatDau, gioKetThuc, heSo].forEach(el => el.addEventListener('input', updatePreview));
+    });
+  </script>
+</body>
+</html>

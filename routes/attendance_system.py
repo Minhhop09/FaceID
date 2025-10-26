@@ -1,0 +1,294 @@
+import logging
+import cv2
+import face_recognition
+import numpy as np
+import pyodbc
+from datetime import date, datetime
+from core.db_utils import get_sql_connection
+from PIL import ImageFont, ImageDraw, Image
+
+# Cấu hình logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("attendance_system")
+
+# Biến toàn cục lưu nhân viên hiện tại
+
+current_employee = {}
+
+last_recognized = {"name": None, "count": 0}  # Dùng để ổn định nhận diện
+
+# Kết nối SQL Server
+
+def get_sql_connection():
+    return pyodbc.connect(
+        "Driver={SQL Server};"
+        "Server=MINHHOP\\SQLEXPRESS;"
+        "Database=FaceID;"
+        "UID=sa;PWD=123456"
+    )
+
+# Load khuôn mặt đã đăng ký
+
+def load_known_faces():
+    encodings, ids, names = [], [], []
+    try:
+        conn = get_sql_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT k.MaNV, n.HoTen, k.MaHoaNhanDang
+            FROM KhuonMat k
+            JOIN NhanVien n ON k.MaNV = n.MaNV
+            WHERE n.TrangThai = 1  -- chỉ lấy nhân viên đang hoạt động
+        """)
+        for row in cursor.fetchall():
+            blob = row.MaHoaNhanDang
+            if not blob:
+                continue
+            arr = np.frombuffer(blob, dtype=np.float64)
+            if arr.size != 128:
+                logger.warning(f"Bỏ qua mã hóa không hợp lệ cho {row.HoTen} ({row.MaNV})")
+                continue
+            encodings.append(arr)
+            ids.append(row.MaNV)
+            names.append(row.HoTen)
+        conn.close()
+        logger.info("Đã tải %d khuôn mặt hợp lệ", len(encodings))
+    except Exception:
+        logger.exception("Lỗi khi load known faces")
+    return encodings, ids, names
+
+# Cập nhật thông tin nhân viên hiện tại
+
+def update_current_employee(ma_nv, ma_ca=None):
+
+    print(f"[DEBUG] Gọi update_current_employee() cho MaNV = {ma_nv}")
+    try:
+        conn = get_sql_connection()
+        cursor = conn.cursor()
+        today = datetime.now().strftime("%Y-%m-%d")
+
+        if ma_ca:
+            cursor.execute("""
+                SELECT nv.MaNV, nv.HoTen, nv.MaPB, nv.ChucVu,
+                       cc.MaCa, cc.GioVao, cc.GioRa, cc.TrangThai
+                FROM NhanVien nv
+                LEFT JOIN ChamCong cc 
+                    ON nv.MaNV = cc.MaNV AND cc.NgayChamCong=? AND cc.MaCa=?
+                WHERE nv.MaNV=?
+            """, (today, ma_ca, ma_nv))
+        else:
+            cursor.execute("""
+                SELECT TOP 1 nv.MaNV, nv.HoTen, nv.MaPB, nv.ChucVu,
+                             cc.MaCa, cc.GioVao, cc.GioRa, cc.TrangThai
+                FROM NhanVien nv
+                LEFT JOIN ChamCong cc ON nv.MaNV = cc.MaNV AND cc.NgayChamCong=?
+                WHERE nv.MaNV=?
+                ORDER BY cc.GioVao DESC
+            """, (today, ma_nv))
+
+        row = cursor.fetchone()
+        conn.close()
+
+        if row:
+            current_employee["MaNV"] = row.MaNV
+            current_employee["HoTen"] = row.HoTen
+            current_employee["PhongBan"] = row.MaPB
+            current_employee["ChucVu"] = row.ChucVu
+            current_employee["CaLam"] = row.MaCa or (ma_ca or "-")
+            current_employee["NgayChamCong"] = today
+            current_employee["GioVao"] = (
+                row.GioVao.strftime("%H:%M:%S") if row.GioVao else "-"
+            )
+            current_employee["GioRa"] = (
+                row.GioRa.strftime("%H:%M:%S") if row.GioRa else "-"
+            )
+            current_employee["TrangThai"] = "Đã nhận diện"
+            current_employee["found"] = True
+        else:
+            print("Không tìm thấy nhân viên trong DB")
+            current_employee.clear()
+            current_employee["found"] = False
+
+    except Exception:
+        logger.exception("Lỗi khi cập nhật nhân viên hiện tại")
+        current_employee.clear()
+        current_employee["found"] = False
+
+# Chấm công tự động (nếu cần)
+
+def record_attendance(ma_nv, ma_ca):
+    try:
+        conn = get_sql_connection()
+        cursor = conn.cursor()
+        today = date.today().strftime("%Y-%m-%d")
+        now_time = datetime.now().strftime("%H:%M:%S")
+
+        # Kiểm tra nhân viên
+        cursor.execute("SELECT TrangThai FROM NhanVien WHERE MaNV = ?", (ma_nv,))
+        nv_status = cursor.fetchone()
+        if not nv_status:
+            conn.close()
+            return "Không tìm thấy nhân viên."
+        if nv_status[0] != 1:
+            conn.close()
+            return "Nhân viên đã bị vô hiệu hóa."
+
+        #Lấy thông tin ca
+        cursor.execute("SELECT TenCa, GioBatDau, GioKetThuc FROM CaLamViec WHERE MaCa = ?", (ma_ca,))
+        ca = cursor.fetchone()
+        if not ca:
+            conn.close()
+            return f"Không tìm thấy ca {ma_ca}."
+        ten_ca, gio_bat_dau, gio_ket_thuc = ca
+
+        # Tính đi muộn / đúng giờ
+        gio_bat_dau_dt = datetime.combine(datetime.today(), gio_bat_dau)
+        now_dt_full = datetime.combine(datetime.today(), datetime.strptime(now_time, "%H:%M:%S").time())
+        tre = (now_dt_full - gio_bat_dau_dt).total_seconds()
+        trang_thai = 1 if tre <= 5 * 60 else 2
+
+        # Lấy / tạo LichLamViec
+        cursor.execute("""
+            DECLARE @MaLLV INT;
+            SELECT TOP 1 @MaLLV = MaLLV FROM LichLamViec
+            WHERE MaNV=? AND MaCa=? AND NgayLam=? AND DaXoa=1;
+
+            IF @MaLLV IS NULL
+            BEGIN
+                INSERT INTO LichLamViec (MaNV, MaCa, NgayLam, TrangThai, DaXoa)
+                VALUES (?, ?, ?, 1, 1);
+                SET @MaLLV = SCOPE_IDENTITY();
+            END
+            SELECT @MaLLV;
+        """, (ma_nv, ma_ca, today, ma_nv, ma_ca, today))
+        ma_llv_row = cursor.fetchone()
+        ma_llv = ma_llv_row[0] if ma_llv_row else None
+
+        # Ghi nhận chấm công
+        cursor.execute("""
+            SELECT GioVao, GioRa FROM ChamCong
+            WHERE MaNV=? AND NgayChamCong=? AND MaCa=?;
+        """, (ma_nv, today, ma_ca))
+        row = cursor.fetchone()
+
+        if not row:
+            cursor.execute("""
+                INSERT INTO ChamCong (MaNV, MaLLV, MaCa, NgayChamCong, GioVao, TrangThai, 
+                                      GioBatDauThucTe, GioKetThucThucTe, DaXoa)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1);
+            """, (ma_nv, ma_llv, ma_ca, today, now_time, trang_thai, gio_bat_dau, gio_ket_thuc))
+            conn.commit()
+            status_text = f"Vào ca {ten_ca} ({'Đúng giờ' if trang_thai == 1 else 'Đi muộn'})"
+        else:
+            gio_vao, gio_ra = row
+            if gio_ra is None:
+                cursor.execute("""
+                    UPDATE ChamCong
+                    SET GioRa=?, TrangThai=?
+                    WHERE MaNV=? AND NgayChamCong=? AND MaCa=?;
+                """, (now_time, trang_thai, ma_nv, today, ma_ca))
+                conn.commit()
+                status_text = f"Ra ca {ten_ca} thành công"
+            else:
+                status_text = "Đã chấm công ca này rồi."
+
+        conn.close()
+        return status_text
+    except Exception as e:
+        logger.exception("Lỗi khi chấm công cho MaNV=%s", ma_nv)
+        return f"Lỗi khi chấm công: {e}"
+
+# Xử lý từng frame camera
+
+def process_frame(frame, known_encodings, known_ids, known_names, tolerance=0.6):
+    global last_recognized
+
+    try:
+        if frame is None:
+            return frame
+
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        face_locations = face_recognition.face_locations(rgb_frame)
+        face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
+
+        for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
+            name_display = "Không nhận diện"
+            ma_nv = None
+            status_text = ""
+
+            if known_encodings:
+                distances = face_recognition.face_distance(known_encodings, face_encoding)
+                best_match_index = np.argmin(distances)
+                min_distance = distances[best_match_index]
+                print(f"[DEBUG] Khoảng cách nhận diện = {min_distance:.2f}")
+
+                if min_distance <= tolerance:
+                    ma_nv = known_ids[best_match_index]
+                    name_display = known_names[best_match_index]
+                    print(f"[MATCH] {name_display} (distance={min_distance:.2f})")
+                    update_current_employee(ma_nv)
+                    status_text = f"Đã nhận diện ({min_distance:.2f})"
+                else:
+                    print(f"[NO MATCH] (distance={min_distance:.2f})")
+                    status_text = f"Không khớp ({min_distance:.2f})"
+
+            # Bộ đếm ổn định (tránh nhấp nháy)
+            if name_display == last_recognized["name"]:
+                last_recognized["count"] += 1
+            else:
+                last_recognized = {"name": name_display, "count": 1}
+            if last_recognized["count"] < 3:
+                continue
+
+            # Vẽ khung nhận diện
+            color = (0, 255, 0) if ma_nv else (0, 0, 255)
+            cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
+
+            # Viết text tiếng Việt
+            img_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            draw = ImageDraw.Draw(img_pil)
+            font = ImageFont.truetype("arial.ttf", 28)
+            draw.text((left, top - 35), name_display, font=font, fill=(0, 255, 0))
+            draw.text((left, bottom + 10), status_text, font=font, fill=(255, 255, 255))
+            frame = cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
+
+        return frame
+
+    except Exception:
+        logger.exception("Lỗi xử lý frame")
+        return frame
+
+# Sinh frame stream cho Flask
+
+def generate_frames(known_encodings, known_ids, known_names):
+    camera = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+
+    if not camera.isOpened():
+        logger.error("Không mở được camera.")
+        return
+
+    frame_count = 0
+    while True:
+        success, frame = camera.read()
+        if not success or frame is None:
+            logger.warning("Không đọc được frame, thử khởi động lại camera...")
+            camera.release()
+            camera = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+            continue
+
+        frame = cv2.resize(frame, (640, 480))
+        frame = process_frame(frame, known_encodings, known_ids, known_names)
+
+        frame_count += 1
+        if frame_count % 200 == 0:
+            known_encodings, known_ids, known_names = load_known_faces()
+            logger.info("Reloaded known faces")
+
+        ret, buffer = cv2.imencode(".jpg", frame)
+        if not ret:
+            continue
+
+        yield (b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + buffer.tobytes() + b"\r\n")
+
+    camera.release()

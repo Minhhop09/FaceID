@@ -152,20 +152,20 @@
       <a href="#" class="sidebar-brand"><i class="fas fa-id-card-alt"></i><span>FaceID System</span></a>
     </div>
     <nav class="sidebar-nav">
-      <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('shifts') }}" class="nav-link active"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('faces') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt nhân viên</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Báo cáo thống kê</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('employee_list_deleted') }}" class="nav-link"><i class="fas fa-trash"></i><span>Dữ liệu đã xóa</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
-    </nav>
+            <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('department_bp.departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('shift_bp.shifts') }}" class="nav-link active"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('schedule_bp.assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('attendance_bp.attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('salary_bp.salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('account_bp.accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('faces_bp.faces') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('reports_bp.reports_view') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Báo cáo thống kê</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.employee_list_deleted') }}" class="nav-link"><i class="fas fa-trash"></i><span>Dữ liệu đã xóa</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('history_bp.history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('auth_bp.login') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
   </div>
 
   <!-- Main Content -->
@@ -201,9 +201,9 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
       <div class="d-flex gap-2">
         <button class="btn btn-outline-secondary"><i class="fa-solid fa-file-export me-2"></i>Xuất báo cáo</button>
-        <a href="{{ url_for('add_shift') }}" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Thêm ca làm việc</a>
+        <a href="{{ url_for('shift_bp.add_shift') }}" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Thêm ca làm việc</a>
       </div>
-      <form class="d-flex" method="get" action="{{ url_for('shifts') }}">
+      <form class="d-flex" method="get" action="{{ url_for('shift_bp.shifts') }}">
         <input class="form-control me-2" type="search" name="q" placeholder="🔍 Tìm theo mã hoặc tên ca..." value="{{ keyword or '' }}" style="max-width:260px;">
         <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
       </form>
@@ -234,86 +234,98 @@
     </div>
 
     <!-- Shifts Grid -->
-    {% if shifts %}
-    <form method="POST" action="{{ url_for('delete_shift') }}" onsubmit="return confirm('Bạn có chắc muốn xóa các ca làm việc đã chọn?')">
-      <!-- Phần chọn tất cả và hủy chọn -->
-      <div class="bulk-actions-container">
-        <div class="select-all-container">
-          <input class="form-check-input select-all-checkbox" type="checkbox" id="select-all">
-          <label class="select-all-label" for="select-all">
-            Chọn tất cả ca làm việc
-            <span class="selected-count" id="selected-count">0</span>
-          </label>
-        </div>
-        <div class="bulk-actions-buttons">
-          <button type="button" class="btn btn-outline-secondary" id="deselect-all">
-            <i class="fa-solid fa-times me-2"></i>Hủy chọn
-          </button>
-        </div>
-      </div>
-
-      <div class="shifts-grid">
-        {% for shift in shifts %}
-        <div class="shift-card">
-          <!-- Checkbox ở góc phải trên cùng -->
-          <div class="shift-checkbox">
-            <input type="checkbox" name="ma_ca" value="{{ shift.MaCa }}" class="form-check-input shift-checkbox-item">
-          </div>
-          
-          <div class="shift-header {% if loop.index % 3 == 1 %}shift-morning{% elif loop.index % 3 == 2 %}shift-afternoon{% else %}shift-evening{% endif %}">
-            <div class="shift-info">
-              <h3>{{ shift.TenCa }}</h3>
-              <div class="shift-code">{{ shift.MaCa }}</div>
-            </div>
-          </div>
-
-          <div class="shift-body">
-            <div class="shift-meta">
-              <div class="meta-item"><i class="fa-solid fa-hashtag"></i><span>Mã ca: {{ shift.MaCa }}</span></div>
-              <div class="meta-item"><i class="fa-solid fa-clock"></i><span>Thời gian: {{ shift.GioBatDau }} - {{ shift.GioKetThuc }}</span></div>
-              <div class="meta-item"><i class="fa-solid fa-sack-dollar"></i><span>Hệ số lương: {{ '%.2f'|format(shift.HeSoLuong or 1.00) }}</span></div>
-              <div class="meta-item">
-                <i class="fa-solid fa-circle-info"></i>
-                <span>Trạng thái: 
-                  {% if shift.TrangThai == 'Hoạt động' %}
-                  <span class="status-badge status-active"><i class="fa-solid fa-circle"></i> {{ shift.TrangThai }}</span>
-                  {% else %}
-                  <span class="status-badge status-inactive"><i class="fa-regular fa-circle"></i> {{ shift.TrangThai }}</span>
-                  {% endif %}
-                </span>
-              </div>
-              <div class="meta-item"><i class="fa-solid fa-file-lines"></i><span>Mô tả: {{ shift.MoTa or "Không có" }}</span></div>
-            </div>
-
-            <div class="shift-actions">
-              <a href="{{ url_for('edit_shift', ma_ca=shift.MaCa) }}" class="btn btn-action btn-edit"><i class="fas fa-edit"></i></a>
-              <a href="{{ url_for('delete_shift', ma_ca=shift.MaCa) }}" class="btn btn-action btn-delete" onclick="return confirm('Bạn có chắc muốn xóa ca làm việc {{ shift.TenCa }}?')"><i class="fas fa-trash"></i></a>
-            </div>
-          </div>
-
-          <div class="shift-footer">
-            <div class="last-updated"><i class="fa-regular fa-clock me-1"></i>Cập nhật: {{ shift.LastUpdated or "—" }}</div>
-            <a href="{{ url_for('shift_detail', ma_ca=shift.MaCa) }}" class="view-details">Xem chi tiết <i class="fa-solid fa-arrow-right ms-1"></i></a>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-      
-      <!-- Phần xóa đã chọn - ĐẨY XUỐNG PHÍA DƯỚI -->
-      <div class="delete-selected-container">
-        <button type="submit" class="btn btn-danger btn-lg">
-          <i class="fa-solid fa-trash me-2"></i> Xóa các ca làm việc đã chọn
-        </button>
-      </div>
-    </form>
-    {% else %}
-    <div class="empty-state">
-      <div class="empty-icon"><i class="fa-solid fa-clock"></i></div>
-      <h3 class="empty-title">Chưa có ca làm việc nào</h3>
-      <p class="empty-text">Hãy thêm ca làm việc đầu tiên để bắt đầu quản lý lịch làm việc của công ty.</p>
-      <a href="{{ url_for('add_shift') }}" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Thêm ca làm việc đầu tiên</a>
+    <!-- Shifts Grid -->
+{% if shifts %}
+<form method="POST" action="{{ url_for('shift_bp.delete_shift') }}" onsubmit="return confirm('Bạn có chắc muốn xóa các ca làm việc đã chọn?')">
+  <!-- Phần chọn tất cả và hủy chọn -->
+  <div class="bulk-actions-container">
+    <div class="select-all-container">
+      <input class="form-check-input select-all-checkbox" type="checkbox" id="select-all">
+      <label class="select-all-label" for="select-all">
+        Chọn tất cả ca làm việc
+        <span class="selected-count" id="selected-count">0</span>
+      </label>
     </div>
-    {% endif %}
+    <div class="bulk-actions-buttons">
+      <button type="button" class="btn btn-outline-secondary" id="deselect-all">
+        <i class="fa-solid fa-times me-2"></i>Hủy chọn
+      </button>
+    </div>
+  </div>
+
+  <div class="shifts-grid">
+    {% for shift in shifts %}
+    <div class="shift-card">
+      <!-- Checkbox ở góc phải trên cùng -->
+      <div class="shift-checkbox">
+        <input type="checkbox" name="ma_ca" value="{{ shift.MaCa }}" class="form-check-input shift-checkbox-item">
+      </div>
+
+      <div class="shift-header {% if loop.index % 3 == 1 %}shift-morning{% elif loop.index % 3 == 2 %}shift-afternoon{% else %}shift-evening{% endif %}">
+        <div class="shift-info">
+          <h3>{{ shift.TenCa }}</h3>
+          <div class="shift-code">{{ shift.MaCa }}</div>
+        </div>
+      </div>
+
+      <div class="shift-body">
+        <div class="shift-meta">
+          <div class="meta-item"><i class="fa-solid fa-hashtag"></i><span>Mã ca: {{ shift.MaCa }}</span></div>
+          <div class="meta-item"><i class="fa-solid fa-clock"></i><span>Thời gian: {{ shift.GioBatDau }} - {{ shift.GioKetThuc }}</span></div>
+          <div class="meta-item"><i class="fa-solid fa-sack-dollar"></i><span>Hệ số lương: {{ '%.2f'|format(shift.HeSoLuong or 1.00) }}</span></div>
+          <div class="meta-item">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>Trạng thái:
+              {% if shift.TrangThai == 'Hoạt động' %}
+              <span class="status-badge status-active"><i class="fa-solid fa-circle"></i> {{ shift.TrangThai }}</span>
+              {% else %}
+              <span class="status-badge status-inactive"><i class="fa-regular fa-circle"></i> {{ shift.TrangThai }}</span>
+              {% endif %}
+            </span>
+          </div>
+          <div class="meta-item"><i class="fa-solid fa-file-lines"></i><span>Mô tả: {{ shift.MoTa or "Không có" }}</span></div>
+        </div>
+
+        <!-- ✅ Sửa phần này: dùng form POST riêng cho nút xoá -->
+        <div class="shift-actions">
+          <a href="{{ url_for('shift_bp.edit_shift', ma_ca=shift.MaCa) }}" class="btn btn-action btn-edit">
+            <i class="fas fa-edit"></i>
+          </a>
+
+          <form action="{{ url_for('shift_bp.delete_shift') }}" method="POST" style="display:inline;">
+            <input type="hidden" name="ma_ca" value="{{ shift.MaCa }}">
+            <button type="submit" class="btn btn-action btn-delete"
+              onclick="return confirm('Bạn có chắc muốn xóa ca làm việc {{ shift.TenCa }}?')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="shift-footer">
+        <div class="last-updated"><i class="fa-regular fa-clock me-1"></i>Cập nhật: {{ shift.LastUpdated or "—" }}</div>
+        <a href="{{ url_for('shift_bp.shift_detail', ma_ca=shift.MaCa) }}" class="view-details">Xem chi tiết <i class="fa-solid fa-arrow-right ms-1"></i></a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Phần xóa đã chọn - ĐẨY XUỐNG PHÍA DƯỚI -->
+  <div class="delete-selected-container">
+    <button type="submit" class="btn btn-danger btn-lg">
+      <i class="fa-solid fa-trash me-2"></i> Xóa các ca làm việc đã chọn
+    </button>
+  </div>
+</form>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon"><i class="fa-solid fa-clock"></i></div>
+  <h3 class="empty-title">Chưa có ca làm việc nào</h3>
+  <p class="empty-text">Hãy thêm ca làm việc đầu tiên để bắt đầu quản lý lịch làm việc của công ty.</p>
+  <a href="{{ url_for('shift_bp.add_shift') }}" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Thêm ca làm việc đầu tiên</a>
+</div>
+{% endif %}
+
 
     <div class="footer">© 2025 FaceID System — Developed with ❤️ by Trần Minh Hợp</div>
   </div>

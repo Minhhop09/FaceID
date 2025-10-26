@@ -38,11 +38,11 @@
 <body>
     <div class="container">
         <div class="header">
-            <a href="{{ url_for('employee_dashboard') }}" class="logo">
+            <a href="{{ url_for('employee_bp.employee_dashboard') }}" class="logo">
                 <div class="logo-icon"><i class="fas fa-id-badge"></i></div>
                 <span>Face<span style="background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">ID</span></span>
             </a>
-            <a href="{{ url_for('logout') }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+            <a href="{{ url_for('auth_bp.logout') }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
         </div>
 
         <h1><i class="fas fa-calendar-alt me-2"></i>Danh sách ca làm của bạn</h1>
@@ -89,7 +89,7 @@
         </div>
         {% endif %}
         
-        <a href="{{ url_for('employee_dashboard') }}" class="btn-back mt-4">
+        <a href="{{ url_for('employee_bp.employee_dashboard') }}" class="btn-back mt-4">
             <i class="fas fa-arrow-left"></i> Quay lại bảng điều khiển
         </a>
     </div>
