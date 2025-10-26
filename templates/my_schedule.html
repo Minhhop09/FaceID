@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch làm việc của tôi - FaceID System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --info: #17a2b8;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --sidebar-bg: #ffffff;
+            --sidebar-hover: #f1f5f9;
+            --sidebar-active: #4361ee;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            min-height: 100vh;
+            width: 280px;
+            background: var(--sidebar-bg);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            box-shadow: 3px 0 15px rgba(0, 0, 0, 0.05);
+            border-right: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .sidebar-brand {
+            color: var(--dark);
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .sidebar-brand i {
+            background: linear-gradient(135deg, var(--primary), #4895ef);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.8rem;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0 80px;
+            overflow-y: auto;
+            height: calc(100vh - 80px);
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            color: var(--secondary);
+            padding: 15px 25px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+            background: var(--sidebar-hover);
+            border-left-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-left-color: white;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .logout-link {
+            color: var(--danger);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            margin-top: 20px;
+        }
+
+        .logout-link:hover {
+            color: white;
+            background: var(--danger);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-header {
+            background: white;
+            border-radius: 15px;
+            padding: 25px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title h1 {
+            color: var(--dark);
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .header-title p {
+            color: var(--secondary);
+            margin: 0;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: var(--light);
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .user-info {
+            line-height: 1.4;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin: 0;
+        }
+
+        .user-role {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Content Header */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            color: var(--dark);
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.8rem;
+        }
+
+        .page-title i {
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+
+        .btn-back {
+            background: white;
+            color: var(--secondary);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-back:hover {
+            background: var(--light);
+            color: var(--dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Schedule Card - Thiết kế mới đẹp hơn */
+        .schedule-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .schedule-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .schedule-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 20px 25px;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .schedule-header h5 {
+            margin: 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .schedule-table {
+            margin: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .schedule-table thead th {
+            background: rgba(67, 97, 238, 0.05);
+            color: var(--dark);
+            font-weight: 600;
+            padding: 18px 20px;
+            border-bottom: 2px solid rgba(67, 97, 238, 0.1);
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .schedule-table tbody tr {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .schedule-table tbody tr:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 20px;
+            right: 20px;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .schedule-table tbody tr:hover {
+            background: rgba(67, 97, 238, 0.03);
+            transform: scale(1.01);
+        }
+
+        .schedule-table td {
+            padding: 20px;
+            vertical-align: middle;
+            border: none;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .work-date {
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .work-date::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .shift-time {
+            font-weight: 600;
+            color: var(--primary);
+            background: rgba(67, 97, 238, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .department-badge {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        .schedule-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-upcoming {
+            color: var(--info);
+        }
+
+        .status-upcoming .status-indicator {
+            background: var(--info);
+        }
+
+        .status-completed {
+            color: var(--success);
+        }
+
+        .status-completed .status-indicator {
+            background: var(--success);
+        }
+
+        .status-ongoing {
+            color: var(--warning);
+        }
+
+        .status-ongoing .status-indicator {
+            background: var(--warning);
+        }
+
+        /* Empty State */
+        .empty-state {
+            background: white;
+            border-radius: 15px;
+            padding: 60px 30px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--info);
+            margin-bottom: 20px;
+        }
+
+        .empty-state h5 {
+            color: var(--dark);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .empty-state p {
+            color: var(--secondary);
+            margin-bottom: 0;
+            font-size: 1.1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 80px;
+            }
+            .sidebar-brand span, .nav-link span {
+                display: none;
+            }
+            .main-content {
+                margin-left: 80px;
+            }
+            .sidebar-header {
+                padding: 20px 10px;
+            }
+            .nav-link {
+                justify-content: center;
+                padding: 15px;
+            }
+            .nav-link i {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+            .dashboard-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            .content-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            .schedule-table {
+                font-size: 0.9rem;
+            }
+            .schedule-table th, .schedule-table td {
+                padding: 12px 10px;
+            }
+            .work-date::before {
+                display: none;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .schedule-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .schedule-table tbody tr {
+            animation: fadeInUp 0.4s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .schedule-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+        .schedule-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+        .schedule-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+        .schedule-table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+        .schedule-table tbody tr:nth-child(5) { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <a href="#" class="sidebar-brand">
+            <i class="fas fa-id-card-alt"></i>
+            <span>FaceID System</span>
+        </a>
+    </div>
+    
+    <nav class="sidebar-nav">
+        <div class="nav-item">
+            <a href="{{ url_for('employee_bp.employee_dashboard') }}" class="nav-link">
+                <i class="fas fa-home"></i><span>Trang chủ</span>
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="{{ url_for('employee_bp.employee_profile') }}" class="nav-link">
+                <i class="fas fa-user"></i><span>Hồ sơ cá nhân</span>
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="{{ url_for('employee_bp.my_schedule') }}" class="nav-link active">
+                <i class="fas fa-calendar"></i><span>Lịch làm việc</span>
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="{{ url_for('employee_bp.employee_attendance') }}" class="nav-link">
+                <i class="fas fa-check-circle"></i><span>Chấm công</span>
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="{{ url_for('employee_bp.my_salary') }}" class="nav-link">
+                <i class="fas fa-coins"></i><span>Lương của tôi</span>
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="{{ url_for('employee_bp.my_face') }}" class="nav-link">
+                <i class="fas fa-id-card"></i><span>Khuôn mặt của tôi</span>
+            </a>
+        </div>
+        <div class="nav-item">
+            <a href="{{ url_for('auth_bp.login') }}" class="nav-link logout-link">
+                <i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span>
+            </a>
+        </div>
+    </nav>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="header-title">
+            <h1>Lịch làm việc của tôi</h1>
+            <p>Xem lịch làm việc và ca làm của bạn</p>
+        </div>
+
+        <div class="user-profile d-flex align-items-center">
+            {% if anh_nv %}
+                <img src="{{ anh_nv }}" alt="Ảnh nhân viên"
+                    class="rounded-circle me-3 shadow-sm"
+                    width="60" height="60"
+                    style="object-fit: cover; border: 2px solid #4361ee;">
+            {% else %}
+                <div class="user-avatar rounded-circle bg-primary text-white fw-bold d-flex align-items-center justify-content-center me-3"
+                    style="width:60px; height:60px; font-size:24px;">
+                    {{ session['username'][0]|upper }}
+                </div>
+            {% endif %}
+            <div class="user-info text-end">
+                <div class="user-name fw-semibold">{{ ho_ten }}</div>
+                <div class="user-role text-muted small">Nhân viên</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Header -->
+    <div class="content-header">
+        <h4 class="page-title">
+            <i class="fas fa-calendar-alt me-2"></i>Lịch làm việc
+        </h4>
+        <a href="{{ url_for('employee_bp.employee_dashboard') }}" class="btn-back">
+            <i class="fa-solid fa-arrow-left me-2"></i>Quay lại trang chính
+        </a>
+    </div>
+
+    <!-- Schedule Table -->
+    {% if schedules and schedules|length > 0 %}
+    <div class="schedule-card mt-3">
+        <div class="schedule-header">
+            <h5><i class="fas fa-calendar-check me-2"></i>Lịch làm việc hiện tại</h5>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover text-center align-middle mb-0">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Ngày làm việc</th>
+                            <th>Tên ca</th>
+                            <th>Thời gian</th>
+                            <th>Phòng ban</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in schedules %}
+                        <tr>
+                            <!-- Ngày làm việc -->
+                            <td>
+                                <i class="far fa-calendar me-2 text-primary"></i>
+                                {{ row.NgayLam }}
+                            </td>
+
+                            <!-- Tên ca -->
+                            <td><strong>{{ row.TenCa }}</strong></td>
+
+                            <!-- Thời gian -->
+                            <td>
+                                {% if row.ThoiGian %}
+                                    <i class="far fa-clock me-1 text-secondary"></i>
+                                    <span class="shift-time">{{ row.ThoiGian }}</span>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Phòng ban -->
+                            <td>
+                                {% if row.PhongBan %}
+                                    <i class="fas fa-building me-1 text-info"></i>
+                                    <span class="department-badge">{{ row.PhongBan }}</span>
+                                {% else %}
+                                    <span class="text-muted">Chưa có</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Trạng thái -->
+                            <td>
+                                <div class="schedule-status {{ row.TrangThaiClass }}">
+                                    <span class="status-indicator"></span>
+                                    {% if row.TrangThai == "Đã hoàn thành" %}
+                                        <i class="fas fa-check-circle me-1"></i>
+                                    {% elif row.TrangThai == "Vắng" %}
+                                        <i class="fas fa-times-circle me-1"></i>
+                                    {% elif row.TrangThai == "Chưa chấm công" %}
+                                        <i class="fas fa-hourglass-half me-1"></i>
+                                    {% else %}
+                                        <i class="fas fa-calendar-check me-1"></i>
+                                    {% endif %}
+                                    {{ row.TrangThai }}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state text-center mt-5">
+        <i class="fas fa-info-circle fa-3x text-primary mb-3"></i>
+        <h5>Chưa có lịch làm việc</h5>
+        <p class="text-muted">Hiện tại bạn chưa có lịch làm việc nào được phân công.</p>
+    </div>
+    {% endif %}
+</div>
+
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

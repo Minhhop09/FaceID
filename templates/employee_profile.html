@@ -8,44 +8,209 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
   <style>
     :root {
-      --primary-color: #4361ee;
-      --secondary-color: #3f37c9;
-      --accent-color: #4cc9f0;
-      --light-color: #f8f9fa;
-      --dark-color: #212529;
-      --success-color: #4bb543;
-      --danger-color: #e63946;
-      --border-radius: 12px;
-      --box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-      --transition: all 0.3s ease;
+      --primary: #4361ee; --primary-dark: #3a56d4; --secondary: #6c757d; 
+      --success: #28a745; --info: #17a2b8; --warning: #ffc107; 
+      --danger: #dc3545; --light: #f8f9fa; --dark: #343a40; 
+      --sidebar-bg: #ffffff; --sidebar-hover: #f1f5f9; --sidebar-active: #4361ee;
+      --card-bg: #ffffff; --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
     }
     
-    body {
-      background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      min-height: 100vh;
-      padding: 20px 0;
+    body { 
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%); 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      min-height: 100vh; 
+      color: #495057;
+    }
+    
+    .sidebar { 
+      min-height: 100vh; 
+      width: 280px; 
+      background: var(--sidebar-bg); 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      z-index: 1000; 
+      transition: all 0.3s ease; 
+      box-shadow: 3px 0 15px rgba(0, 0, 0, 0.05); 
+      border-right: 1px solid rgba(0, 0, 0, 0.05); 
+    }
+    
+    .sidebar-header { 
+      padding: 25px 20px; 
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
+      text-align: center; 
+    }
+    
+    .sidebar-brand { 
+      color: var(--dark); 
+      text-decoration: none; 
+      font-size: 1.5rem; 
+      font-weight: 700; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 10px; 
+    }
+    
+    .sidebar-brand i { 
+      background: linear-gradient(135deg, var(--primary), #4895ef); 
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent; 
+      font-size: 1.8rem; 
+    }
+    
+    .sidebar-nav { 
+      padding: 20px 0 80px; 
+      overflow-y: auto; 
+      height: calc(100vh - 80px); 
+    }
+    
+    .nav-item { 
+      margin-bottom: 5px; 
+    }
+    
+    .nav-link { 
+      color: var(--secondary); 
+      padding: 15px 25px; 
+      text-decoration: none; 
+      display: flex; 
+      align-items: center; 
+      gap: 12px; 
+      transition: all 0.3s ease; 
+      border-left: 3px solid transparent; 
+      font-weight: 500; 
+    }
+    
+    .nav-link:hover { 
+      color: var(--primary); 
+      background: var(--sidebar-hover); 
+      border-left-color: var(--primary); 
+      transform: translateX(5px); 
+    }
+    
+    .nav-link.active { 
+      color: white; 
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+      border-left-color: white; 
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3); 
+    }
+    
+    .nav-link i { 
+      width: 20px; 
+      text-align: center; 
+      font-size: 1.1rem; 
+    }
+    
+    .logout-link { 
+      color: var(--danger); 
+      border-top: 1px solid rgba(0, 0, 0, 0.05); 
+      margin-top: 20px; 
+    }
+    
+    .logout-link:hover { 
+      color: white; 
+      background: var(--danger); 
+    }
+    
+    .main-content { 
+      margin-left: 280px; 
+      padding: 30px; 
+      transition: all 0.3s ease; 
+    }
+    
+    .dashboard-header { 
+      background: white; 
+      border-radius: 15px; 
+      padding: 25px 30px; 
+      margin-bottom: 30px; 
+      box-shadow: var(--card-shadow); 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+    }
+    
+    .header-title h1 { 
+      color: var(--dark); 
+      font-weight: 700; 
+      margin-bottom: 5px; 
+      font-size: 1.8rem;
+    }
+    
+    .header-title p { 
+      color: var(--secondary); 
+      margin: 0; 
+      font-size: 0.95rem;
+    }
+    
+    .user-profile { 
+      display: flex; 
+      align-items: center; 
+      gap: 15px; 
+      background: var(--light); 
+      padding: 12px 20px; 
+      border-radius: 12px; 
+      border: 1px solid rgba(0, 0, 0, 0.05); 
+      transition: all 0.3s ease;
+    }
+    
+    .user-profile:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+    
+    .user-avatar { 
+      width: 45px; 
+      height: 45px; 
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+      border-radius: 50%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      color: white; 
+      font-weight: 600; 
+      font-size: 1.2rem; 
+    }
+    
+    .user-info { 
+      line-height: 1.4; 
+    }
+    
+    .user-name { 
+      font-weight: 600; 
+      color: var(--dark); 
+      margin: 0; 
+      font-size: 1rem;
+    }
+    
+    .user-role { 
+      color: var(--secondary); 
+      font-size: 0.85rem; 
+      margin: 0; 
+    }
+    
+    .profile-container {
+      max-width: 1000px;
+      margin: 0 auto;
     }
     
     .profile-card {
-      max-width: 800px;
-      margin: 30px auto;
-      background: white;
-      border-radius: var(--border-radius);
-      box-shadow: var(--box-shadow);
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: var(--card-shadow);
       overflow: hidden;
-      transition: var(--transition);
+      margin-bottom: 30px;
+      transition: all 0.3s ease;
     }
     
     .profile-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
     }
     
     .profile-header {
-      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
       color: white;
-      padding: 30px 20px 20px;
+      padding: 40px 30px 30px;
       text-align: center;
       position: relative;
     }
@@ -56,221 +221,515 @@
       border-radius: 50%;
       object-fit: cover;
       border: 5px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      margin-bottom: 15px;
-      transition: var(--transition);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
     }
     
     .profile-avatar:hover {
       transform: scale(1.05);
+      border-color: rgba(255, 255, 255, 0.5);
     }
     
     .profile-name {
-      font-size: 1.8rem;
-      font-weight: 600;
-      margin-bottom: 5px;
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
     
     .profile-position {
-      font-size: 1.1rem;
+      font-size: 1.3rem;
       opacity: 0.9;
-      margin-bottom: 5px;
+      margin-bottom: 10px;
+      font-weight: 500;
     }
     
     .profile-id {
       background: rgba(255, 255, 255, 0.2);
-      padding: 5px 15px;
-      border-radius: 20px;
+      padding: 10px 25px;
+      border-radius: 30px;
       display: inline-block;
-      font-size: 0.9rem;
+      font-size: 1rem;
+      font-weight: 500;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
     
     .profile-body {
-      padding: 30px;
+      padding: 40px;
     }
     
     .info-section {
-      margin-bottom: 25px;
+      margin-bottom: 40px;
     }
     
     .info-title {
-      font-size: 1.2rem;
-      color: var(--primary-color);
-      margin-bottom: 15px;
-      padding-bottom: 8px;
+      font-size: 1.4rem;
+      color: var(--primary);
+      margin-bottom: 25px;
+      padding-bottom: 15px;
       border-bottom: 2px solid #f0f0f0;
       display: flex;
       align-items: center;
+      font-weight: 600;
     }
     
     .info-title i {
-      margin-right: 10px;
-      font-size: 1.1rem;
+      margin-right: 12px;
+      font-size: 1.3rem;
     }
     
     .info-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 15px;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 25px;
     }
     
     .info-item {
       display: flex;
       align-items: flex-start;
-      margin-bottom: 12px;
+      padding: 20px;
+      background: var(--light);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+    }
+    
+    .info-item:hover {
+      background: rgba(67, 97, 238, 0.05);
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+      border-left-color: var(--primary);
     }
     
     .info-label {
       font-weight: 600;
-      min-width: 100px;
-      color: var(--dark-color);
+      min-width: 140px;
+      color: var(--dark);
+      font-size: 1rem;
     }
     
     .info-value {
       color: #555;
       flex: 1;
+      font-weight: 500;
+      font-size: 1.05rem;
     }
     
     .action-buttons {
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
-      gap: 15px;
-      margin-top: 30px;
+      gap: 25px;
+      margin-top: 50px;
     }
     
     .btn-action {
-      padding: 12px 25px;
+      padding: 16px 35px;
       border-radius: 50px;
       font-weight: 600;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: var(--transition);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      min-width: 180px;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+      min-width: 220px;
+      border: none;
+      font-size: 1.1rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-action::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: all 0.6s;
+    }
+    
+    .btn-action:hover::before {
+      left: 100%;
     }
     
     .btn-action i {
-      margin-right: 8px;
-      font-size: 1.1rem;
+      margin-right: 12px;
+      font-size: 1.3rem;
     }
     
     .btn-action:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.15);
-    }
-    
-    .btn-register {
-      background: var(--primary-color);
-      border-color: var(--primary-color);
-    }
-    
-    .btn-register:hover {
-      background: var(--secondary-color);
-      border-color: var(--secondary-color);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     }
     
     .btn-attendance {
-      background: var(--success-color);
-      border-color: var(--success-color);
+      background: var(--success);
+    }
+    
+    .btn-attendance:hover {
+      background: #218838;
+    }
+    
+    .btn-edit {
+      background: var(--primary);
+    }
+    
+    .btn-edit:hover {
+      background: var(--primary-dark);
     }
     
     .btn-logout {
-      background: var(--danger-color);
-      border-color: var(--danger-color);
+      background: var(--danger);
+    }
+    
+    .btn-logout:hover {
+      background: #c82333;
+    }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .profile-card { 
+      animation: fadeInUp 0.6s ease-out; 
+    }
+    
+    /* Cải tiến mới cho phần thông tin */
+    .info-card {
+      background: white;
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      height: 100%;
+    }
+    
+    .info-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .info-card-title {
+      font-size: 1.1rem;
+      color: var(--primary);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid rgba(67, 97, 238, 0.1);
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+    }
+    
+    .info-card-title i {
+      margin-right: 10px;
+      font-size: 1.2rem;
+    }
+    
+    .info-item-new {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .info-item-new:last-child {
+      border-bottom: none;
+    }
+    
+    .info-label-new {
+      color: var(--secondary);
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+    
+    .info-value-new {
+      color: var(--dark);
+      font-weight: 600;
+      text-align: right;
+      font-size: 1rem;
+    }
+    
+    .info-value-new.empty {
+      color: var(--secondary);
+      font-style: italic;
+      font-weight: normal;
+    }
+    
+    .info-badge {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    
+    .info-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(67, 97, 238, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      margin-right: 15px;
+      flex-shrink: 0;
+    }
+    
+    .info-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .info-content {
+      flex: 1;
+    }
+    
+    @media (max-width: 992px) {
+      .sidebar { width: 80px; }
+      .sidebar-brand span, .nav-link span { display: none; }
+      .main-content { margin-left: 80px; }
+      .sidebar-header { padding: 20px 10px; }
+      .nav-link { justify-content: center; padding: 15px; }
+      .nav-link i { font-size: 1.3rem; }
     }
     
     @media (max-width: 768px) {
-      .profile-card {
-        margin: 15px;
-      }
-      
-      .profile-body {
-        padding: 20px;
-      }
-      
-      .action-buttons {
-        flex-direction: column;
-        align-items: center;
-      }
-      
-      .btn-action {
-        width: 100%;
-        max-width: 300px;
-      }
+      .main-content { padding: 20px; }
+      .dashboard-header { flex-direction: column; gap: 20px; text-align: center; }
+      .profile-body { padding: 25px; }
+      .action-buttons { flex-direction: column; align-items: center; }
+      .btn-action { width: 100%; max-width: 300px; }
+      .info-grid { grid-template-columns: 1fr; }
+      .profile-header { padding: 30px 20px 20px; }
+      .profile-avatar { width: 120px; height: 120px; }
+      .profile-name { font-size: 1.8rem; }
+      .profile-position { font-size: 1.1rem; }
     }
   </style>
 </head>
 <body>
-
-<div class="profile-card">
-  <div class="profile-header">
-    <img src="{{ employee.DuongDanAnh or '/static/photos/default.jpg' }}" class="profile-avatar" alt="Ảnh nhân viên">
-    <h2 class="profile-name">{{ employee.HoTen }}</h2>
-    <p class="profile-position">{{ employee.ChucVu }}</p>
-    <div class="profile-id">
-      <i class="fas fa-id-card"></i> Mã NV: {{ employee.MaNV }}
-    </div>
-  </div>
-  
-  <div class="profile-body">
-    <div class="info-section">
-      <h3 class="info-title"><i class="fas fa-building"></i> Thông tin công việc</h3>
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="info-label">Phòng ban:</span>
-          <span class="info-value">{{ employee.TenPB }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Chức vụ:</span>
-          <span class="info-value">{{ employee.ChucVu }}</span>
-        </div>
-      </div>
-    </div>
-    
-    <div class="info-section">
-      <h3 class="info-title"><i class="fas fa-address-card"></i> Thông tin liên hệ</h3>
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="info-label">Email:</span>
-          <span class="info-value">{{ employee.Email }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Số điện thoại:</span>
-          <span class="info-value">{{ employee.SDT }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">Địa chỉ:</span>
-          <span class="info-value">{{ employee.DiaChi }}</span>
-        </div>
-      </div>
-    </div>
-    
-    <div class="info-section">
-      <h3 class="info-title"><i class="fas fa-user"></i> Thông tin cá nhân</h3>
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="info-label">Ngày sinh:</span>
-          <span class="info-value">{{ employee.NgaySinh }}</span>
-        </div>
-      </div>
-    </div>
-    
-    <div class="action-buttons">
-      
-      
-      <a href="{{ url_for('attendance') }}" class="btn btn-success btn-action btn-attendance">
-        <i class="fa-solid fa-clock"></i> Chấm công
-      </a>
-      
-      <a href="{{ url_for('logout') }}" class="btn btn-danger btn-action btn-logout">
-        <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="sidebar-brand">
+        <i class="fas fa-id-card-alt"></i>
+        <span>FaceID System</span>
       </a>
     </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-item"><a href="{{ url_for('employee_bp.employee_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('employee_bp.employee_profile') }}" class="nav-link active"><i class="fas fa-user"></i><span>Hồ sơ cá nhân</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('employee_bp.my_schedule') }}" class="nav-link"><i class="fas fa-calendar"></i><span>Lịch làm việc</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('employee_bp.employee_attendance') }}" class="nav-link"><i class="fas fa-check-circle"></i><span>Chấm công</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('employee_bp.my_salary') }}" class="nav-link"><i class="fas fa-coins"></i><span>Lương của tôi</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('employee_bp.my_face') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt của tôi</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('auth_bp.login') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+    </nav>
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <div class="main-content">
+    <!-- Header -->
+    <div class="dashboard-header">
+      <div class="header-title">
+        <h1>Hồ sơ cá nhân</h1>
+        <p>Thông tin chi tiết về tài khoản của bạn</p>
+      </div>
+      
+      <div class="user-profile d-flex align-items-center">
+      {% if employee.AnhDaiDien %}
+        <img src="{{ employee.AnhDaiDien }}" alt="Ảnh nhân viên"
+             class="rounded-circle me-3 shadow-sm"
+             width="60" height="60" style="object-fit: cover; border: 2px solid #4361ee;">
+      {% else %}
+        <div class="user-avatar rounded-circle bg-primary text-white fw-bold d-flex align-items-center justify-content-center me-3"
+             style="width:60px; height:60px; font-size:24px;">
+          {{ employee.HoTen[0]|upper }}
+        </div>
+      {% endif %}
+      <div class="user-info">
+        <div class="user-name fw-semibold">{{ employee.HoTen }}</div>
+        <div class="user-role text-muted small">Nhân viên</div>
+      </div>
+    </div>
+  </div>
+
+
+     <!-- Thông tin hồ sơ -->
+  <div class="profile-container">
+    <div class="profile-card card shadow-sm border-0">
+      <div class="profile-header text-center bg-light py-4">
+        {% if employee.AnhDaiDien %}
+          <img src="{{ employee.AnhDaiDien }}" alt="Ảnh nhân viên"
+               class="profile-avatar rounded-circle shadow-sm mb-3"
+               width="120" height="120" style="object-fit: cover; border: 3px solid #4361ee;">
+        {% else %}
+          <div class="profile-avatar d-flex align-items-center justify-content-center mx-auto bg-white text-primary fw-bold rounded-circle mb-3"
+               style="width:120px; height:120px; font-size: 3rem;">
+            {{ employee.HoTen[0]|upper }}
+          </div>
+        {% endif %}
+        <h2 class="profile-name fw-bold mb-0">{{ employee.HoTen }}</h2>
+        <p class="profile-position text-muted mb-1">{{ employee.ChucVu or "Chưa cập nhật" }}</p>
+        <div class="profile-id text-secondary small">
+          <i class="fas fa-id-card me-1"></i> Mã NV: {{ employee.MaNV }}
+        </div>
+      </div>
+        
+        <div class="profile-body">
+          <!-- Thông tin công việc - Thiết kế mới -->
+          <div class="info-section">
+            <h3 class="info-title"><i class="fas fa-building"></i> Thông tin công việc</h3>
+            <div class="row g-4">
+              <div class="col-md-4">
+                <div class="info-card">
+                  <h4 class="info-card-title"><i class="fas fa-users"></i> Phòng ban</h4>
+                  <div class="info-row">
+                    <div class="info-icon">
+                      <i class="fas fa-building"></i>
+                    </div>
+                    <div class="info-content">
+                      
+                      <div class="info-value-new">{{ employee.TenPB or 'Chưa cập nhật' }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-4">
+                <div class="info-card">
+                  <h4 class="info-card-title"><i class="fas fa-user-tie"></i> Chức vụ</h4>
+                  <div class="info-row">
+                    <div class="info-icon">
+                      <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="info-content">
+                      
+                      <div class="info-value-new">{{ employee.ChucVu or 'Chưa cập nhật' }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-4">
+                <div class="info-card">
+                  <h4 class="info-card-title"><i class="fas fa-id-card"></i> Mã nhân viên</h4>
+                  <div class="info-row">
+                    <div class="info-icon">
+                      <i class="fas fa-hashtag"></i>
+                    </div>
+                    <div class="info-content">
+                      
+                      <div class="info-value-new">{{ employee.MaNV }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Thông tin liên hệ - Thiết kế mới -->
+          <div class="info-section">
+            <h3 class="info-title"><i class="fas fa-address-card"></i> Thông tin liên hệ</h3>
+            <div class="row g-4">
+              <div class="col-md-4">
+                <div class="info-card">
+                  <h4 class="info-card-title"><i class="fas fa-envelope"></i> Email</h4>
+                  <div class="info-item-new">
+                    
+                    <span class="info-value-new {% if not employee.Email %}empty{% endif %}">
+                      {{ employee.Email or 'Chưa có email' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-4">
+                <div class="info-card">
+                  <h4 class="info-card-title"><i class="fas fa-phone"></i> Điện thoại</h4>
+                  <div class="info-item-new">
+                    
+                    <span class="info-value-new {% if not employee.SDT %}empty{% endif %}">
+                      {{ employee.SDT or 'Chưa có số điện thoại' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-4">
+                <div class="info-card">
+                  <h4 class="info-card-title"><i class="fas fa-map-marker-alt"></i> Địa chỉ</h4>
+                  <div class="info-item-new">
+                    <span class="info-label-new">Nơi ở hiện tại</span>
+                    <span class="info-value-new {% if not employee.DiaChi %}empty{% endif %}">
+                      {{ employee.DiaChi or 'Chưa có địa chỉ' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Thông tin cá nhân - Thiết kế mới -->
+          <div class="info-section">
+            <h3 class="info-title"><i class="fas fa-user"></i> Thông tin cá nhân</h3>
+            <div class="row g-4">
+              <div class="col-md-6">
+                <div class="info-card">
+                  <h4 class="info-card-title"><i class="fas fa-birthday-cake"></i> Ngày sinh</h4>
+                  <div class="info-item-new">
+                    
+                    <span class="info-value-new {% if not employee.NgaySinh %}empty{% endif %}">
+                      {% if employee.NgaySinh %}
+                        {{ employee.NgaySinh.strftime('%d/%m/%Y') if employee.NgaySinh.__class__.__name__ == 'datetime' else employee.NgaySinh }}
+                      {% else %}
+                        Chưa cập nhật
+                      {% endif %}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="info-card">
+                  <h4 class="info-card-title"><i class="fas fa-venus-mars"></i> Giới tính</h4>
+                  <div class="info-item-new">
+                    
+                    <span class="info-label fw-semibold text-muted">Giới tính:</span><br>
+              <span class="info-value">{{ employee.GioiTinhText or 'Chưa cập nhật' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="action-buttons">
+            <a href="{{ url_for('attendance') }}" class="btn btn-success btn-action btn-attendance">
+              <i class="fa-solid fa-clock"></i> Chấm công
+            </a>
+            
+            <a href="{{ url_for('employee_bp.edit_profile') }}" class="btn btn-primary btn-action btn-edit">
+              <i class="fa-solid fa-pen"></i> Chỉnh sửa hồ sơ
+            </a>
+            
+            <a href="{{ url_for('logout') }}" class="btn btn-danger btn-action btn-logout">
+              <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

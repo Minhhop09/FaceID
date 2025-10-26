@@ -335,27 +335,51 @@
         </div>
 
         <form method="POST" class="login-form">
-            <div class="form-group">
-                <label for="username">Tên đăng nhập</label>
-                <div class="input-with-icon">
-                    <i class="fas fa-user"></i>
-                    <input type="text" id="username" name="username" class="form-control" placeholder="Nhập tên đăng nhập" required>
-                </div>
-            </div>
+    <!-- Ô nhập tài khoản -->
+    <div class="form-group">
+        <label for="username">Mã nhân viên hoặc Email</label>
 
-            <div class="form-group">
-                <label for="password">Mật khẩu</label>
-                <div class="input-with-icon">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="password" name="password" class="form-control" placeholder="Nhập mật khẩu" required>
-                </div>
-            </div>
+        <div class="input-with-icon">
+            <i class="fas fa-user"></i>
+            <input type="text" 
+                   id="username" 
+                   name="username" 
+                   class="form-control" 
+                   placeholder="Nhập mã nhân viên hoặc email" 
+                   required>
+        </div>
+    </div>
 
-            <button type="submit" class="btn-login">
-                <i class="fas fa-sign-in-alt"></i> 
-                <span>Đăng nhập</span>
-            </button>
-        </form>
+    <!-- Ô nhập mật khẩu -->
+<div class="form-group">
+    <label for="password">Mật khẩu</label>
+    <div class="input-with-icon">
+        <i class="fas fa-lock"></i>
+        <input type="password" 
+               id="password" 
+               name="password" 
+               class="form-control" 
+               placeholder="Nhập mật khẩu" 
+               required>
+    </div>
+
+    <!-- 🔹 Thêm liên kết quên mật khẩu -->
+    <div style="text-align: right; margin-top: 8px;">
+        <a href="{{ url_for('auth_bp.forgot_password') }}" 
+           style="color: var(--primary); font-size: 14px; text-decoration: none;">
+           Quên mật khẩu?
+        </a>
+    </div>
+</div>
+
+
+    <!-- Nút đăng nhập -->
+    <button type="submit" class="btn-login">
+        <i class="fas fa-sign-in-alt"></i>
+        <span>Đăng nhập</span>
+    </button>
+</form>
+
 
         <div class="login-footer">
             <p>© 2025 FaceID System. Phiên bản 3.0.0</p>

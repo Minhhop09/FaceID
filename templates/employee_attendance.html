@@ -6,76 +6,159 @@
     <title>Lịch sử chấm công - FaceID</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary:#2563EB; --secondary:#10B981; --accent:#8B5CF6; 
-            --light:#F9FAFB; --gray:#6B7280; --dark:#1F2937; 
-            --gradient-primary:linear-gradient(135deg,var(--primary),var(--accent));
-        }
-        body { font-family:'Inter',sans-serif; background:var(--light); color:var(--dark); padding:20px; }
-        .header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; padding-bottom:15px; border-bottom:2px solid var(--primary); }
-        .logo { display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--dark); font-weight:700; font-size:1.5rem; }
-        .logo-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:var(--gradient-primary); color:#fff; }
-        h1 { color:var(--dark); margin-bottom:25px; font-weight:700; background:var(--gradient-primary); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-        .card { border:none; border-radius:12px; box-shadow:0 5px 15px rgba(0,0,0,0.08); margin-bottom:20px; transition:transform 0.3s ease, box-shadow 0.3s ease; }
-        .card:hover { transform:translateY(-5px); box-shadow:0 8px 25px rgba(0,0,0,0.15); }
-        .card-header { background:var(--gradient-primary); color:#fff; border-radius:12px 12px 0 0 !important; font-weight:600; padding:15px 20px; }
+        :root { --primary:#4361ee; --primary-dark:#3a56d4; --secondary:#6c757d; --success:#28a745; --info:#17a2b8; --warning:#ffc107; --danger:#dc3545; --light:#f8f9fa; --dark:#343a40; --sidebar-bg:#ffffff; --sidebar-hover:#f1f5f9; --sidebar-active:#4361ee; }
+        
+        body { background:linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%); font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-height:100vh; overflow-x:hidden; }
+        
+        .sidebar { min-height:100vh; width:280px; background:var(--sidebar-bg); position:fixed; top:0; left:0; z-index:1000; transition:all 0.3s ease; box-shadow:3px 0 15px rgba(0,0,0,0.05); border-right:1px solid rgba(0,0,0,0.05); }
+        .sidebar-header { padding:25px 20px; border-bottom:1px solid rgba(0,0,0,0.05); text-align:center; }
+        .sidebar-brand { color:var(--dark); text-decoration:none; font-size:1.5rem; font-weight:700; display:flex; align-items:center; justify-content:center; gap:10px; }
+        .sidebar-brand i { background:linear-gradient(135deg, var(--primary), #4895ef); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-size:1.8rem; }
+        .sidebar-nav { padding:20px 0 80px; overflow-y:auto; height:calc(100vh - 80px); }
+        .nav-item { margin-bottom:5px; }
+        .nav-link { color:var(--secondary); padding:15px 25px; text-decoration:none; display:flex; align-items:center; gap:12px; transition:all 0.3s ease; border-left:3px solid transparent; font-weight:500; }
+        .nav-link:hover { color:var(--primary); background:var(--sidebar-hover); border-left-color:var(--primary); transform:translateX(5px); }
+        .nav-link.active { color:white; background:linear-gradient(135deg, var(--primary), var(--primary-dark)); border-left-color:white; box-shadow:0 4px 15px rgba(67,97,238,0.3); }
+        .nav-link i { width:20px; text-align:center; font-size:1.1rem; }
+        .logout-link { color:var(--danger); border-top:1px solid rgba(0,0,0,0.05); margin-top:20px; }
+        .logout-link:hover { color:white; background:var(--danger); }
+        
+        .main-content { margin-left:280px; padding:30px; transition:all 0.3s ease; }
+        
+        .dashboard-header { background:white; border-radius:20px; padding:25px 30px; margin-bottom:30px; box-shadow:0 8px 25px rgba(0,0,0,0.08); display:flex; justify-content:space-between; align-items:center; }
+        .header-title h1 { color:var(--dark); font-weight:700; margin-bottom:5px; font-size:1.8rem; }
+        .header-title p { color:var(--secondary); margin:0; font-size:1rem; }
+        .user-profile { display:flex; align-items:center; gap:15px; background:var(--light); padding:15px 25px; border-radius:15px; border:1px solid rgba(0,0,0,0.05); transition:all 0.3s ease; }
+        .user-profile:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.1); }
+        .user-avatar { width:60px; height:60px; background:linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:600; font-size:1.5rem; }
+        
+        .page-title { color:var(--dark); font-weight:700; margin-bottom:25px; display:flex; align-items:center; gap:12px; font-size:1.8rem; }
+        .page-title i { color:var(--primary); font-size:1.8rem; }
+        
+        .filter-section { background:white; border-radius:15px; padding:25px; margin-bottom:30px; box-shadow:0 5px 15px rgba(0,0,0,0.08); }
+        .filter-section h5 { color:var(--primary); font-weight:600; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+        
+        .stats-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; margin-bottom:30px; }
+        .stats-card { background:linear-gradient(135deg, var(--primary), var(--primary-dark)); color:white; border-radius:15px; padding:25px; transition:all 0.3s ease; box-shadow:0 5px 15px rgba(67,97,238,0.3); }
+        .stats-card:hover { transform:translateY(-5px); box-shadow:0 10px 25px rgba(67,97,238,0.4); }
+        .stats-card h5 { font-size:0.95rem; opacity:0.9; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+        .stats-card .number { font-size:2rem; font-weight:700; }
+        
+        .attendance-card { background:white; border-radius:15px; box-shadow:0 5px 15px rgba(0,0,0,0.08); overflow:hidden; margin-bottom:20px; transition:all 0.3s ease; }
+        .attendance-card:hover { transform:translateY(-5px); box-shadow:0 10px 25px rgba(0,0,0,0.12); }
+        .card-header { background:linear-gradient(135deg, var(--primary), var(--primary-dark)); color:white; border-radius:15px 15px 0 0 !important; font-weight:600; padding:20px 25px; display:flex; justify-content:space-between; align-items:center; }
+        
         .table { margin-bottom:0; border-collapse:separate; border-spacing:0; }
-        .table th { background-color:#f8f9fa; font-weight:600; text-transform:uppercase; font-size:0.85rem; border-bottom:2px solid var(--primary); padding:12px 15px; }
-        .table td { padding:12px 15px; vertical-align:middle; border-bottom:1px solid #dee2e6; }
+        .table th { background-color:#f8f9fa; font-weight:600; text-transform:uppercase; font-size:0.85rem; border-bottom:2px solid var(--primary); padding:15px; }
+        .table td { padding:15px; vertical-align:middle; border-bottom:1px solid #dee2e6; }
         .table-hover tbody tr { transition:background-color 0.2s ease; }
-        .table-hover tbody tr:hover { background-color:rgba(37, 99, 235, 0.05); transform:scale(1.01); }
-        .badge { font-size:0.75rem; padding:6px 12px; border-radius:20px; font-weight:600; }
-        .badge-success { background:linear-gradient(135deg, var(--secondary), #059669) !important; color:white; }
-        .badge-warning { background:linear-gradient(135deg, #f59e0b, #d97706) !important; color:white; }
-        .badge-secondary { background:linear-gradient(135deg, var(--gray), #4b5563) !important; color:white; }
-        .btn-back { background:var(--gradient-primary); border:none; color:#fff; padding:10px 20px; border-radius:8px; font-weight:600; transition:all 0.3s ease; display:inline-flex; align-items:center; gap:8px; text-decoration:none; }
-        .btn-back:hover { opacity:0.9; transform:translateY(-2px); box-shadow:0 4px 8px rgba(37, 99, 235, 0.3); color:#fff; }
-        .empty-state { text-align:center; padding:40px 20px; color:var(--gray); }
-        .empty-state i { font-size:3rem; margin-bottom:15px; color:var(--gray); opacity:0.5; }
-        .stats-card { background:var(--gradient-primary); color:white; border-radius:12px; padding:20px; margin-bottom:25px; transition:transform 0.3s ease; }
-        .stats-card:hover { transform:translateY(-5px); }
-        .stats-card h5 { font-size:0.9rem; opacity:0.9; margin-bottom:5px; display:flex; align-items:center; }
-        .stats-card .number { font-size:1.8rem; font-weight:700; }
+        .table-hover tbody tr:hover { background-color:rgba(67,97,238,0.05); }
+        
+        .badge { font-size:0.8rem; padding:8px 15px; border-radius:20px; font-weight:600; }
+        .badge-success { background:rgba(40,167,69,0.15); color:var(--success); border:1px solid rgba(40,167,69,0.3); }
+        .badge-warning { background:rgba(255,193,7,0.15); color:#856404; border:1px solid rgba(255,193,7,0.3); }
+        .badge-secondary { background:rgba(108,117,125,0.15); color:var(--secondary); border:1px solid rgba(108,117,125,0.3); }
+        
+        .empty-state { background:white; border-radius:15px; padding:60px 30px; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,0.08); }
+        .empty-state i { font-size:4rem; color:var(--info); margin-bottom:20px; opacity:0.7; }
+        .empty-state h5 { color:var(--dark); margin-bottom:15px; font-size:1.5rem; font-weight:600; }
+        
+        .btn-back { background:linear-gradient(135deg, var(--primary), var(--primary-dark)); border:none; color:white; padding:12px 25px; border-radius:10px; font-weight:600; transition:all 0.3s ease; display:inline-flex; align-items:center; gap:8px; text-decoration:none; }
+        .btn-back:hover { opacity:0.9; transform:translateY(-3px); box-shadow:0 8px 20px rgba(67,97,238,0.4); color:white; }
+        
+        .btn-export { background:white; color:var(--primary); border:2px solid var(--primary); padding:10px 20px; border-radius:10px; font-weight:600; transition:all 0.3s ease; display:inline-flex; align-items:center; gap:8px; }
+        .btn-export:hover { background:var(--primary); color:white; transform:translateY(-3px); box-shadow:0 8px 20px rgba(67,97,238,0.3); }
+        
+        .pagination { justify-content:center; margin-top:30px; }
+        .page-link { color:var(--primary); border:1px solid #dee2e6; padding:10px 15px; }
+        .page-link:hover { color:var(--primary); background-color:#e9ecef; border-color:#dee2e6; }
+        .page-item.active .page-link { background-color:var(--primary); border-color:var(--primary); }
+        
+        @media (max-width:992px) {
+            .sidebar { width:80px; }
+            .sidebar-brand span, .nav-link span { display:none; }
+            .main-content { margin-left:80px; }
+            .sidebar-header { padding:20px 10px; }
+            .nav-link { justify-content:center; padding:15px; }
+            .nav-link i { font-size:1.3rem; }
+            .stats-grid { grid-template-columns:1fr; gap:15px; }
+        }
+        
         @media (max-width:768px) {
-            .header { flex-direction:column; gap:15px; text-align:center; }
+            .main-content { padding:20px; }
+            .dashboard-header { flex-direction:column; gap:20px; text-align:center; }
             .table-responsive { border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); overflow:hidden; }
             .table thead { display:none; }
             .table, .table tbody, .table tr, .table td { display:block; width:100%; }
             .table tr { margin-bottom:15px; border:1px solid #ddd; border-radius:8px; padding:10px; box-shadow:0 2px 5px rgba(0,0,0,0.05); background:white; }
-            .table td { text-align:right; padding-left:50%; position:relative; border:none; border-bottom:1px solid #f0f0f0; padding:10px 15px; }
+            .table td { text-align:right; padding-left:50%; position:relative; border:none; border-bottom:1px solid #f0f0f0; padding:12px 15px; }
             .table td:last-child { border-bottom:none; }
             .table td:before { content:attr(data-label); position:absolute; left:15px; width:45%; padding-right:10px; white-space:nowrap; text-align:left; font-weight:600; color:var(--primary); }
-            .stats-grid { grid-template-columns:1fr !important; gap:15px !important; }
-            .btn-back { width:100%; justify-content:center; }
         }
-        .stats-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; margin-bottom:25px; }
-        .pagination { justify-content:center; margin-top:20px; }
-        .page-link { color:var(--primary); border:1px solid #dee2e6; }
-        .page-link:hover { color:var(--primary); background-color:#e9ecef; border-color:#dee2e6; }
-        .page-item.active .page-link { background-color:var(--primary); border-color:var(--primary); }
-        .filter-section { background:white; border-radius:12px; padding:20px; margin-bottom:25px; box-shadow:0 2px 10px rgba(0,0,0,0.08); }
-        .filter-section h5 { margin-bottom:15px; color:var(--primary); font-weight:600; }
-        .btn-filter { background:var(--gradient-primary); color:white; border:none; padding:8px 15px; border-radius:6px; transition:all 0.3s ease; }
-        .btn-filter:hover { transform:translateY(-2px); box-shadow:0 4px 8px rgba(37, 99, 235, 0.3); }
+        
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        .attendance-card { animation:fadeInUp 0.6s ease-out; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <a href="{{ url_for('employee_dashboard') }}" class="logo">
-                <div class="logo-icon"><i class="fas fa-id-badge"></i></div>
-                <span>Face<span style="background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">ID</span></span>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand">
+                <i class="fas fa-id-card-alt"></i>
+                <span>FaceID System</span>
             </a>
-            <a href="{{ url_for('logout') }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-item"><a href="{{ url_for('employee_bp.employee_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.employee_profile') }}" class="nav-link"><i class="fas fa-user"></i><span>Hồ sơ cá nhân</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.my_schedule') }}" class="nav-link"><i class="fas fa-calendar"></i><span>Lịch làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.employee_attendance') }}" class="nav-link active"><i class="fas fa-check-circle"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.my_salary') }}" class="nav-link"><i class="fas fa-coins"></i><span>Lương của tôi</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.my_face') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt của tôi</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('auth_bp.login') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <div class="header-title">
+                <h1>Lịch sử chấm công</h1>
+                <p>Theo dõi và quản lý lịch sử chấm công của bạn</p>
+            </div>
+
+            <div class="user-profile">
+                {% if anh_nv %}
+                    <img src="{{ anh_nv }}" 
+                         alt="Ảnh nhân viên"
+                         class="rounded-circle me-3 shadow-sm"
+                         width="80" height="80"
+                         style="object-fit: cover; border: 3px solid #4361ee;">
+                {% else %}
+                    <div class="user-avatar rounded-circle bg-primary text-white fw-bold d-flex align-items-center justify-content-center me-3"
+                         style="width:80px; height:80px; font-size:28px;">
+                        {{ session['username'][0]|upper }}
+                    </div>
+                {% endif %}
+
+                <div class="user-info">
+                    <div class="user-name fw-semibold">{{ ho_ten }}</div>
+                    <div class="user-role text-muted small">Nhân viên</div>
+                </div>
+            </div>
         </div>
 
-        <h1><i class="fas fa-clock me-2"></i>Lịch sử chấm công của bạn</h1>
+        <!-- Content Header -->
+        <h4 class="page-title">
+            <i class="fas fa-history"></i>Lịch sử chấm công của bạn
+        </h4>
         
         <!-- Bộ lọc -->
         <div class="filter-section">
-            <h5><i class="fas fa-filter me-2"></i>Lọc kết quả</h5>
+            <h5><i class="fas fa-filter"></i>Lọc kết quả</h5>
             <div class="row g-3">
                 <div class="col-md-4">
                     <label class="form-label">Tháng</label>
@@ -84,6 +167,16 @@
                         <option>Tháng 1</option>
                         <option>Tháng 2</option>
                         <option>Tháng 3</option>
+                        <option>Tháng 4</option>
+                        <option>Tháng 5</option>
+                        <option>Tháng 6</option>
+                        <option>Tháng 7</option>
+                        <option>Tháng 8</option>
+                        <option>Tháng 9</option>
+                        <option>Tháng 10</option>
+                        <option>Tháng 11</option>
+                        <option>Tháng 12</option> 
+
                     </select>
                 </div>
                 <div class="col-md-4">
@@ -92,11 +185,11 @@
                         <option selected>Tất cả trạng thái</option>
                         <option>Đúng giờ</option>
                         <option>Đi muộn</option>
-                        <option>Nghỉ làm</option>
+                        <option>Vắng</option>
                     </select>
                 </div>
                 <div class="col-md-4 d-flex align-items-end">
-                    <button class="btn btn-filter w-100"><i class="fas fa-search me-2"></i>Áp dụng bộ lọc</button>
+                    <button class="btn btn-primary w-100"><i class="fas fa-search me-2"></i>Áp dụng bộ lọc</button>
                 </div>
             </div>
         </div>
@@ -105,23 +198,23 @@
         {% if chamcong %}
         <div class="stats-grid">
             <div class="stats-card">
-                <h5><i class="fas fa-check-circle me-2"></i>Đúng giờ</h5>
+                <h5><i class="fas fa-check-circle"></i>Đúng giờ</h5>
                 <div class="number">{{ chamcong|selectattr("TrangThai", "equalto", 1)|list|length }}</div>
             </div>
             <div class="stats-card">
-                <h5><i class="fas fa-exclamation-triangle me-2"></i>Đi muộn</h5>
+                <h5><i class="fas fa-exclamation-triangle"></i>Đi muộn</h5>
                 <div class="number">{{ chamcong|selectattr("TrangThai", "equalto", 2)|list|length }}</div>
             </div>
             <div class="stats-card">
-                <h5><i class="fas fa-bed me-2"></i>Nghỉ làm</h5>
+                <h5><i class="fas fa-bed"></i>Vắng</h5>
                 <div class="number">{{ chamcong|selectattr("TrangThai", "equalto", 0)|list|length }}</div>
             </div>
         </div>
         {% endif %}
         
         {% if chamcong %}
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="attendance-card">
+            <div class="card-header">
                 <div><i class="fas fa-history me-2"></i>Tổng số bản ghi: {{ chamcong|length }}</div>
                 <div class="text-white-50 small">Cập nhật lúc: {{ now.strftime('%H:%M %d/%m/%Y') if now else '--:-- --/--/----' }}</div>
             </div>
@@ -162,9 +255,9 @@
                                     {% if cc.TrangThai == 1 %}
                                         <span class="badge badge-success"><i class="fas fa-check me-1"></i>Đúng giờ</span>
                                     {% elif cc.TrangThai == 2 %}
-                                        <span class="badge badge-warning"><i class="fas fa-clock me-1"></i>Muộn</span>
+                                        <span class="badge badge-warning"><i class="fas fa-clock me-1"></i>Đi muộn</span>
                                     {% else %}
-                                        <span class="badge badge-secondary"><i class="fas fa-bed me-1"></i>Nghỉ</span>
+                                        <span class="badge badge-secondary"><i class="fas fa-bed me-1"></i>Vắng</span>
                                     {% endif %}
                                 </td>
                                 <td data-label="Ghi chú">
@@ -195,9 +288,9 @@
         {% else %}
         <div class="empty-state">
             <i class="fas fa-clock"></i>
-            <h3>Chưa có dữ liệu chấm công</h3>
+            <h5>Chưa có dữ liệu chấm công</h5>
             <p class="text-muted">Dữ liệu chấm công sẽ xuất hiện sau khi bạn thực hiện chấm công.</p>
-            <a href="{{ url_for('employee_dashboard') }}" class="btn-back mt-3">
+            <a href="{{ url_for('employee_bp.employee_dashboard') }}" class="btn-back mt-3">
                 <i class="fas fa-arrow-left"></i> Quay lại bảng điều khiển
             </a>
         </div>
@@ -205,10 +298,10 @@
         
         {% if chamcong %}
         <div class="d-flex justify-content-between align-items-center mt-4">
-            <a href="{{ url_for('employee_dashboard') }}" class="btn-back">
+            <a href="{{ url_for('employee_bp.employee_dashboard') }}" class="btn-back">
                 <i class="fas fa-arrow-left"></i> Quay lại bảng điều khiển
             </a>
-            <button class="btn btn-outline-primary">
+            <button class="btn-export">
                 <i class="fas fa-download me-2"></i> Xuất báo cáo
             </button>
         </div>
@@ -216,39 +309,5 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Thêm hiệu ứng khi load trang
-        document.addEventListener('DOMContentLoaded', function() {
-            // Hiệu ứng cho stats card
-            const statsCards = document.querySelectorAll('.stats-card');
-            statsCards.forEach((card, index) => {
-                setTimeout(() => {
-                    card.style.opacity = '0';
-                    card.style.transform = 'translateY(20px)';
-                    card.style.transition = 'all 0.5s ease';
-                    
-                    setTimeout(() => {
-                        card.style.opacity = '1';
-                        card.style.transform = 'translateY(0)';
-                    }, 50);
-                }, index * 150);
-            });
-            
-            // Hiệu ứng cho các hàng trong bảng
-            const tableRows = document.querySelectorAll('.table tbody tr');
-            tableRows.forEach((row, index) => {
-                setTimeout(() => {
-                    row.style.opacity = '0';
-                    row.style.transform = 'translateX(-20px)';
-                    row.style.transition = 'all 0.4s ease';
-                    
-                    setTimeout(() => {
-                        row.style.opacity = '1';
-                        row.style.transform = 'translateX(0)';
-                    }, 50);
-                }, index * 100);
-            });
-        });
-    </script>
 </body>
 </html>

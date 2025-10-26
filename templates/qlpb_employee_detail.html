@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ employee.HoTen }} - Thông tin nhân viên | FaceID System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root{--primary:#f472b6;--primary-light:#fce7f3;--primary-dark:#db2777;--secondary:#9ca3af;--success:#10b981;--info:#06b6d4;--warning:#f59e0b;--danger:#ef4444;--light:#fdf2f8;--dark:#4b5563;--sidebar-bg:#fdf2f8;--sidebar-hover:#fce7f3;--sidebar-active:#f472b6;--text-dark:#4b5563;--text-light:#6b7280;}
+        body{background:#ffffff;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;min-height:100vh;color:var(--text-dark);}
+        .sidebar{min-height:100vh;width:280px;background:var(--sidebar-bg);position:fixed;box-shadow:3px 0 15px rgba(0,0,0,0.03);border-right:1px solid #f9a8d4;}
+        .sidebar-header{padding:25px 20px;border-bottom:1px solid #fbcfe8;text-align:center;}
+        .sidebar-brand{color:var(--text-dark);text-decoration:none;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;}
+        .sidebar-brand i{color:var(--primary);font-size:1.8rem;}
+        .sidebar-nav{padding:20px 0 80px;height:calc(100vh - 80px);}
+        .nav-link{color:var(--text-light);padding:15px 25px;text-decoration:none;display:flex;align-items:center;gap:12px;transition:all 0.3s ease;border-left:3px solid transparent;font-weight:500;}
+        .nav-link:hover{color:var(--primary-dark);background:var(--sidebar-hover);border-left-color:var(--primary);}
+        .nav-link.active{color:var(--primary-dark);background:var(--primary-light);border-left-color:var(--primary);font-weight:600;}
+        .logout-link{color:var(--danger);border-top:1px solid #fbcfe8;margin-top:20px;}
+        .logout-link:hover{color:white;background:var(--danger);}
+        .main-content{margin-left:280px;padding:30px;}
+        .dashboard-header{background:white;border-radius:15px;padding:25px 30px;margin-bottom:30px;box-shadow:0 5px 15px rgba(0,0,0,0.03);display:flex;justify-content:space-between;align-items:center;border-left:5px solid var(--primary);}
+        .user-profile{display:flex;align-items:center;gap:15px;background:var(--light);padding:12px 20px;border-radius:12px;border:1px solid var(--primary-light);}
+        .user-avatar{width:45px;height:45px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:1.2rem;}
+        .employee-card{background:white;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,0.03);padding:30px;margin-bottom:30px;}
+        .profile-img{width:160px;height:160px;border-radius:50%;object-fit:cover;border:5px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,0.15);}
+        .profile-placeholder{width:160px;height:160px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-size:3rem;font-weight:600;border:5px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,0.15);}
+        .info-item{display:flex;align-items:center;margin-bottom:15px;padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.05);}
+        .info-item:last-child{border-bottom:none;}
+        .info-label{color:var(--secondary);font-weight:500;min-width:150px;}
+        .info-value{color:var(--dark);font-weight:400;}
+        .status-badge{padding:6px 12px;border-radius:20px;font-size:0.85rem;font-weight:500;}
+        .status-active{background:rgba(16,185,129,0.15);color:var(--success);}
+        .status-inactive{background:rgba(156,163,175,0.15);color:var(--secondary);}
+        .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border:none;border-radius:8px;padding:10px 20px;font-weight:500;transition:all 0.3s;}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(244,114,182,0.3);}
+        .btn-secondary{background:var(--secondary);border:none;border-radius:8px;padding:10px 20px;font-weight:500;transition:all 0.3s;}
+        .btn-secondary:hover{background:#8b95a1;transform:translateY(-2px);}
+        .btn-warning{background:linear-gradient(135deg,var(--warning),#fbbf24);border:none;border-radius:8px;padding:10px 20px;font-weight:500;transition:all 0.3s;}
+        .btn-warning:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(245,158,11,0.3);}
+        @media(max-width:992px){.sidebar{width:80px;}.sidebar-brand span,.nav-link span{display:none;}.main-content{margin-left:80px;}.sidebar-header{padding:20px 10px;}.nav-link{justify-content:center;padding:15px;}}
+        @media(max-width:768px){.main-content{padding:20px;}.dashboard-header{flex-direction:column;gap:15px;text-align:center;}.info-item{flex-direction:column;align-items:flex-start;gap:5px;}.employee-actions{flex-direction:column;gap:10px;}.employee-actions .btn{width:100%;}}
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand">
+                <i class="fas fa-id-card-alt"></i>
+                <span>FaceID System</span>
+            </a>
+        </div>
+        
+       <nav class="sidebar-nav">
+            <div class="nav-item"><a href="{{ url_for('qlpb_bp.qlpb_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('department_bp.departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.employee_list') }}" class="nav-link active"><i class="fas fa-users"></i><span>Nhân viên phòng</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('schedule_bp.assigned_employees') }}" class="nav-link"><i class="fas fa-calendar"></i><span>Lịch làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('attendance_bp.attendance_report') }}" class="nav-link"><i class="fas fa-clipboard-list"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('reports_bp.qlpb_reports_view') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Báo cáo năng suất</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('auth_bp.login') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="header-title">
+                <h1>Thông tin nhân viên</h1>
+                <p>Chi tiết hồ sơ nhân viên trong hệ thống</p>
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar">{{ session['username'][0]|upper }}</div>
+                <div class="user-info">
+                    <div class="user-name">{{ session['username'] }}</div>
+                    <div class="user-role">Quản lý phòng ban</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employee Details -->
+        <div class="employee-card">
+            <!-- Header -->
+            <div class="d-flex align-items-center mb-4">
+                <a href="{{ url_for('employee_bp.employee_list') }}" class="btn btn-secondary me-3">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h2 class="mb-0">Thông tin chi tiết nhân viên</h2>
+            </div>
+
+            <div class="row g-4">
+                <!-- Profile Image -->
+                <div class="col-md-4 text-center">
+                    {% if employee.DuongDanAnh %}
+                        <img src="/{{ employee.DuongDanAnh }}" alt="Ảnh nhân viên" class="profile-img mb-3">
+                    {% else %}
+                        <div class="profile-placeholder mx-auto mb-3">
+                            {{ employee.HoTen[0:2]|upper }}
+                        </div>
+                    {% endif %}
+                    <h4 class="mt-2">{{ employee.HoTen }}</h4>
+                    <p class="text-muted mb-2">{{ employee.ChucVu or '—' }}</p>
+                    <span class="status-badge 
+                        {% if employee.TrangThai == 1 %}status-active{% else %}status-inactive{% endif %}">
+                        {% if employee.TrangThai == 1 %}
+                            <i class="fas fa-check-circle me-1 text-success"></i> Đang làm việc
+                        {% else %}
+                            <i class="fas fa-pause-circle me-1 text-secondary"></i> Ngừng làm việc
+                        {% endif %}
+                    </span>
+                </div>
+
+                <!-- Employee Information -->
+                <div class="col-md-8">
+                    <div class="info-item">
+                        <span class="info-label">Mã nhân viên:</span>
+                        <span class="info-value">{{ employee.MaNV }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">{{ employee.Email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Số điện thoại:</span>
+                        <span class="info-value">{{ employee.SDT or '—' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Giới tính:</span>
+                        <span class="info-value">
+                            {% if employee.GioiTinh == 1 %}
+                                Nam
+                            {% elif employee.GioiTinh == 0 %}
+                                Nữ
+                            {% else %}
+                                —
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Ngày sinh:</span>
+                        <span class="info-value">{{ employee.NgaySinh }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Địa chỉ:</span>
+                        <span class="info-value">{{ employee.DiaChi or '—' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Phòng ban:</span>
+                        <span class="info-value">{{ employee.TenPhongBan or '—' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Ngày vào làm:</span>
+                        <span class="info-value">
+                            {% if employee.NgayVaoLam %}
+                                {{ employee.NgayVaoLam }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Ngày tạo hồ sơ:</span>
+                        <span class="info-value">
+                            {% if employee.NgayTao %}
+                                {{ employee.NgayTao }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- Actions -->
+            <div class="d-flex justify-content-between align-items-center employee-actions">
+                <div class="text-muted">
+                    <small>
+                        <i class="fas fa-info-circle me-1"></i>
+                        Hồ sơ được cập nhật lần cuối:
+                        {% if employee.NgayCapNhat %}
+                            {{ employee.NgayCapNhat }}
+                        {% elif employee.NgayTao %}
+                            {{ employee.NgayTao }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </small>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('employee_bp.employee_list') }}" class="btn btn-primary">
+                        <i class="fas fa-list me-1"></i> Danh sách nhân viên
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    
+    // Search functionality
+    document.getElementById("searchInput").addEventListener("keyup", function() {
+        const keyword = this.value.toLowerCase();
+        document.querySelectorAll("tbody tr").forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(keyword) ? "" : "none";
+        });
+    });
+
+    // Select all checkboxes
+    const selectAll = document.getElementById("selectAll");
+    const checkboxes = document.querySelectorAll(".attendance-checkbox");
+    const selectedCount = document.getElementById("selectedCount");
+    const deleteBtn = document.getElementById("deleteSelectedBtn");
+    const deselectAllBtn = document.getElementById("deselectAllBtn");
+
+    function updateCount() {
+        const count = document.querySelectorAll(".attendance-checkbox:checked").length;
+        selectedCount.textContent = count;
+        deleteBtn.disabled = count === 0;
+    }
+
+    selectAll.addEventListener("change", () => {
+        checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        updateCount();
+    });
+
+    checkboxes.forEach(cb => cb.addEventListener("change", updateCount));
+    
+    // Deselect all checkboxes
+    deselectAllBtn.addEventListener("click", () => {
+        selectAll.checked = false;
+        checkboxes.forEach(cb => cb.checked = false);
+        updateCount();
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phân ca làm việc - FaceID System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+  <style>
+    :root {
+      --primary: #8B5FBF;
+      --primary-dark: #7A4FA8;
+      --primary-light: #9D7BC6;
+      --secondary: #6c757d;
+      --success: #2ECC71;
+      --info: #3498DB;
+      --warning: #F39C12;
+      --danger: #E74C3C;
+      --light: #f8f9fa;
+      --dark: #2C3E50;
+      --sidebar-bg: #2C3E50;
+      --sidebar-hover: #34495E;
+      --sidebar-active: #8B5FBF;
+      --card-bg: #FFFFFF;
+      --header-bg: #FFFFFF;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #ECF0F1 0%, #D6DBDF 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    /* Sidebar Styles */
+    .sidebar {
+      min-height: 100vh;
+      width: 280px;
+      background: var(--sidebar-bg);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      transition: all 0.3s ease;
+      box-shadow: 3px 0 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .sidebar-header {
+      padding: 25px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+    
+    .sidebar-brand {
+      color: white;
+      text-decoration: none;
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .sidebar-brand i {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 1.8rem;
+    }
+    
+    .sidebar-nav {
+      padding: 20px 0 80px;
+      overflow-y: auto;
+      height: calc(100vh - 80px);
+    }
+    
+    .nav-item {
+      margin-bottom: 5px;
+    }
+    
+    .nav-link {
+      color: rgba(255, 255, 255, 0.8);
+      padding: 15px 25px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+      font-weight: 500;
+    }
+    
+    .nav-link:hover {
+      color: white;
+      background: var(--sidebar-hover);
+      border-left-color: var(--primary);
+      transform: translateX(5px);
+    }
+    
+    .nav-link.active {
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-left-color: white;
+      box-shadow: 0 4px 15px rgba(139, 95, 191, 0.3);
+    }
+    
+    .nav-link i {
+      width: 20px;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+    
+    .logout-link {
+      color: #F1948A;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 20px;
+    }
+    
+    .logout-link:hover {
+      color: white;
+      background: var(--danger);
+    }
+    
+    /* Main Content */
+    .main-content {
+      margin-left: 280px;
+      padding: 30px;
+      transition: all 0.3s ease;
+    }
+    
+    /* Header */
+    .dashboard-header {
+      background: var(--header-bg);
+      border-radius: 15px;
+      padding: 25px 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header-title h1 {
+      color: var(--dark);
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+    
+    .header-title p {
+      color: var(--secondary);
+      margin: 0;
+    }
+    
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: var(--light);
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .user-avatar {
+      width: 45px;
+      height: 45px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 1.2rem;
+    }
+    
+    .user-info {
+      line-height: 1.4;
+    }
+    
+    .user-name {
+      font-weight: 600;
+      color: var(--dark);
+      margin: 0;
+    }
+    
+    .user-role {
+      color: var(--secondary);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+    
+    /* Content Area */
+    .content-area {
+      background: var(--card-bg);
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+    
+    .card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      margin-bottom: 25px;
+      transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    }
+    
+    .card-header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      border-radius: 15px 15px 0 0 !important;
+      padding: 20px 25px;
+      border: none;
+    }
+    
+    .card-body {
+      padding: 30px;
+    }
+    
+    .form-label {
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .form-control, .form-select {
+      border-radius: 10px;
+      border: 2px solid #e1e8ed;
+      padding: 12px 16px;
+      transition: all 0.3s;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 0.2rem rgba(139, 95, 191, 0.15);
+    }
+    
+    .btn {
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-weight: 500;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(139, 95, 191, 0.3);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(139, 95, 191, 0.4);
+    }
+    
+    .btn-secondary {
+      background: var(--secondary);
+      color: #fff;
+    }
+    
+    .btn-secondary:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+    }
+    
+    .btn-outline-primary {
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      background: transparent;
+    }
+    
+    .btn-outline-primary:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+    
+    .btn-outline-danger {
+      border: 2px solid var(--danger);
+      color: var(--danger);
+      background: transparent;
+    }
+    
+    .btn-outline-danger:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+    
+    .form-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      padding: 10px 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+    
+    .form-check:hover {
+      background: #e9ecef;
+      transform: translateX(5px);
+    }
+    
+    .form-check-input {
+      width: 18px;
+      height: 18px;
+      margin-top: 0;
+    }
+    
+    .form-check-input:checked {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+    
+    .form-check-label {
+      font-weight: 500;
+      color: var(--dark);
+    }
+    
+    .flatpickr-calendar {
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      border: none;
+    }
+    
+    .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange {
+      background: var(--primary) !important;
+      border-color: var(--primary) !important;
+    }
+    
+    .has-shift {
+      border: 2px solid var(--warning) !important;
+      border-radius: 50% !important;
+    }
+    
+    .shift-morning {
+      background: #4dabf7 !important;
+      color: white !important;
+    }
+    
+    .shift-afternoon {
+      background: #f59f00 !important;
+      color: white !important;
+    }
+    
+    .shift-night {
+      background: #5f3dc4 !important;
+      color: white !important;
+    }
+    
+    .quick-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .quick-actions .btn {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+    }
+    
+    .form-select[multiple] {
+      min-height: 150px;
+    }
+    
+    .form-select[multiple] option {
+      padding: 10px 15px;
+      border-bottom: 1px solid #f0f0f0;
+      transition: all 0.3s;
+    }
+    
+    .form-select[multiple] option:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+    
+    .form-select[multiple] option:checked {
+      background: var(--primary);
+      color: #fff;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar { width: 80px; }
+      .sidebar-brand span, .nav-link span { display: none; }
+      .main-content { margin-left: 80px; }
+      .sidebar-header { padding: 20px 10px; }
+      .nav-link { justify-content: center; padding: 15px; }
+      .nav-link i { font-size: 1.3rem; }
+    }
+    
+    @media (max-width: 768px) {
+      .main-content { padding: 20px; }
+      .dashboard-header { flex-direction: column; gap: 15px; text-align: center; }
+      .quick-actions { justify-content: center; }
+      .content-area { padding: 20px; }
+      .card-body { padding: 20px; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="sidebar-brand">
+        <i class="fas fa-id-card-alt"></i>
+        <span>FaceID System</span>
+      </a>
+    </div>
+    
+     <nav class="sidebar-nav">
+            <div class="nav-item"><a href="{{ url_for('dashboard_bp.hr_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('department_bp.departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('shift_bp.shifts') }}" class="nav-link"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('schedule_bp.assigned_employees') }}" class="nav-link active"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('attendance_bp.attendance_report') }}" class="nav-link"><i class="fas fa-clipboard-check"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('salary_bp.salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('faces_bp.faces') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('reports_bp.hr_reports_view) }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Báo cáo thống kê</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('auth_bp.login') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
+  </div>
+
+  <!-- Main content -->
+  <div class="main-content">
+    <div class="dashboard-header">
+      <div class="header-title">
+        <h1>Phân ca làm việc</h1>
+        <p>Chọn nhiều ngày và nhiều ca để phân công cùng lúc</p>
+      </div>
+      <div class="user-profile">
+        <div class="user-avatar">{{ session['username'][0]|upper }}</div>
+        <div class="user-info">
+          <div class="user-name">{{ session['username'] }}</div>
+          <div class="user-role">{{ session['role'] }}</div>
+        </div>
+        <a href="{{ url_for('auth_bp.login') }}" class="text-decoration-none text-secondary ms-2"><i class="fa-solid fa-right-from-bracket"></i></a>
+      </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show mb-4" role="alert">
+            <i class="fa-solid fa-{{ 'triangle-exclamation' if category == 'error' else 'circle-check' }} me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="content-area">
+      <a href="{{ url_for('schedule_bp.assigned_employees') }}" class="btn btn-secondary mb-4">
+        <i class="fa-solid fa-arrow-left me-2"></i> Quay lại danh sách phân ca
+      </a>
+
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0"><i class="fa-solid fa-calendar-plus me-2"></i>Thêm phân ca làm việc nâng cao</h4>
+        </div>
+        <div class="card-body">
+          <form method="POST" action="{{ url_for('schedule_bp.assign_shift') }}">
+            <div class="row">
+              <div class="col-md-6 mb-4">
+                <label class="form-label">
+                  <i class="fa-solid fa-user me-2"></i>Chọn nhân viên (có thể chọn nhiều)
+                </label>
+                <select name="MaNV[]" class="form-select" multiple required size="8">
+                  {% for nv in employees %}
+                    <option value="{{ nv[0] }}">{{ nv[1] }} ({{ nv[0] }})</option>
+                  {% endfor %}
+                </select>
+                <small class="text-muted mt-2 d-block">
+                  Giữ <strong>Ctrl</strong> (hoặc <strong>Cmd</strong> trên Mac) để chọn nhiều nhân viên.
+                </small>
+              </div>
+
+              <div class="col-md-6 mb-4">
+                <label class="form-label"><i class="fa-solid fa-clock me-2"></i>Chọn ca làm việc (có thể chọn nhiều)</label>
+                <div class="d-flex flex-column gap-2">
+                  {% for ca in shifts %}
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="MaCa[]" value="{{ ca[0] }}" id="ca{{ ca[0] }}">
+                    <label class="form-check-label" for="ca{{ ca[0] }}">
+                      {{ ca[1] }} ({{ ca[2] }} - {{ ca[3] }})
+                    </label>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label"><i class="fa-solid fa-calendar-days me-2"></i>Chọn nhiều ngày</label>
+              <input id="multiDates" name="NgayLam[]" class="form-control" placeholder="Chọn nhiều ngày..." required readonly>
+              <div class="quick-actions">
+                <button type="button" class="btn btn-outline-primary" id="thisWeek"><i class="fa-solid fa-calendar-week me-1"></i>Tuần này</button>
+                <button type="button" class="btn btn-outline-primary" id="nextWeek"><i class="fa-solid fa-calendar-plus me-1"></i>Tuần tới</button>
+                <button type="button" class="btn btn-outline-danger" id="clearDates"><i class="fa-solid fa-broom me-1"></i>Xóa tất cả</button>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+              <a href="{{ url_for('schedule_bp.assigned_employees') }}" class="btn btn-secondary"><i class="fa-solid fa-xmark me-1"></i> Hủy</a>
+              <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save me-1"></i> Lưu phân ca</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
+
+  <script>
+    const fp = flatpickr("#multiDates", {
+      mode: "multiple",
+      dateFormat: "Y-m-d",
+      locale: "vn",
+      inline: true,
+      minDate: "today",
+      showMonths: 2
+    });
+
+    // Nút tuần này / tuần tới / xóa
+    document.getElementById("thisWeek").onclick = () => {
+      const today = new Date();
+      const monday = new Date(today.setDate(today.getDate() - today.getDay() + 1));
+      fp.setDate([...Array(7).keys()].map(i => {
+        const d = new Date(monday); d.setDate(monday.getDate()+i); return d;
+      }));
+    };
+    document.getElementById("nextWeek").onclick = () => {
+      const today = new Date();
+      const monday = new Date(today.setDate(today.getDate() - today.getDay() + 8));
+      fp.setDate([...Array(7).keys()].map(i => {
+        const d = new Date(monday); d.setDate(monday.getDate()+i); return d;
+      }));
+    };
+    document.getElementById("clearDates").onclick = () => fp.clear();
+  </script>
+</body>
+</html>

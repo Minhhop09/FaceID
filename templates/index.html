@@ -216,7 +216,7 @@ footer{
 
       <!-- Nút đăng nhập mới thêm -->
       <div class="login-button">
-        <a href="{{ url_for('login') }}" class="btn btn-primary">
+        <a href="{{ url_for('auth_bp.login') }}" class="btn btn-primary">
           <i class="fas fa-sign-in-alt"></i>
           <span>Đăng nhập</span>
         </a>
@@ -242,7 +242,7 @@ footer{
                     </div>
                     <h3>Đăng ký nhân viên</h3>
                     <p>Thêm thông tin và đăng ký khuôn mặt nhân viên mới vào hệ thống để kích hoạt tính năng chấm công tự động</p>
-                    <a href="{{ url_for('register') }}" class="btn btn-primary">
+                    <a href="{{url_for('register_bp.register') }}" class="btn btn-primary">
                         <span>Đăng ký ngay</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
@@ -379,7 +379,8 @@ footer{
                 <div class="footer-links">
                     <h4>Chức năng</h4>
                     <ul>
-                        <li><a href="{{ url_for('register') }}"><i class="fas fa-chevron-right"></i> Đăng ký nhân viên</a></li>
+                        <li><a href="{{ url_for('register_bp.register') }}"><i class="fas fa-chevron-right"></i> Đăng ký nhân viên</a></li>
+
                         <li><a href="{{ url_for('attendance') }}"><i class="fas fa-chevron-right"></i> Chấm công FaceID</a></li>
                         <li><a href="#"><i class="fas fa-chevron-right"></i> Quản lý dữ liệu</a></li>
                         <li><a href="#"><i class="fas fa-chevron-right"></i> Báo cáo & Thống kê</a></li>

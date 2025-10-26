@@ -148,22 +148,21 @@
       <a href="#" class="sidebar-brand"><i class="fas fa-id-card-alt"></i><span>FaceID System</span></a>
     </div>
     <nav class="sidebar-nav">
-      <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('departments') }}" class="nav-link active"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('shifts') }}" class="nav-link"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('faces') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt nhân viên</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('reports_view') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Báo cáo thống kê</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('employee_list_deleted') }}" class="nav-link"><i class="fas fa-trash"></i><span>Dữ liệu đã xóa</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
-      <div class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
-    </nav>
+            <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('department_bp.departments') }}" class="nav-link active"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('shift_bp.shifts') }}" class="nav-link"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('schedule_bp.assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('attendance_bp.attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('salary_bp.salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('account_bp.accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('faces_bp.faces') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('reports_bp.reports_view') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Báo cáo thống kê</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.employee_list_deleted') }}" class="nav-link"><i class="fas fa-trash"></i><span>Dữ liệu đã xóa</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('history_bp.history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('auth_bp.login') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
   </div>
-
   <!-- Main Content -->
   <div class="main-content">
     <div class="dashboard-header">
@@ -175,7 +174,7 @@
         <div class="user-avatar">{{ session['username'][0]|upper }}</div>
         <div class="user-info">
           <div class="user-name">{{ session['username'] }}</div>
-          <div class="user-role">{{ session['role'] }}</div>
+          <div class="user-role">{{ session['role']|capitalize }}</div>
         </div>
       </div>
     </div>
@@ -196,12 +195,25 @@
     <!-- Header actions + Search -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
       <div class="d-flex gap-2">
-        <button class="btn btn-outline-secondary"><i class="fa-solid fa-file-export me-2"></i>Xuất báo cáo</button>
-        <a href="{{ url_for('add_department') }}" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Thêm phòng ban</a>
+        <button class="btn btn-outline-secondary">
+          <i class="fa-solid fa-file-export me-2"></i>Xuất báo cáo
+        </button>
+
+        <!-- ✅ Nút thêm phòng ban: chỉ ADMIN -->
+        {% if session['role'] == 'admin' %}
+          <a href="{{ url_for('department_bp.add_department') }}" class="btn btn-primary">
+            <i class="fa-solid fa-plus me-2"></i>Thêm phòng ban
+          </a>
+        {% endif %}
       </div>
-      <form class="d-flex" method="get" action="{{ url_for('departments') }}">
-        <input class="form-control me-2" type="search" name="q" placeholder="🔍 Tìm theo mã hoặc tên phòng ban..." value="{{ keyword or '' }}" style="max-width:260px;">
-        <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+
+      <form class="d-flex" method="get" action="{{ url_for('department_bp.departments') }}">
+        <input class="form-control me-2" type="search" name="q"
+               placeholder="🔍 Tìm theo mã hoặc tên phòng ban..."
+               value="{{ keyword or '' }}" style="max-width:260px;">
+        <button class="btn btn-primary" type="submit">
+          <i class="fas fa-search"></i>
+        </button>
       </form>
     </div>
 
@@ -226,134 +238,130 @@
 
     <!-- Departments Grid -->
     {% if departments %}
-    <form method="POST" action="{{ url_for('delete_multiple_departments') }}" id="bulkDeleteForm">
-      <!-- Phần chọn tất cả và hủy chọn -->
-      <div class="bulk-actions-container">
-        <div class="select-all-container">
-          <input class="form-check-input select-all-checkbox" type="checkbox" id="select-all">
-          <label class="select-all-label" for="select-all">
-            Chọn tất cả phòng ban
-            <span class="selected-count" id="selected-count">0</span>
-          </label>
+      <form method="POST" action="{{ url_for('department_bp.delete_multiple_departments') }}" id="bulkDeleteForm">
+        
+        <!-- ✅ Phần chọn hàng loạt: chỉ ADMIN -->
+        {% if session['role'] == 'admin' %}
+          <div class="bulk-actions-container">
+            <div class="select-all-container">
+              <input class="form-check-input select-all-checkbox" type="checkbox" id="select-all">
+              <label class="select-all-label" for="select-all">
+                Chọn tất cả phòng ban
+                <span class="selected-count" id="selected-count">0</span>
+              </label>
+            </div>
+            <div class="bulk-actions-buttons">
+              <button type="button" class="btn btn-outline-secondary" id="deselect-all">
+                <i class="fa-solid fa-times me-2"></i>Hủy chọn
+              </button>
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="departments-grid">
+          {% for department in departments %}
+          <div class="department-card">
+            
+            <!-- ✅ Checkbox chỉ hiện cho ADMIN -->
+            {% if session['role'] == 'admin' %}
+            <div class="department-checkbox">
+              <input type="checkbox" name="selected_departments"
+                     value="{{ department.ma_pb }}"
+                     class="form-check-input department-checkbox-item">
+            </div>
+            {% endif %}
+
+            <!-- Header -->
+            <div class="department-header">
+              <div class="department-info">
+                <h3>{{ department.ten_pb }}</h3>
+                <div class="department-code">{{ department.ma_pb }}</div>
+              </div>
+            </div>
+
+            <!-- Body -->
+            <div class="department-body">
+              <div class="department-meta">
+                <div class="meta-item">
+                  <i class="fa-solid fa-hashtag"></i>
+                  <span>Mã phòng ban: <strong>{{ department.ma_pb }}</strong></span>
+                </div>
+
+                <div class="meta-item">
+                  <i class="fa-solid fa-users"></i>
+                  <span>Số nhân viên: <strong>{{ department.so_nv }}</strong></span>
+                </div>
+
+                <div class="meta-item">
+                  <i class="fa-solid fa-user-tie"></i>
+                  <span>Trưởng phòng: <strong>{{ department.manager or 'Chưa có' }}</strong></span>
+                </div>
+
+                <div class="meta-item">
+                  <i class="fa-solid fa-circle-info"></i>
+                  <span>
+                    Trạng thái:
+                    <span class="status-badge status-active">
+                      <i class="fa-solid fa-circle"></i> {{ department.trang_thai }}
+                    </span>
+                  </span>
+                </div>
+              </div>
+
+              <!-- ✅ Chỉ ADMIN mới có nút Sửa / Xóa -->
+              {% if session['role'] == 'admin' %}
+              <div class="department-actions">
+                <a href="{{ url_for('department_bp.edit_department', ma_pb=department.ma_pb) }}"
+                   class="btn btn-action btn-edit">
+                  <i class="fas fa-edit"></i>
+                </a>
+                <form method="POST" action="{{ url_for('department_bp.delete_department', ma_pb=department.ma_pb) }}"
+                      style="display:inline;">
+                  <button type="submit" class="btn btn-action btn-delete"
+                          onclick="return confirm('Bạn có chắc muốn xóa phòng ban {{ department.ten_pb }}?')">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Footer -->
+            <div class="department-footer">
+              <div class="last-updated">
+                <i class="fa-regular fa-clock me-1"></i>
+                Cập nhật: {{ department.last_updated or '—' }}
+              </div>
+              <a href="{{ url_for('department_bp.department_detail', ma_pb=department.ma_pb) }}" class="view-details">
+                Xem chi tiết <i class="fa-solid fa-arrow-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+          {% endfor %}
         </div>
-        <div class="bulk-actions-buttons">
-          <button type="button" class="btn btn-outline-secondary" id="deselect-all">
-            <i class="fa-solid fa-times me-2"></i>Hủy chọn
+
+        <!-- ✅ Nút xóa hàng loạt chỉ cho ADMIN -->
+        {% if session['role'] == 'admin' %}
+        <div class="delete-selected-container">
+          <button type="button" class="btn btn-danger btn-lg" id="delete-selected-btn">
+            <i class="fa-solid fa-trash me-2"></i> Xóa các phòng ban đã chọn
           </button>
         </div>
-      </div>
-
-      <div class="departments-grid">
-        {% for department in departments %}
-<div class="department-card">
-  <!-- Checkbox -->
-  <div class="department-checkbox">
-    <input type="checkbox" name="selected_departments" value="{{ department.ma_pb }}" class="form-check-input department-checkbox-item">
-  </div>
-
-  <!-- Header -->
-  <div class="department-header">
-    <div class="department-info">
-      <h3>{{ department.ten_pb }}</h3>
-      <div class="department-code">{{ department.ma_pb }}</div>
-    </div>
-  </div>
-
-  <!-- Body -->
-  <div class="department-body">
-    <div class="department-meta">
-
-      <!-- Mã phòng ban -->
-      <div class="meta-item">
-        <i class="fa-solid fa-hashtag"></i>
-        <span>Mã phòng ban: <strong>{{ department.ma_pb }}</strong></span>
-      </div>
-
-      <!-- Số nhân viên -->
-      <div class="meta-item">
-        <i class="fa-solid fa-users"></i>
-        <span>Số nhân viên: <strong>{{ department.so_nv }}</strong></span>
-      </div>
-
-      <!-- Người quản lý chính -->
-      <div class="meta-item">
-        <i class="fa-solid fa-user-tie"></i>
-        <span>
-          Trưởng phòng: 
-          <strong>{{ department.truong_phong or department.manager or "Chưa có" }}</strong>
-        </span>
-      </div>
-
-      <!-- Phó phòng (nếu có) -->
-      {% if department.pho_phong %}
-      <div class="meta-item">
-        <i class="fa-solid fa-user"></i>
-        <span>Phó phòng: <strong>{{ department.pho_phong }}</strong></span>
-      </div>
-      {% endif %}
-
-      <!-- Giám đốc hoặc người phụ trách cấp cao -->
-      {% if department.giam_doc %}
-      <div class="meta-item">
-        <i class="fa-solid fa-user-gear"></i>
-        <span>Giám đốc phụ trách: <strong>{{ department.giam_doc }}</strong></span>
-      </div>
-      {% endif %}
-
-      <!-- Trạng thái -->
-      <div class="meta-item">
-        <i class="fa-solid fa-circle-info"></i>
-        <span>
-          Trạng thái:
-          <span class="status-badge status-active"><i class="fa-solid fa-circle"></i> {{ department.trang_thai }}</span>
-        </span>
-      </div>
-
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="department-actions">
-      <a href="{{ url_for('edit_department', ma_pb=department.ma_pb) }}" class="btn btn-action btn-edit">
-        <i class="fas fa-edit"></i>
-      </a>
-      <form method="POST" action="{{ url_for('delete_department', ma_pb=department.ma_pb) }}" style="display:inline;">
-        <button type="submit" class="btn btn-action btn-delete"
-                onclick="return confirm('Bạn có chắc muốn xóa phòng ban {{ department.ten_pb }}?')">
-          <i class="fas fa-trash"></i>
-        </button>
+        {% endif %}
       </form>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <div class="department-footer">
-    <div class="last-updated">
-      <i class="fa-regular fa-clock me-1"></i>
-      Cập nhật: {{ department.last_updated or "—" }}
-    </div>
-    <a href="{{ url_for('department_detail', ma_pb=department.ma_pb) }}" class="view-details">
-      Xem chi tiết <i class="fa-solid fa-arrow-right ms-1"></i>
-    </a>
-  </div>
-</div>
-{% endfor %}
-
-      </div>
-      
-      <!-- Phần xóa đã chọn - ĐẨY XUỐNG PHÍA DƯỚI -->
-      <div class="delete-selected-container">
-        <button type="button" class="btn btn-danger btn-lg" id="delete-selected-btn">
-          <i class="fa-solid fa-trash me-2"></i> Xóa các phòng ban đã chọn
-        </button>
-      </div>
-    </form>
     {% else %}
-    <div class="empty-state">
-      <div class="empty-icon"><i class="fa-solid fa-building"></i></div>
-      <h3 class="empty-title">Chưa có phòng ban nào</h3>
-      <p class="empty-text">Hãy thêm phòng ban đầu tiên để bắt đầu quản lý cơ cấu tổ chức của công ty.</p>
-      <a href="{{ url_for('add_department') }}" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Thêm phòng ban đầu tiên</a>
-    </div>
+      <div class="empty-state">
+        <div class="empty-icon"><i class="fa-solid fa-building"></i></div>
+        <h3 class="empty-title">Chưa có phòng ban nào</h3>
+        <p class="empty-text">Hãy thêm phòng ban đầu tiên để bắt đầu quản lý cơ cấu tổ chức của công ty.</p>
+
+        <!-- ✅ Chỉ ADMIN mới có nút Thêm -->
+        {% if session['role'] == 'admin' %}
+          <a href="{{ url_for('department_bp.add_department') }}" class="btn btn-primary">
+            <i class="fa-solid fa-plus me-2"></i>Thêm phòng ban đầu tiên
+          </a>
+        {% endif %}
+      </div>
     {% endif %}
 
     <div class="footer">© 2025 FaceID System — Developed with ❤️ by Trần Minh Hợp</div>

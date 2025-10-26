@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Chi tiết ca làm việc - FaceID System</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<style>
+:root {
+      --primary: #8B5FBF;
+      --primary-dark: #7A4FA8;
+      --primary-light: #9D7BC6;
+      --secondary: #6c757d;
+      --success: #2ECC71;
+      --info: #3498DB;
+      --warning: #F39C12;
+      --danger: #E74C3C;
+      --light: #f8f9fa;
+      --dark: #2C3E50;
+      --sidebar-bg: #2C3E50;
+      --sidebar-hover: #34495E;
+      --sidebar-active: #8B5FBF;
+      --card-bg: #FFFFFF;
+      --header-bg: #FFFFFF;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #ECF0F1 0%, #D6DBDF 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+.sidebar{min-height:100vh;width:280px;background:var(--sidebar-bg);position:fixed;top:0;left:0;z-index:1000;transition:all .3s ease;box-shadow:3px 0 15px rgba(0,0,0,.1);}
+.sidebar-header{padding:25px 20px;border-bottom:1px solid rgba(255,255,255,.1);text-align:center;}
+.sidebar-brand{color:#fff;text-decoration:none;font-size:1.5rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;}
+.sidebar-brand i{background:linear-gradient(135deg,var(--primary),#4895ef);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:1.8rem;}
+.sidebar-nav{padding:20px 0 80px;overflow-y:auto;height:calc(100vh - 80px);}
+.nav-item{margin-bottom:5px;}
+.nav-link{color:rgba(255,255,255,.8);padding:15px 25px;text-decoration:none;display:flex;align-items:center;gap:12px;transition:all .3s ease;border-left:3px solid transparent;font-weight:500;}
+.nav-link:hover{color:#fff;background:var(--sidebar-hover);border-left-color:var(--primary);transform:translateX(5px);}
+.nav-link.active{color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-left-color:#fff;box-shadow:0 4px 15px rgba(67,97,238,.3);}
+.nav-link i{width:20px;text-align:center;font-size:1.1rem;}
+.logout-link{color:#f8d7da;border-top:1px solid rgba(255,255,255,.1);margin-top:20px;}
+.logout-link:hover{color:#dc3545;background:rgba(220,53,69,.1);}
+.main-content{margin-left:280px;padding:30px;transition:all .3s ease;}
+.dashboard-header{background:#fff;border-radius:15px;padding:25px 30px;margin-bottom:30px;box-shadow:0 5px 15px rgba(0,0,0,.08);display:flex;justify-content:space-between;align-items:center;}
+.header-title h1{color:var(--dark);font-weight:700;margin-bottom:5px;}
+.header-title p{color:var(--secondary);margin:0;}
+.user-profile{display:flex;align-items:center;gap:15px;background:var(--light);padding:12px 20px;border-radius:12px;border:1px solid rgba(0,0,0,.05);}
+.user-avatar{width:45px;height:45px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:1.2rem;}
+.user-info{line-height:1.4;}
+.user-name{font-weight:600;color:var(--dark);margin:0;}
+.user-role{color:var(--secondary);font-size:.9rem;margin:0;}
+.content-area{background:#fff;border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,.08);padding:30px;margin-bottom:30px;}
+.card{border:none;border-radius:12px;box-shadow:0 3px 10px rgba(0,0,0,.1);}
+.card-header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border-radius:12px 12px 0 0!important;padding:20px 25px;}
+.card-body{padding:25px;}
+.info-item{display:flex;align-items:center;margin-bottom:15px;padding-bottom:15px;border-bottom:1px solid rgba(0,0,0,.05);}
+.info-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.info-label{font-weight:600;color:var(--secondary);min-width:100px;}
+.info-value{color:var(--dark);}
+.table-responsive{border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.table{table-layout:fixed;margin:0;}
+.table thead th{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border:none;padding:15px;font-weight:600;text-align:center;vertical-align:middle;}
+.table tbody td{padding:12px 15px;vertical-align:middle;border-color:#f0f0f0;}
+.table tbody tr:hover{background-color:rgba(67,97,238,.03);}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border:none;border-radius:8px;padding:10px 20px;font-weight:500;transition:all .3s;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(67,97,238,.3);}
+.btn-secondary{background:var(--secondary);border:none;border-radius:8px;padding:10px 20px;font-weight:500;transition:all .3s;}
+.btn-secondary:hover{background:#5a6268;transform:translateY(-2px);}
+.search-sort-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;gap:15px;}
+@media(max-width:992px){.sidebar{width:80px;}.sidebar-brand span,.nav-link span{display:none;}.main-content{margin-left:80px;}.sidebar-header{padding:20px 10px;}.nav-link{justify-content:center;padding:15px;}.nav-link i{font-size:1.3rem;}}
+@media(max-width:768px){.main-content{padding:20px;}.dashboard-header{flex-direction:column;gap:15px;text-align:center;}.search-sort-bar{flex-direction:column;align-items:stretch;}.table-responsive{font-size:.9rem;}.table thead th,.table tbody td{padding:8px 10px;}}
+</style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand">
+                <i class="fas fa-id-card-alt"></i>
+                <span>FaceID System</span>
+            </a>
+        </div>
+        
+         <nav class="sidebar-nav">
+            <div class="nav-item"><a href="{{ url_for('dashboard_bp.hr_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('department_bp.departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('employee_bp.employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Nhân viên</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('shift_bp.shifts') }}" class="nav-link active"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('schedule_bp.assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('attendance_bp.attendance_report') }}" class="nav-link"><i class="fas fa-clipboard-check"></i><span>Chấm công</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('salary_bp.salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('faces_bp.faces') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('reports_bp.hr_reports_view') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Báo cáo thống kê</span></a></div>
+            <div class="nav-item"><a href="{{ url_for('auth_bp.login') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="header-title">
+                <h1>Chi tiết ca làm việc</h1>
+                <p>Thông tin chi tiết và danh sách nhân viên trong ca làm việc</p>
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar">{{ session['username'][0]|upper }}</div>
+                <div class="user-info">
+                    <div class="user-name">{{ session['username'] }}</div>
+                    <div class="user-role">{{ session['role'] }}</div>
+                </div>
+                <a href="{{ url_for('auth_bp.login') }}" class="text-decoration-none text-secondary ms-2"><i class="fa-solid fa-right-from-bracket"></i></a>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Navigation -->
+            <a href="{{ url_for('shift_bp.shifts') }}" class="btn btn-secondary mb-4">
+                <i class="fa-solid fa-arrow-left me-2"></i> Quay lại danh sách ca làm việc
+            </a>
+
+            <!-- Thông tin ca làm việc -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fa-solid fa-clock me-2"></i>{{ ca.ten_ca }}</h4>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <span class="info-label">Mã ca:</span>
+                        <span class="info-value">{{ ca.ma_ca }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Giờ làm:</span>
+                        <span class="info-value">{{ ca.gio_bd }} - {{ ca.gio_kt }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Hệ số:</span>
+                        <span class="info-value fw-bold text-primary">{{ ca.he_so }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Mô tả:</span>
+                        <span class="info-value">{{ ca.mo_ta or '—' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Trạng thái:</span>
+                        <span class="info-value {{ 'text-success' if ca.trang_thai == 'Đang hoạt động' else 'text-secondary' }}">
+                            <i class="fa-solid fa-circle me-1" style="font-size:.7rem;"></i>
+                            {{ ca.trang_thai }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-footer text-muted small">
+                    <i class="fa-regular fa-clock me-1"></i>Cập nhật: {{ ca.last_updated }}
+                </div>
+            </div>
+
+            <!-- Thanh tìm kiếm & sắp xếp -->
+            <div class="search-sort-bar">
+                <form method="get" class="d-flex gap-2 flex-wrap">
+                    <input type="text" class="form-control" name="q" placeholder="🔍 Tìm theo tên, mã NV hoặc phòng ban..." value="{{ keyword or '' }}" style="max-width:300px;">
+                    <select name="sort" class="form-select w-auto">
+                        <option value="ten" {% if order=='ten' %}selected{% endif %}>Sắp xếp theo tên</option>
+                        <option value="phongban" {% if order=='phongban' %}selected{% endif %}>Sắp xếp theo phòng ban</option>
+                        <option value="ma" {% if order=='ma' %}selected{% endif %}>Sắp xếp theo mã NV</option>
+                    </select>
+                    <button class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm</button>
+                </form>
+                <div class="text-muted">
+                    <small><i class="fas fa-users me-1"></i>Tổng: {{ nhanviens|length }} nhân viên</small>
+                </div>
+            </div>
+
+            <!-- Danh sách nhân viên -->
+            {% if nhanviens %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px">Mã NV</th>
+                            <th style="width: 200px">Họ tên</th>
+                            <th style="width: 150px">Phòng ban</th>
+                            <th style="width: 150px">Chức vụ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for nv in nhanviens %}
+                        <tr>
+                            <td class="text-center fw-bold">{{ nv.MaNV }}</td>
+                            <td>{{ nv.HoTen }}</td>
+                            <td>{{ nv.TenPB or '—' }}</td>
+                            <td>{{ nv.ChucVu or '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center py-4">
+                <i class="fa-solid fa-circle-info me-2 fa-lg"></i>
+                <strong>Chưa có nhân viên nào trong ca này.</strong>
+                <p class="mb-0 mt-2">Hãy phân công nhân viên vào ca làm việc để bắt đầu quản lý.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
