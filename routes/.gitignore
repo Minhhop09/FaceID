@@ -1,0 +1,14 @@
+# 🧱 Thư mục không cần push
+venv/
+__pycache__/
+*.pyc
+*.log
+
+# 🔐 File chứa thông tin nhạy cảm
+.env
+config_mail.py
+client_secret.json
+database.ini
+google_secret.json
+settings_local.py
+*.bak
