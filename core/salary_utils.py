@@ -1,4 +1,8 @@
 from datetime import datetime, timedelta, date, time
+from decimal import Decimal
+
+import random, time
+
 
 # ============================================================
 # 🕓 CHUYỂN GIỜ DÙNG CHO TÍNH TOÁN
@@ -40,12 +44,8 @@ def get_tham_so_luong(cursor):
     except Exception as e:
         print(f"[ERROR] ❌ Không thể đọc bảng ThamSoLuong: {e}")
         return {}
-# ============================================================
-# 💰 TÍNH LƯƠNG NHÂN VIÊN (3 CA/NGÀY × 4 GIỜ, DÙNG LƯƠNG GIỜ CƠ BẢN)
-# ============================================================
-# ============================================================
-# 🧮 HÀM CHÍNH: TÍNH LƯƠNG NHÂN VIÊN
-# ============================================================
+    
+# HÀM CHÍNH: TÍNH LƯƠNG NHÂN VIÊN
 def tinh_luong_nv(cursor, ma_nv, thangnam, nguoi_tinh, save_to_db=True, return_detail=False):
     """
     ✅ Tính lương nhân viên theo 3 ca/ngày:
@@ -53,7 +53,7 @@ def tinh_luong_nv(cursor, ma_nv, thangnam, nguoi_tinh, save_to_db=True, return_d
       - < 4h → tính theo giờ (LuongGioCoBan × giờ × hệ số)
       - ≥ 4h → tính trọn ca (500k ca ngày, 800k ca tối)
       - > 4h → cộng thêm tăng ca (theo giờ × hệ số tăng ca)
-      - Có phạt đi trễ, phụ cấp, PIT, lưu DB
+      - Có phạt đi trễ, phụ cấp, PIT, lưu DB với mã LNVxxxxx_YYYYMM
     """
 
     # === 0️⃣ Lấy tham số hệ thống ===
@@ -171,13 +171,10 @@ def tinh_luong_nv(cursor, ma_nv, thangnam, nguoi_tinh, save_to_db=True, return_d
 
         note_them = ""
         if so_gio < 4:
-            # Chưa đủ ca → tính theo giờ
             luong_tam = so_gio * luong_gio_cb * he_so_cv
             note_them = f"; chưa đủ 4h → {so_gio}h × {luong_gio_cb:,}"
         else:
-            # Đủ ca → tính trọn ca
             luong_tam = muc_ca_nv * he_so_cv
-            # Nếu làm hơn 4h → tăng ca
             if so_gio > 4:
                 gio_tang_ca = round(so_gio - 4, 2)
                 luong_tam += gio_tang_ca * luong_gio_cb * he_so_cv * he_so_tang_ca
@@ -210,19 +207,24 @@ def tinh_luong_nv(cursor, ma_nv, thangnam, nguoi_tinh, save_to_db=True, return_d
     pit = tong_tien * params.get("PIT_ThueThuNhap", 0.05)
     tong_tien_thuc = tong_tien + phu_cap - pit
 
-    # === 6️⃣ Lưu DB ===
+    # === 6️⃣ Sinh mã lương (LNV00001_202510) ===
+    thang_nam_str = f"{thangnam.year}{thangnam.month:02d}"
+    ma_luong = f"L{ma_nv}_{thang_nam_str}"
+
+    # === 7️⃣ Lưu DB ===
     if save_to_db:
         thang_nam_date = thangnam.replace(day=1)
-        cursor.execute("DELETE FROM Luong WHERE MaNV=? AND ThangNam=?", (ma_nv, thang_nam_date))
+        cursor.execute("DELETE FROM Luong WHERE MaLuong=? OR (MaNV=? AND ThangNam=?)",
+                       (ma_luong, ma_nv, thang_nam_date))
         cursor.execute("""
-            INSERT INTO Luong (MaNV, ThangNam, SoGioLam, TongTien, TrangThai, NguoiTinhLuong, NgayTinhLuong, DaXoa)
-            VALUES (?, ?, ?, ?, 1, ?, GETDATE(), 1)
-        """, (ma_nv, thang_nam_date, tong_gio, tong_tien_thuc, nguoi_tinh))
+            INSERT INTO Luong (MaLuong, MaNV, ThangNam, SoGioLam, TongTien, TrangThai, NguoiTinhLuong, NgayTinhLuong, DaXoa)
+            VALUES (?, ?, ?, ?, ?, 1, ?, GETDATE(), 1)
+        """, (ma_luong, ma_nv, thang_nam_date, tong_gio, tong_tien_thuc, nguoi_tinh))
 
-    # === 7️⃣ Debug tổng kết ===
-    print(f"[DEBUG] 💰 {ma_nv} | Tổng giờ: {tong_gio:.2f}h | Tổng tiền: {tong_tien_thuc:,.0f}đ")
+    # === 8️⃣ Debug tổng kết ===
+    print(f"[DEBUG] 💰 {ma_nv} | Tổng giờ: {tong_gio:.2f}h | Tổng tiền: {tong_tien_thuc:,.0f}đ | Mã: {ma_luong}")
 
-    # === 8️⃣ Trả kết quả ===
+    # === 9️⃣ Trả kết quả ===
     return (
         round(tong_gio, 2),
         round(tong_tien_thuc, 0),

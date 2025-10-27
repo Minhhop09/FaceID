@@ -1,7 +1,3 @@
-# ============================================================
-# 📦 core/db_utils.py — Kết nối và thao tác cơ bản với SQL Server
-# ============================================================
-
 import pyodbc
 from datetime import datetime
 
@@ -28,8 +24,6 @@ def get_sql_connection():
         cursor = conn.cursor()
         cursor.execute("SELECT DB_NAME(), SUSER_NAME()")
         db, user = cursor.fetchone()
-        print(f"📂 Đang dùng database: {db} | Người đăng nhập: {user}")
-        print(f"🧩 Driver: {conn.getinfo(pyodbc.SQL_DRIVER_NAME)}")  # debug
         return conn
     except Exception as e:
         print(f"❌ Lỗi kết nối CSDL: {e}")

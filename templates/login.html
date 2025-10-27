@@ -247,6 +247,36 @@
             color: var(--gray);
             font-size: 14px;
         }
+        /* Nút Google */
+.btn-login-google {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    background-color: #ffffff;
+    border: 1px solid var(--gray-light);
+    border-radius: 12px;
+    padding: 12px 15px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--dark);
+    text-decoration: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    transition: var(--transition);
+}
+
+.btn-login-google img {
+    width: 22px;
+    height: 22px;
+}
+
+.btn-login-google:hover {
+    background-color: var(--primary-extra-light);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+}
+
 
         /* Animations */
         @keyframes slideIn {
@@ -378,6 +408,15 @@
         <i class="fas fa-sign-in-alt"></i>
         <span>Đăng nhập</span>
     </button>
+    <!-- Nút đăng nhập Google -->
+<div style="text-align: center; margin-top: 20px;">
+    <p style="color: var(--gray); font-size: 14px; margin-bottom: 10px;">Hoặc đăng nhập bằng</p>
+    <a href="{{ url_for('auth_bp.login_google') }}" class="btn-login-google">
+        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
+        <span>Đăng nhập bằng Google</span>
+    </a>
+</div>
+
 </form>
 
 

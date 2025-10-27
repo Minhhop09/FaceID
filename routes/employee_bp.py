@@ -1002,66 +1002,94 @@ def my_schedule():
 @employee_bp.route("/employee/dashboard")
 @require_role("nhanvien")
 def employee_dashboard():
-    if "manv" not in session:
-        return redirect(url_for("login"))
-
-    ma_nv = session["manv"]
     ho_ten_session = session.get("hoten", "")
+    email_session = session.get("email", "")
+    ma_nv = session.get("manv")
+    avatar = session.get("avatar", "")
 
     conn = get_sql_connection()
     cursor = conn.cursor()
 
-    # 1️⃣ Thông tin nhân viên
-    cursor.execute("""
-        SELECT nv.MaNV, nv.HoTen, nv.Email, nv.NgaySinh, nv.ChucVu, nv.DiaChi, 
-               pb.TenPB AS PhongBan, nv.LuongGioCoBan, k.DuongDanAnh
-        FROM NhanVien nv
-        LEFT JOIN PhongBan pb ON nv.MaPB = pb.MaPB
-        LEFT JOIN KhuonMat k ON nv.MaNV = k.MaNV
-        WHERE nv.MaNV = ?
-    """, (ma_nv,))
-    row = cursor.fetchone()
-    nhanvien = dict(zip([col[0] for col in cursor.description], row)) if row else {}
+    nhanvien = {}
+    chamcong = []
+    lichsu = []
+    ca_hom_nay = "Không có ca hôm nay"
 
-    # 2️⃣ Ca làm việc hôm nay
-    cursor.execute("""
-        SELECT clv.TenCa, clv.GioBatDau, clv.GioKetThuc
-        FROM LichLamViec llv
-        JOIN CaLamViec clv ON llv.MaCa = clv.MaCa
-        WHERE llv.MaNV = ?
-          AND CAST(llv.NgayLam AS DATE) = CAST(GETDATE() AS DATE)
-          AND llv.DaXoa = 1
-    """, (ma_nv,))
-    ca_rows = cursor.fetchall()
+    # ======================================================
+    # 🧩 1️⃣ Nếu có mã nhân viên → truy xuất dữ liệu đầy đủ
+    # ======================================================
+    if ma_nv:
+        cursor.execute("""
+            SELECT nv.MaNV, nv.HoTen, nv.Email, nv.NgaySinh, nv.ChucVu, nv.DiaChi, 
+                   pb.TenPB AS PhongBan, nv.LuongGioCoBan, k.DuongDanAnh
+            FROM NhanVien nv
+            LEFT JOIN PhongBan pb ON nv.MaPB = pb.MaPB
+            LEFT JOIN KhuonMat k ON nv.MaNV = k.MaNV
+            WHERE nv.MaNV = ?
+        """, (ma_nv,))
+        row = cursor.fetchone()
+        if row:
+            nhanvien = dict(zip([col[0] for col in cursor.description], row))
 
-    def fmt_time(t):
-        if not t:
-            return ""
-        if hasattr(t, "strftime"):
-            return t.strftime("%H:%M")
-        return str(t)[:5]
+        # 2️⃣ Ca làm việc hôm nay
+        cursor.execute("""
+            SELECT clv.TenCa, clv.GioBatDau, clv.GioKetThuc
+            FROM LichLamViec llv
+            JOIN CaLamViec clv ON llv.MaCa = clv.MaCa
+            WHERE llv.MaNV = ?
+              AND CAST(llv.NgayLam AS DATE) = CAST(GETDATE() AS DATE)
+              AND llv.DaXoa = 1
+        """, (ma_nv,))
+        ca_rows = cursor.fetchall()
 
-    ca_hom_nay = ", ".join(
-        [f"{r[0]} ({fmt_time(r[1])} - {fmt_time(r[2])})" for r in ca_rows]
-    ) if ca_rows else "Không có ca hôm nay"
+        def fmt_time(t):
+            if not t:
+                return ""
+            if hasattr(t, "strftime"):
+                return t.strftime("%H:%M")
+            return str(t)[:5]
 
-    # 3️⃣ Lịch sử chấm công
-    cursor.execute("""
-        SELECT MaChamCong, NgayChamCong, GioVao, GioRa, TrangThai
-        FROM ChamCong
-        WHERE MaNV = ?
-        ORDER BY NgayChamCong DESC
-    """, (ma_nv,))
-    chamcong = [dict(zip([col[0] for col in cursor.description], r)) for r in cursor.fetchall()]
+        if ca_rows:
+            ca_hom_nay = ", ".join(
+                [f"{r[0]} ({fmt_time(r[1])} - {fmt_time(r[2])})" for r in ca_rows]
+            )
 
-    # 4️⃣ Lịch sử hoạt động
-    cursor.execute("""
-        SELECT ThoiGian, TenBang, HanhDong, TruongThayDoi, GiaTriCu, GiaTriMoi
-        FROM LichSuThayDoi
-        WHERE NguoiThucHien = ?
-        ORDER BY ThoiGian DESC
-    """, (ho_ten_session,))
-    lichsu = [dict(zip([col[0] for col in cursor.description], r)) for r in cursor.fetchall()]
+        # 3️⃣ Lịch sử chấm công
+        cursor.execute("""
+            SELECT MaChamCong, NgayChamCong, GioVao, GioRa, TrangThai
+            FROM ChamCong
+            WHERE MaNV = ?
+            ORDER BY NgayChamCong DESC
+        """, (ma_nv,))
+        chamcong = [dict(zip([col[0] for col in cursor.description], r)) for r in cursor.fetchall()]
+
+        # 4️⃣ Lịch sử hoạt động
+        cursor.execute("""
+            SELECT ThoiGian, TenBang, HanhDong, TruongThayDoi, GiaTriCu, GiaTriMoi
+            FROM LichSuThayDoi
+            WHERE NguoiThucHien = ?
+            ORDER BY ThoiGian DESC
+        """, (ho_ten_session,))
+        lichsu = [dict(zip([col[0] for col in cursor.description], r)) for r in cursor.fetchall()]
+
+    else:
+        # ======================================================
+        # 🌐 2️⃣ Trường hợp đăng nhập bằng Google chưa có MaNV
+        # ======================================================
+        flash(
+            f"Chào mừng {ho_ten_session or 'Người dùng Google'}! "
+            "Tài khoản của bạn chưa được liên kết với mã nhân viên. "
+            "Vui lòng liên hệ bộ phận nhân sự để hoàn tất thông tin.",
+            "info"
+        )
+
+        nhanvien = {
+            "HoTen": ho_ten_session or "Người dùng Google",
+            "Email": email_session,
+            "PhongBan": "(Chưa liên kết)",
+            "ChucVu": "Nhân viên",
+            "DuongDanAnh": avatar
+        }
 
     conn.close()
 
@@ -1073,9 +1101,8 @@ def employee_dashboard():
         ho_ten=nhanvien.get("HoTen", "(Không rõ)"),
         phongban=nhanvien.get("PhongBan", "(Chưa có)"),
         ca_hom_nay=ca_hom_nay,
-        anh_nv=nhanvien.get("DuongDanAnh", "")
+        anh_nv=nhanvien.get("DuongDanAnh", avatar or "")
     )
-
 
 # ============================================================
 # 🧍‍♂️ TRANG THÔNG TIN NHÂN VIÊN

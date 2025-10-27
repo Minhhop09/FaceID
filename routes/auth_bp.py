@@ -1,7 +1,6 @@
 # ===============================================
 # 📦 AUTH_BP — ĐĂNG NHẬP & KHÔI PHỤC MẬT KHẨU
 # ===============================================
-
 from flask import (
     Blueprint, render_template, request, redirect,
     url_for, flash, session, current_app
@@ -9,16 +8,107 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime, timedelta
 from threading import Thread
-import random, socket, time
+import random, socket, time, secrets, os
 
 from core.db_utils import get_sql_connection
 from core.email_utils import send_email_notification
+from config_google import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+from core.add_employee import generate_ma_nv
 
 # ===============================================
 # ⚙️ KHỞI TẠO BLUEPRINT & BIẾN TOÀN CỤC
 # ===============================================
 auth_bp = Blueprint("auth_bp", __name__)
-otp_expire_time = {}  # { email: datetime_expire }
+otp_expire_time = {}
+
+# ===============================================
+# 🔧 HÀM KHỞI TẠO GOOGLE LOGIN (GỌI TRONG app.py)
+# ===============================================
+def init_oauth(app):
+    """Khởi tạo cấu hình OAuth cho Google."""
+    oauth.init_app(app)
+    oauth.register(
+        name="google",
+        client_id=GOOGLE_CLIENT_ID,
+        client_secret=GOOGLE_CLIENT_SECRET,
+        server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+        client_kwargs={"scope": "openid email profile"},
+    )
+    return oauth
+
+@auth_bp.route("/login/google")
+def login_google():
+    oauth = current_app.extensions["oauth"]
+    redirect_uri = url_for("auth_bp.authorize_google", _external=True)
+    print("[DEBUG] Redirect URI gửi Google:", redirect_uri)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+@auth_bp.route("/login/google/authorize")
+def authorize_google():
+    oauth = current_app.extensions["oauth"]
+    print("[DEBUG] Callback query:", dict(request.args))
+
+    # 1️⃣ Lấy token và thông tin người dùng từ Google
+    token = oauth.google.authorize_access_token()
+    user_info = oauth.google.get('https://www.googleapis.com/oauth2/v2/userinfo').json()
+    print("[DEBUG] User info:", user_info)
+
+    if not user_info:
+        flash("Không lấy được thông tin tài khoản Google!", "danger")
+        return redirect(url_for("auth_bp.login"))
+
+    # 2️⃣ Kết nối CSDL
+    conn = get_sql_connection()
+    cursor = conn.cursor()
+
+    email = user_info.get("email")
+    name = user_info.get("name")
+    picture = user_info.get("picture")
+
+    # 3️⃣ Kiểm tra nhân viên có tồn tại chưa
+    cursor.execute("SELECT MaNV FROM NhanVien WHERE Email = ?", (email,))
+    row = cursor.fetchone()
+
+    # 4️⃣ Nếu chưa có → tạo mới nhân viên
+    if not row:
+        # Sinh mã NV tự động (NV00001, NV00002, ...)
+        cursor.execute("SELECT TOP 1 MaNV FROM NhanVien ORDER BY MaNV DESC")
+        last = cursor.fetchone()
+        if last and last[0]:
+            num = int(last[0][2:]) + 1
+        else:
+            num = 1
+        new_ma_nv = f"NV{num:05d}"
+
+        cursor.execute("""
+            INSERT INTO NhanVien (MaNV, HoTen, Email, ChucVu, TrangThai)
+            VALUES (?, ?, ?, ?, 1)
+        """, (new_ma_nv, name, email, "Nhân viên"))
+
+        conn.commit()
+        ma_nv = new_ma_nv
+        print(f"[DEBUG] ➕ Đã tạo nhân viên mới: {ma_nv} ({email})")
+    else:
+        ma_nv = row[0]
+        print(f"[DEBUG] ✅ Nhân viên tồn tại: {ma_nv} ({email})")
+
+    # 5️⃣ Cập nhật session đăng nhập
+    session.clear()
+    session["user_id"] = user_info.get("id")
+    session["username"] = email.split("@")[0]
+    session["email"] = email
+    session["hoten"] = name
+    session["manv"] = ma_nv
+    session["role"] = "nhanvien"
+    session["roles"] = ("nhanvien",)
+    session["avatar"] = picture
+
+    conn.close()
+
+    # 6️⃣ Flash & redirect
+    flash("Đăng nhập bằng Google thành công!", "success")
+    print("[SESSION AFTER GOOGLE LOGIN]:", dict(session))
+    return redirect(url_for("employee_bp.employee_dashboard"))
 
 # ==========================
 # 1️⃣ ĐĂNG NHẬP HỆ THỐNG

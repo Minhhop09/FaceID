@@ -62,7 +62,38 @@ body{background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Seg
 .btn-delete{background:linear-gradient(135deg,var(--danger),#e53935);color:#fff;}
 .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border:none;border-radius:8px;padding:10px 20px;font-weight:500;transition:all .3s;}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(67,97,238,.3);}
+.salary-status.paid {
+  background: rgba(23,162,184,.15);
+  color: var(--info);
+}
+
+/* Tối ưu hóa bảng */
+.table-compact {
+  font-size: 0.875rem;
+}
+
+.table-compact th, .table-compact td {
+  padding: 10px 12px;
+}
+
+.table-compact .btn-sm {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+}
+
+.badge-sm {
+  font-size: 0.7rem;
+  padding: 4px 8px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
 @keyframes fadeInUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
 @media(max-width:992px){.sidebar{width:80px;}.sidebar-brand span,.nav-link span{display:none;}.main-content{margin-left:80px;}.sidebar-header{padding:20px 10px;}.nav-link{justify-content:center;padding:15px;}.nav-link i{font-size:1.3rem;}}
 @media(max-width:768px){.main-content{padding:20px;}.dashboard-header{flex-direction:column;gap:15px;text-align:center;}.stats-grid{grid-template-columns:1fr;}.table-responsive{font-size:.9rem;}.table thead th,.table tbody td{padding:8px 10px;}}
 </style>
@@ -145,13 +176,9 @@ body{background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Seg
 
   <!-- Bảng nhân viên -->
 <form method="POST" action="{{ url_for('salary_bp.delete_multiple_salary', _external=False) }}">
-
-
-
   <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
       <h5 class="fw-bold mb-0">Danh sách lương tháng {{ current_month }}/{{ current_year }}</h5>
-      
     </div>
     <div class="d-flex gap-2">
       <button type="button" id="deselect-all-btn" class="btn btn-outline-secondary btn-sm">
@@ -165,69 +192,202 @@ body{background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Seg
   </div>
 
   <div class="table-responsive">
-    <table class="table table-striped table-hover align-middle">
+    <table class="table table-striped table-hover align-middle table-compact">
       <thead>
         <tr>
           <th style="width:40px;">
             <input type="checkbox" id="select-all" class="form-check-input">
           </th>
-          <th style="width:100px">Mã NV</th>
-          <th style="width:200px">Họ tên</th>
-          <th style="width:150px">Phòng ban</th>
-          <th style="width:100px">Giờ làm</th>
-          <th style="width:150px">Tổng lương (VNĐ)</th>
-          <th style="width:120px">Trạng thái</th>
+          <th style="width:80px">Mã NV</th>
+          <th style="width:150px">Họ tên</th>
+          <th style="width:120px">Phòng ban</th>
+          <th style="width:80px">Giờ làm</th>
+          <th style="width:120px">Tổng lương</th>
+          <th style="width:100px">Trạng thái</th>
           <th style="width:140px" class="text-center">Hành động</th>
         </tr>
       </thead>
       <tbody>
-        {% for emp in salaries %}
-        <tr>
-          <td>
-            <input type="checkbox" name="selected_salaries" value="{{ emp.MaNV }}" class="form-check-input salary-checkbox">
-          </td>
-          <td class="fw-bold">{{ emp.MaNV }}</td>
-          <td>{{ emp.HoTen }}</td>
-          <td>{{ emp.PhongBan or '—' }}</td>
-          <td>{{ "%.2f"|format(emp.SoGioLam or 0) }}</td>
-          <td class="fw-bold text-success">{{ "{:,.0f}".format(emp.TongTien or 0) }}</td>
-          <td>
-            {% if emp.TrangThai == 1 %}
-              <span class="salary-status calculated"><i class="fas fa-check-circle me-1"></i>Đã tính</span>
-            {% else %}
-              <span class="salary-status unpaid"><i class="fas fa-times-circle me-1"></i>Chưa tính</span>
-            {% endif %}
-          </td>
-          <td class="text-center">
-            <div class="d-flex justify-content-center gap-2">
-              <a href="{{ url_for('salary_bp.salary_detail', ma_nv=emp.MaNV) }}" class="btn-action btn-view" title="Xem chi tiết lương">
-                <i class="fas fa-eye"></i>
-              </a>
-              <button class="btn-action btn-calc" onclick="calcSalary('{{ emp.MaNV }}')" title="Tính lại lương">
-                <i class="fas fa-calculator"></i>
-              </button>
-              <form method="POST" action="{{ url_for('salary_bp.delete_salary', ma_nv=emp.MaNV) }}" style="display:inline;">
-    <button type="submit" class="btn-action btn-delete"
-        onclick="return confirm('Bạn có chắc muốn xóa lương của nhân viên {{ emp.HoTen }} ({{ emp.MaNV }}) không?')">
-        <i class="fas fa-trash"></i>
-    </button>
-</form>
+  {% for emp in salaries %}
+  <tr>
+    <!-- Checkbox -->
+    <td>
+      <input type="checkbox" name="selected_salaries" value="{{ emp.MaNV }}" class="form-check-input salary-checkbox">
+    </td>
 
-            </div>
-          </td>
-        </tr>
+    <!-- Mã NV -->
+    <td class="fw-bold">{{ emp.MaNV }}</td>
+
+    <!-- Họ tên -->
+    <td>{{ emp.HoTen }}</td>
+
+    <!-- Phòng ban -->
+    <td>{{ emp.PhongBan or '—' }}</td>
+
+    <!-- Số giờ làm -->
+    <td>{{ "%.2f"|format(emp.SoGioLam or 0) }}</td>
+
+    <!-- Tổng tiền -->
+    <td class="fw-bold text-success">{{ "{:,.0f}".format(emp.TongTien or 0) }}</td>
+
+    <!-- Trạng thái -->
+    <td>
+      {% if emp.TrangThai == 0 %}
+          <span class="badge bg-warning text-dark">
+            <i class="fa-solid fa-hourglass-half me-1"></i>Chưa tính
+          </span>
+      {% elif emp.TrangThai == 1 %}
+          <span class="badge bg-success">
+            <i class="fa-solid fa-check-circle me-1"></i>Đã tính
+          </span>
+      {% elif emp.TrangThai == 2 %}
+          <span class="badge bg-primary">
+            <i class="fa-solid fa-money-check-dollar me-1"></i>Đã thanh toán
+          </span>
+      {% else %}
+          <span class="badge bg-secondary">
+            <i class="fa-solid fa-question-circle me-1"></i>Không xác định
+          </span>
+      {% endif %}
+    </td>
+
+    <!-- Hành động -->
+    <td class="text-center">
+      <div class="d-flex justify-content-center gap-2">
+
+        <!-- 👁️ Xem chi tiết -->
+        <a href="{{ url_for('salary_bp.salary_detail', ma_nv=emp.MaNV) }}" 
+           class="btn-action btn-view" 
+           title="Xem chi tiết lương">
+          <i class="fas fa-eye"></i>
+        </a>
+
+        <!-- 🧮 Tính lại lương -->
+        <button class="btn-action btn-calc" 
+                onclick="calcSalary('{{ emp.MaNV }}')" 
+                title="Tính lại lương">
+          <i class="fas fa-calculator"></i>
+        </button>
+
+        <!-- 💳 Thanh toán -->
+        {% if emp.TrangThai == 1 %}
+          <button type="button" 
+                  class="btn btn-success btn-sm pay-salary" 
+                  data-id="{{ emp.MaLuong }}"
+                  title="Thanh toán lương">
+            <i class="fa-solid fa-money-bill me-1"></i>
+          </button>
+        {% elif emp.TrangThai == 0 %}
+          <button type="button" 
+                  class="btn btn-secondary btn-sm" 
+                  disabled
+                  title="Chưa tính lương, không thể thanh toán">
+            <i class="fa-solid fa-clock me-1"></i>
+          </button>
+        {% elif emp.TrangThai == 2 %}
+          <button type="button" 
+                  class="btn btn-outline-success btn-sm" 
+                  disabled
+                  title="Đã thanh toán">
+            <i class="fa-solid fa-check me-1"></i>
+          </button>
         {% else %}
-        <tr>
-          <td colspan="8" class="text-center text-muted py-4">
-            <i class="fa-solid fa-inbox me-2"></i>Chưa có dữ liệu lương tháng này
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
+          <button type="button" 
+                  class="btn btn-light btn-sm" 
+                  disabled>Khác</button>
+        {% endif %}
+
+        <!-- 🗑️ Xóa -->
+        <form method="POST" 
+              action="{{ url_for('salary_bp.delete_salary', ma_nv=emp.MaNV) }}" 
+              style="display:inline;">
+          <button type="submit" 
+                  class="btn-action btn-delete"
+                  onclick="return confirm('Bạn có chắc muốn xóa lương của nhân viên {{ emp.HoTen }} ({{ emp.MaNV }}) không?')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </form>
+
+      </div>
+    </td>
+  </tr>
+
+  {% else %}
+  <!-- Không có dữ liệu -->
+  <tr>
+    <td colspan="8" class="text-center text-muted py-4">
+      <i class="fa-solid fa-inbox me-2"></i>Chưa có dữ liệu lương tháng này
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>
+
     </table>
   </div>
-</form>
+  
+  <!-- 🔹 Modal chọn phương thức thanh toán -->
+  <div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="paymentForm">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="fa-solid fa-money-bill me-2"></i>Thanh toán lương</h5>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="selectedMaLuong">
 
+            <div class="mb-3">
+              <label for="pay-method" class="form-label">Phương thức thanh toán</label>
+              <select id="pay-method" class="form-select">
+                <option value="cash">Tiền mặt</option>
+                <option value="bank" selected>Chuyển khoản ngân hàng</option>
+                <option value="momo">Ví Momo</option>
+                <option value="zalopay">ZaloPay</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="acc-number" class="form-label">Số tài khoản / SĐT ví</label>
+              <input type="text" id="acc-number" class="form-control" placeholder="Nhập số tài khoản hoặc SĐT ví">
+            </div>
+
+            <div class="mb-3">
+              <label for="bank-name" class="form-label">Ngân hàng / Nhà cung cấp</label>
+              <input type="text" id="bank-name" class="form-control" placeholder="VD: Vietcombank / Momo">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">
+              <i class="fa-solid fa-paper-plane me-1"></i> Gửi OTP
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔹 Modal nhập OTP -->
+  <div class="modal fade" id="otpModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <form id="otpForm">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="fa-solid fa-key me-2"></i>Xác nhận OTP</h5>
+          </div>
+          <div class="modal-body">
+            <input type="text" id="otp_input" maxlength="6" class="form-control text-center fs-5" placeholder="Nhập 6 chữ số" required>
+            <input type="hidden" id="otp_ma_gd">
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success w-100">
+              <i class="fa-solid fa-check me-1"></i>Xác nhận
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</form>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -300,6 +460,84 @@ document.addEventListener("DOMContentLoaded", () => {
       selectAll.checked = false;
       updateButtonState();
     });
+  }
+});
+
+// ========================
+// 💰 THANH TOÁN LƯƠNG
+// ========================
+document.querySelectorAll(".pay-salary").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const maLuong = btn.dataset.id;
+
+    // Lấy mã NV từ dòng hiện tại
+    const row = btn.closest("tr");
+    const maNV = row.querySelector("td:nth-child(2)").innerText.trim();
+
+    // Gọi API lấy thông tin ngân hàng
+    const res = await fetch(`/employee/bank-info/${maNV}`);
+    const data = await res.json();
+
+    if (data.success) {
+      // Điền sẵn vào form
+      document.getElementById("pay-method").value = data.phuong_thuc || "bank";
+      document.getElementById("acc-number").value = data.so_tai_khoan || "";
+      document.getElementById("bank-name").value = data.ngan_hang || "";
+    }
+
+    // Mở modal
+    document.getElementById("selectedMaLuong").value = maLuong;
+    const modal = new bootstrap.Modal(document.getElementById("paymentModal"));
+    modal.show();
+  });
+});
+
+// 🟢 Gửi OTP sau khi chọn phương thức
+document.getElementById("paymentForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const ma_luong = document.getElementById("selectedMaLuong").value;
+  const phuong_thuc = document.getElementById("pay-method").value;
+  const so_tai_khoan = document.getElementById("acc-number").value;
+  const ngan_hang = document.getElementById("bank-name").value;
+
+  const formData = new FormData();
+  formData.append("phuong_thuc", phuong_thuc);
+  formData.append("so_tai_khoan", so_tai_khoan);
+  formData.append("ngan_hang", ngan_hang);
+
+  const res = await fetch(`/pay/${ma_luong}`, { method: "POST", body: formData });
+  const data = await res.json();
+
+  if (data.success && data.need_otp) {
+    document.getElementById("otp_ma_gd").value = data.ma_gd_temp;
+    bootstrap.Modal.getInstance(document.getElementById("paymentModal")).hide();
+    new bootstrap.Modal(document.getElementById("otpModal")).show();
+  } else {
+    alert(data.message || "Không thể gửi OTP.");
+  }
+});
+
+// 🟢 Xác nhận OTP để hoàn tất thanh toán
+document.getElementById("otpForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const otp = document.getElementById("otp_input").value.trim();
+  const ma_gd = document.getElementById("otp_ma_gd").value;
+  const so_tai_khoan = document.getElementById("acc-number").value;
+  const ngan_hang = document.getElementById("bank-name").value;
+
+  const res = await fetch("/pay/verify", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ ma_gd, otp, so_tai_khoan, ngan_hang })
+  });
+  const data = await res.json();
+
+  if (data.success) {
+    bootstrap.Modal.getInstance(document.getElementById("otpModal")).hide();
+    alert("✅ " + data.message);
+    location.reload();
+  } else {
+    alert("❌ " + (data.message || "Xác thực OTP thất bại."));
   }
 });
 </script>
