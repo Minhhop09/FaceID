@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cài đặt hệ thống - FaceID System</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --primary: #4361ee;
+  --primary-dark: #3a56d4;
+  --secondary: #6c757d;
+  --success: #28a745;
+  --info: #17a2b8;
+  --warning: #ffc107;
+  --danger: #dc3545;
+  --light: #f8f9fa;
+  --dark: #343a40;
+  --sidebar-bg: #1e293b;
+  --sidebar-hover: #334155;
+  --sidebar-active: #4361ee;
+}
+
+body {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.sidebar {
+  min-height: 100vh;
+  width: 280px;
+  background: var(--sidebar-bg);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  transition: all .3s ease;
+  box-shadow: 3px 0 15px rgba(0,0,0,.1);
+}
+
+.sidebar-header {
+  padding: 25px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  text-align: center;
+}
+
+.sidebar-brand {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.sidebar-brand i {
+  background: linear-gradient(135deg, var(--primary), #4895ef);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.8rem;
+}
+
+.sidebar-nav {
+  padding: 20px 0 80px;
+  overflow-y: auto;
+  height: calc(100vh - 80px);
+}
+
+.nav-item {
+  margin-bottom: 5px;
+}
+
+.nav-link {
+  color: rgba(255,255,255,.8);
+  padding: 15px 25px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all .3s ease;
+  border-left: 3px solid transparent;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  color: #fff;
+  background: var(--sidebar-hover);
+  border-left-color: var(--primary);
+  transform: translateX(5px);
+}
+
+.nav-link.active {
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border-left-color: #fff;
+  box-shadow: 0 4px 15px rgba(67,97,238,.3);
+}
+
+.nav-link i {
+  width: 20px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.logout-link {
+  color: #f8d7da;
+  border-top: 1px solid rgba(255,255,255,.1);
+  margin-top: 20px;
+}
+
+.logout-link:hover {
+  color: #dc3545;
+  background: rgba(220,53,69,.1);
+}
+
+.main-content {
+  margin-left: 280px;
+  padding: 30px;
+  transition: all .3s ease;
+}
+
+.dashboard-header {
+  background: #fff;
+  border-radius: 15px;
+  padding: 25px 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 5px 15px rgba(0,0,0,.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-title h1 {
+  color: var(--dark);
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.header-title p {
+  color: var(--secondary);
+  margin: 0;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: var(--light);
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.05);
+}
+
+.user-avatar {
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.user-info {
+  line-height: 1.4;
+}
+
+.user-name {
+  font-weight: 600;
+  color: var(--dark);
+  margin: 0;
+}
+
+.user-role {
+  color: var(--secondary);
+  font-size: .9rem;
+  margin: 0;
+}
+
+.settings-card {
+  background: #fff;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 5px 15px rgba(0,0,0,.08);
+  transition: all .3s ease;
+  margin-bottom: 25px;
+  animation: fadeInUp .6s ease-out;
+}
+
+.settings-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,.12);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(0,0,0,.08);
+}
+
+.card-header i {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.3rem;
+}
+
+.card-title {
+  font-weight: 600;
+  color: var(--dark);
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.form-label {
+  font-weight: 500;
+  color: var(--dark);
+  margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+  border-radius: 8px;
+  padding: 10px 15px;
+  border: 1px solid #e2e8f0;
+  transition: all .3s;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(67,97,238,.15);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 500;
+  transition: all .3s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(67,97,238,.3);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--success), #20c374);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 500;
+  transition: all .3s;
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(40,167,69,.3);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, var(--warning), #ffb300);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 500;
+  transition: all .3s;
+  color: #fff;
+}
+
+.btn-warning:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255,193,7,.3);
+}
+
+.table-responsive {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+
+.table {
+  table-layout: fixed;
+  margin: 0;
+}
+
+.table thead th {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  border: none;
+  padding: 15px;
+  font-weight: 600;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.table tbody td {
+  padding: 12px 15px;
+  vertical-align: middle;
+  border-color: #f0f0f0;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(67,97,238,.03);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.875rem;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 992px) {
+  .sidebar { width: 80px; }
+  .sidebar-brand span, .nav-link span { display: none; }
+  .main-content { margin-left: 80px; }
+  .sidebar-header { padding: 20px 10px; }
+  .nav-link { justify-content: center; padding: 15px; }
+  .nav-link i { font-size: 1.3rem; }
+}
+
+@media (max-width: 768px) {
+  .main-content { padding: 20px; }
+  .dashboard-header { flex-direction: column; gap: 15px; text-align: center; }
+  .settings-card { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <a href="#" class="sidebar-brand">
+      <i class="fas fa-id-card-alt"></i>
+      <span>FaceID System</span>
+    </a>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item"><a href="{{ url_for('admin_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+    <div class="nav-item"><a href="{{ url_for('employee_bp.employee_list') }}" class="nav-link"><i class="fas fa-users"></i><span>Quản lý nhân viên</span></a></div>
+    <div class="nav-item"><a href="{{ url_for('department_bp.departments') }}" class="nav-link"><i class="fas fa-building"></i><span>Phòng ban</span></a></div>
+    <div class="nav-item"><a href="{{ url_for('shift_bp.shifts') }}" class="nav-link"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
+    <div class="nav-item"><a href="{{ url_for('schedule_bp.assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
+    <div class="nav-item"><a href="{{ url_for('attendance_bp.attendance_report') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Chấm công</span></a></div>
+    <div class="nav-item"><a href="{{ url_for('salary_bp.salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
+    <div class="nav-item"><a href="{{ url_for('account_bp.accounts') }}" class="nav-link"><i class="fas fa-user-gear"></i><span>Tài khoản</span></a></div>
+    <div class="nav-item"><a href="{{ url_for('faces_bp.faces') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt nhân viên</span></a></div>
+    <div class="nav-item"><a href="{{ url_for('reports_bp.reports_view') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Báo cáo thống kê</span></a></div>
+    <div class="nav-item"><a href="{{ url_for('employee_bp.employee_list_deleted') }}" class="nav-link"><i class="fas fa-trash"></i><span>Dữ liệu đã xóa</span></a></div>
+    <div class="nav-item"><a href="{{ url_for('history_bp.history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+    <div class="nav-item"><a href="{{ url_for('setting_bp.settings_view') }}" class="nav-link active"><i class="fas fa-gear"></i><span>Cài đặt hệ thống</span></a></div>
+    <div class="nav-item"><a href="{{ url_for('auth_bp.login') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+  </nav>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-title">
+      <h1>Cài đặt hệ thống</h1>
+      <p>Quản lý cấu hình và thông số hệ thống</p>
+    </div>
+    <div class="user-profile">
+      <div class="user-avatar">{{ session['username'][0]|upper }}</div>
+      <div class="user-info">
+        <div class="user-name">{{ session['username'] }}</div>
+        <div class="user-role">{{ session['role'] }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Thông tin hệ thống -->
+  <div class="settings-card">
+    <div class="card-header">
+      <i class="fas fa-sliders"></i>
+      <h5 class="card-title">Thông tin hệ thống</h5>
+    </div>
+    <form method="POST" action="{{ url_for('setting_bp.save_settings') }}">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="system_name" class="form-label">Tên hệ thống</label>
+          <input type="text" class="form-control" id="system_name" name="system_name" value="{{ settings.system_name }}">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="company_name" class="form-label">Tên công ty</label>
+          <input type="text" class="form-control" id="company_name" name="company_name" value="{{ settings.company_name }}">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="timezone" class="form-label">Múi giờ</label>
+          <select class="form-select" id="timezone" name="timezone">
+            <option value="Asia/Ho_Chi_Minh" {% if settings.timezone == 'Asia/Ho_Chi_Minh' %}selected{% endif %}>Asia/Ho_Chi_Minh</option>
+            <option value="UTC" {% if settings.timezone == 'UTC' %}selected{% endif %}>UTC</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-save me-1"></i> Lưu cài đặt
+      </button>
+    </form>
+  </div>
+
+  <!-- Cấu hình camera -->
+  <div class="settings-card">
+    <div class="card-header">
+      <i class="fas fa-video"></i>
+      <h5 class="card-title">Cấu hình camera</h5>
+    </div>
+    <form method="POST" action="{{ url_for('setting_bp.save_camera_settings') }}">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="camera_ip" class="form-label">Địa chỉ IP Camera</label>
+          <input type="text" class="form-control" id="camera_ip" name="camera_ip" value="{{ settings.camera_ip }}">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="camera_port" class="form-label">Cổng kết nối</label>
+          <input type="number" class="form-control" id="camera_port" name="camera_port" value="{{ settings.camera_port }}">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-save me-1"></i> Lưu cấu hình camera
+      </button>
+    </form>
+  </div>
+
+  <!-- Cấu hình tham số lương -->
+  <div class="settings-card">
+    <div class="card-header">
+      <i class="fas fa-coins"></i>
+      <h5 class="card-title">Tham số lương</h5>
+    </div>
+    
+    {% if thamso_list %}
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th style="width: 25%;">Tên tham số</th>
+            <th style="width: 25%;">Giá trị</th>
+            <th style="width: 35%;">Ghi chú</th>
+            <th style="width: 15%;" class="text-center">Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ts in thamso_list %}
+          <tr>
+            <td><strong>{{ ts.TenThamSo }}</strong></td>
+            <td>
+              <input type="text" class="form-control form-control-sm" id="value_{{ ts.TenThamSo }}" value="{{ ts.GiaTri }}">
+            </td>
+            <td>{{ ts.GhiChu or '' }}</td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-primary" onclick="saveParam('{{ ts.TenThamSo }}')">
+                <i class="fa fa-save"></i> Lưu
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted">Không có tham số lương nào được cấu hình.</p>
+    {% endif %}
+  </div>
+
+  <!-- Sao lưu dữ liệu -->
+  <div class="settings-card">
+    <div class="card-header">
+      <i class="fas fa-database"></i>
+      <h5 class="card-title">Sao lưu / phục hồi dữ liệu</h5>
+    </div>
+    <div class="d-flex gap-3">
+      <a href="{{ url_for('setting_bp.backup_data') }}" class="btn btn-success">
+        <i class="fa-solid fa-download me-1"></i> Sao lưu dữ liệu
+      </a>
+      <a href="{{ url_for('setting_bp.restore_data') }}" class="btn btn-warning">
+        <i class="fa-solid fa-upload me-1"></i> Phục hồi dữ liệu
+      </a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Cập nhật tham số bằng AJAX
+function saveParam(name) {
+  const value = document.getElementById(`value_${name}`).value;
+  fetch('/settings/update', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, value })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert(data.message || 'Cập nhật thành công!');
+  })
+  .catch(err => {
+    alert('Lỗi khi cập nhật: ' + err);
+  });
+}
+</script>
+</body>
+</html>

@@ -1,136 +1,143 @@
 from flask import Blueprint, render_template, jsonify, session, request, redirect, url_for, flash
 from datetime import datetime, date
 from core.db_utils import get_sql_connection
-from core.salary_utils import tinh_luong_nv, get_tham_so_luong
+from core.salary_utils import tinh_luong_nv, get_tham_so_luong, next_ma_ct_luong
 from core.decorators import require_role
 import uuid
 from decimal import Decimal
 from core.payment_utils import calc_fee, normalize_account, fake_gateway_charge, generate_txid
-from core.email_utils import send_email_notification, send_email_with_attachment
+from core.email_utils import notify_attendance, send_email_with_attachment
 from core.log_utils import ghi_lich_su, log_change, log_payment
 import csv
 from io import BytesIO, StringIO
 import os
 from flask import send_file, current_app
 import core.payment_utils as payment_utils
-
-
+from decimal import Decimal
 
 
 salary_bp = Blueprint("salary_bp", __name__)
 
 # ============================================================
-# 💰 TRANG XEM LƯƠNG (Admin + HR)
+# 💰 TRANG XEM LƯƠNG (Admin + HR) — FINAL SYNC WITH tinh_luong_nv()
 # ============================================================
-from core.log_utils import ghi_lich_su  # ✅ import hàm log tiện ích
+from core.salary_utils import tinh_luong_nv
+from core.log_utils import ghi_lich_su
+from datetime import datetime, date
+
 @salary_bp.route("/salary")
 @require_role("admin", "hr")
 def salary_view():
     conn = get_sql_connection()
-    conn.rollback()  # ✅ Reset transaction lỗi cũ
+    conn.rollback()
     cursor = conn.cursor()
 
-    # 👤 Thông tin người dùng
+    # 📅 Lấy tháng/năm từ query string (hoặc mặc định tháng hiện tại)
+    month = request.args.get("month", default=datetime.now().month, type=int)
+    year = request.args.get("year", default=datetime.now().year, type=int)
+    thang_nam = date(year, month, 1)
+    print(f"[DEBUG] 🚀 Xem lương tháng {year}-{month:02d}")
+
+    # 👤 Thông tin người xem
     role = session.get("role", "admin")
     username = session.get("username", "Hệ thống")
     ip_address = request.remote_addr or "Unknown"
     device_id = request.user_agent.string or "Unknown"
 
-    # 📅 Xác định tháng - năm hiện tại
-    today = datetime.now()
-    year, month = today.year, today.month
-    print(f"[DEBUG] Xem lương cho: {year}-{month:02d}")
+    # ============================================================
+    # 1️⃣ Lấy toàn bộ nhân viên đang hoạt động
+    # ============================================================
+    cursor.execute("SELECT MaNV FROM NhanVien WHERE TrangThai = 1")
+    all_nv = [r[0] for r in cursor.fetchall()]
 
     # ============================================================
-    # 🟢 Tổng số nhân viên đang hoạt động
+    # 2️⃣ Tính lại (hoặc bổ sung) lương nếu chưa có trong DB
+    # ============================================================
+    for ma_nv in all_nv:
+        cursor.execute("""
+            SELECT 1 FROM Luong 
+            WHERE MaNV=? AND MONTH(ThangNam)=? AND YEAR(ThangNam)=? AND DaXoa=1
+        """, (ma_nv, month, year))
+        has_salary = cursor.fetchone()
+        if not has_salary:
+            print(f"[AUTO] ⚙️ Chưa có lương DB cho {ma_nv} → Tính mới...")
+            try:
+                tinh_luong_nv(
+                    cursor=cursor,
+                    ma_nv=ma_nv,
+                    thangnam=thang_nam,
+                    nguoi_tinh=username,
+                    save_to_db=True,
+                    return_detail=False
+                )
+                conn.commit()
+            except Exception as calc_err:
+                print(f"[WARN] ⚠️ Không thể tính lương cho {ma_nv}: {calc_err}")
+                conn.rollback()
+
+    # ============================================================
+    # 3️⃣ Tổng hợp lại dữ liệu lương sau khi đã cập nhật
     # ============================================================
     cursor.execute("SELECT COUNT(*) FROM NhanVien WHERE TrangThai = 1")
     total_employees = cursor.fetchone()[0] or 0
 
-    # ============================================================
-    # 🟢 Số nhân viên đã có lương (đã tính hoặc đã thanh toán)
-    # ============================================================
     cursor.execute("""
         SELECT COUNT(DISTINCT L.MaNV)
         FROM Luong L
         JOIN NhanVien NV ON L.MaNV = NV.MaNV
-        WHERE YEAR(L.ThangNam) = ? 
-          AND MONTH(L.ThangNam) = ?
-          AND (L.DaXoa = 1 OR L.DaXoa IS NULL)
-          AND L.TrangThai IN (1, 2)
-          AND NV.TrangThai = 1
+        WHERE YEAR(L.ThangNam)=? AND MONTH(L.ThangNam)=? 
+          AND L.DaXoa=1 AND L.TrangThai IN (1,2) AND NV.TrangThai=1
     """, (year, month))
     total_salaried = cursor.fetchone()[0] or 0
-
-    # ============================================================
-    # 🟢 Số nhân viên chưa được tính lương
-    # ============================================================
     total_unsalaried = max(total_employees - total_salaried, 0)
 
-    # ============================================================
-    # 🟢 Tổng quỹ lương tháng này (bao gồm đã thanh toán)
-    # ============================================================
     cursor.execute("""
         SELECT SUM(L.TongTien)
         FROM Luong L
         JOIN NhanVien NV ON L.MaNV = NV.MaNV
-        WHERE YEAR(L.ThangNam) = ? 
-          AND MONTH(L.ThangNam) = ?
-          AND (L.DaXoa = 1 OR L.DaXoa IS NULL)
-          AND L.TrangThai IN (1, 2)
-          AND NV.TrangThai = 1
+        WHERE YEAR(L.ThangNam)=? AND MONTH(L.ThangNam)=?
+          AND L.DaXoa=1 AND L.TrangThai IN (1,2) AND NV.TrangThai=1
     """, (year, month))
     total_salary = cursor.fetchone()[0] or 0
 
     # ============================================================
-    # 🟢 Danh sách chi tiết lương (bản mới nhất của từng nhân viên)
+    # 4️⃣ Danh sách chi tiết lương (bản mới nhất)
     # ============================================================
     cursor.execute("""
         SELECT 
-            L.MaLuong,
             NV.MaNV,
             NV.HoTen,
             PB.TenPB AS PhongBan,
-            ISNULL(L.SoGioLam, 0) AS SoGioLam,
-            ISNULL(L.TongTien, 0) AS TongTien,
-            ISNULL(L.TrangThai, 0) AS TrangThai,
+            L.MaLuong,
+            L.SoGioLam,
+            L.TongTien AS TongTien
+,
+            L.TrangThai,
             CASE 
                 WHEN L.TrangThai = 0 THEN N'Chưa tính'
                 WHEN L.TrangThai = 1 THEN N'Đã tính'
                 WHEN L.TrangThai = 2 THEN N'Đã thanh toán'
                 ELSE N'Khác'
             END AS TrangThaiText,
-            ISNULL(L.NgayThanhToan, NULL) AS NgayThanhToan,
-            ISNULL(L.PhuongThucChiTra, '') AS PhuongThucChiTra,
-            ISNULL(L.NguoiThanhToan, '') AS NguoiThanhToan,
-            ISNULL(L.DaXoa, 1) AS DaXoa
+            L.NgayThanhToan,
+            L.PhuongThucChiTra,
+            L.NguoiThanhToan
         FROM NhanVien NV
         LEFT JOIN PhongBan PB ON NV.MaPB = PB.MaPB
         OUTER APPLY (
-            SELECT TOP 1 L2.*
-            FROM Luong L2
-            WHERE L2.MaNV = NV.MaNV
-              AND YEAR(L2.ThangNam) = ?
-              AND MONTH(L2.ThangNam) = ?
-              AND (L2.DaXoa = 1 OR L2.DaXoa IS NULL)
-            ORDER BY 
-                ISNULL(L2.NgayThanhToan, L2.NgayTinhLuong) DESC,
-                L2.TrangThai DESC
+            SELECT TOP 1 * FROM Luong L
+            WHERE L.MaNV = NV.MaNV
+              AND YEAR(L.ThangNam)=? AND MONTH(L.ThangNam)=? AND L.DaXoa=1
+            ORDER BY L.TrangThai DESC, ISNULL(L.NgayThanhToan,L.NgayTinhLuong) DESC
         ) AS L
-        WHERE NV.TrangThai = 1
+        WHERE NV.TrangThai=1
         ORDER BY NV.MaNV;
     """, (year, month))
-
-    # 🧱 Gắn kết quả thành dict
     cols = [c[0] for c in cursor.description]
-    salaries = []
-    for row in cursor.fetchall():
-        record = dict(zip(cols, row))
-        record["TrangThai"] = int(record["TrangThai"] or 0)
-        salaries.append(record)
+    salaries = [dict(zip(cols, row)) for row in cursor.fetchall()]
 
     # ============================================================
-    # 🧾 Ghi lịch sử xem lương
+    # 5️⃣ Ghi log xem lương
     # ============================================================
     try:
         ghi_lich_su(
@@ -149,7 +156,7 @@ def salary_view():
     conn.close()
 
     # ============================================================
-    # 📄 Render Template
+    # 6️⃣ Render template
     # ============================================================
     template_name = "hr_salary.html" if role == "hr" else "salary.html"
 
@@ -166,190 +173,251 @@ def salary_view():
     )
 
 # ============================================================
-# 💰 TÍNH LƯƠNG TOÀN BỘ NHÂN VIÊN
+# 💰 TÍNH LƯƠNG TOÀN BỘ NHÂN VIÊN — FINAL FIXED V5 (ĐỒNG BỘ & AN TOÀN FK)
 # ============================================================
-@salary_bp.route("/calculate_salary")
+@salary_bp.route("/calculate_salary", methods=["POST", "GET"])
 @require_role("admin", "hr")
 def calculate_all_salary():
+    """
+    ✅ Tính lại toàn bộ lương tháng được chọn:
+    - Gọi tinh_luong_nv() chuẩn từ salary_utils.py
+    - Xoá sạch dữ liệu lương cũ (theo MaLuong) để tránh lỗi FK
+    - Lưu DB + ghi log đầy đủ
+    - Trả JSON nếu gọi AJAX hoặc flash khi gọi từ web
+    """
+    from datetime import datetime, date
+    from core.salary_utils import tinh_luong_nv
+    from core.log_utils import ghi_lich_su
+
     conn = get_sql_connection()
     cursor = conn.cursor()
 
     nguoi_tinh = session.get("username", "Hệ thống")
     ip_address = request.remote_addr or "Unknown"
-    device_id = request.user_agent.string or "Unknown"
-    thang_nam = date.today().replace(day=1)
+    device_id = getattr(request.user_agent, "string", "Unknown")
+
+    # 📅 Tháng/năm cần tính
+    month = request.args.get("month", default=datetime.now().month, type=int)
+    year = request.args.get("year", default=datetime.now().year, type=int)
+    thang_nam = date(year, month, 1)
     scope_text = f"Tính lương tháng {thang_nam.strftime('%Y-%m')}"
+
+    print(f"[DEBUG] 🚀 Bắt đầu tính lại toàn bộ lương ({nguoi_tinh}) | {scope_text}")
 
     try:
         # 1️⃣ Lấy danh sách nhân viên đang hoạt động
         cursor.execute("SELECT MaNV FROM NhanVien WHERE TrangThai = 1")
-        nhanvien = cursor.fetchall()
+        nhanvien = [r[0] for r in cursor.fetchall()]
         if not nhanvien:
-            ghi_lich_su(
-                ten_bang="Luong",
-                ma_ban_ghi=None,
-                hanh_dong="Tính lương toàn bộ nhân viên",
-                gia_tri_moi="Không có nhân viên nào trong hệ thống.",
-                nguoi_thuc_hien=nguoi_tinh,
-                ip=ip_address,
-                device=device_id,
-                scope=scope_text
-            )
-            return jsonify({"success": False, "message": "⚠️ Không có nhân viên nào trong hệ thống."})
+            msg = "⚠️ Không có nhân viên đang hoạt động để tính lương."
+            ghi_lich_su("Luong", None, "Tính lương toàn bộ nhân viên", msg,
+                        nguoi_tinh, ip_address, device_id, scope_text)
+            flash(msg, "warning")
+            return redirect(url_for("salary_bp.salary_view", month=month, year=year))
 
-        # 2️⃣ Tính lương từng nhân viên
-        da_tinh = 0
-        loi_list = []
+        # 2️⃣ Xoá dữ liệu cũ của tháng này (theo MaLuong để tránh lỗi FK)
+        cursor.execute("""
+            SELECT MaLuong FROM Luong
+            WHERE YEAR(ThangNam)=? AND MONTH(ThangNam)=?
+        """, (year, month))
+        ma_luongs = [r[0] for r in cursor.fetchall()]
 
-        for (ma_nv,) in nhanvien:
+        if ma_luongs:
+            # Xóa con trước
+            cursor.executemany("DELETE FROM ChiTietLuong WHERE MaLuong = ?", [(m,) for m in ma_luongs])
+            # Xóa cha sau
+            cursor.executemany("DELETE FROM Luong WHERE MaLuong = ?", [(m,) for m in ma_luongs])
+            conn.commit()
+            print(f"[CLEAN] 🧹 Đã xoá toàn bộ dữ liệu lương cũ tháng {month}/{year}")
+
+        # 3️⃣ Tính lại lương từng nhân viên
+        da_tinh, loi_list = 0, []
+        for ma_nv in nhanvien:
             try:
-                tinh_luong_nv(cursor, ma_nv, thang_nam, nguoi_tinh, save_to_db=True, return_detail=False)
+                tong_gio, tong_net = tinh_luong_nv(
+                    cursor=cursor,
+                    ma_nv=ma_nv,
+                    thangnam=thang_nam,
+                    nguoi_tinh=nguoi_tinh,
+                    save_to_db=True,        # ✅ tự lưu DB vào Luong + ChiTietLuong
+                    return_detail=False
+                )
+                conn.commit()
                 da_tinh += 1
+                print(f"[OK] 💰 {ma_nv}: {tong_gio:.2f}h | Net={tong_net:,.0f}đ")
             except Exception as e:
+                conn.rollback()
                 loi_list.append(f"{ma_nv}: {e}")
-                print(f"[ERROR] ❌ Lỗi khi tính lương {ma_nv}: {e}")
+                print(f"[ERROR] ❌ {ma_nv}: {e}")
 
-        conn.commit()
-
-        # 3️⃣ Tạo thông điệp kết quả
+        # 4️⃣ Tổng kết kết quả
         if loi_list:
-            msg = f"⚠️ Đã tính xong {da_tinh}/{len(nhanvien)} nhân viên, nhưng có {len(loi_list)} lỗi:\n" + "\n".join(loi_list)
+            msg = f"⚠️ Đã tính {da_tinh}/{len(nhanvien)} nhân viên. Có {len(loi_list)} lỗi:\n" + "\n".join(loi_list)
             success = False
         else:
-            msg = f"✅ Đã tính lương thành công cho {da_tinh}/{len(nhanvien)} nhân viên!"
+            msg = f"✅ Đã tính lương thành công cho {da_tinh}/{len(nhanvien)} nhân viên."
             success = True
 
-        # 4️⃣ Ghi log kết quả (dùng ghi_lich_su)
-        try:
-            ghi_lich_su(
-                ten_bang="Luong",
-                ma_ban_ghi=None,
-                hanh_dong="Tính lương toàn bộ nhân viên",
-                gia_tri_moi=msg,
-                nguoi_thuc_hien=nguoi_tinh,
-                ip=ip_address,
-                device=device_id,
-                scope=scope_text
-            )
-        except Exception as log_err:
-            print(f"[WARN] ⚠️ Không ghi được log tính lương: {log_err}")
+        # 5️⃣ Ghi log kết quả
+        ghi_lich_su(
+            ten_bang="Luong",
+            ma_ban_ghi=None,
+            hanh_dong="Tính lương toàn bộ nhân viên",
+            gia_tri_moi=msg,
+            nguoi_thuc_hien=nguoi_tinh,
+            ip=ip_address,
+            device=device_id,
+            scope=scope_text
+        )
 
-        return jsonify({"success": success, "message": msg})
+        print(f"[DEBUG] 🧾 Kết quả tổng hợp: {msg}")
+        if request.is_json or request.method == "POST":
+            return jsonify({"success": success, "message": msg})
+        else:
+            flash(msg, "success" if success else "warning")
+            return redirect(url_for("salary_bp.salary_view", month=month, year=year))
 
     except Exception as e:
         conn.rollback()
-        print(f"[FATAL] ❌ Lỗi toàn hệ thống khi tính lương: {e}")
+        import traceback; traceback.print_exc()
+        print(f"[FATAL] ❌ Lỗi hệ thống khi tính lương: {e}")
+        ghi_lich_su("Luong", None, "Lỗi khi tính lương toàn bộ nhân viên", str(e),
+                    nguoi_tinh, ip_address, device_id, scope_text)
 
-        # 5️⃣ Ghi log lỗi hệ thống
-        try:
-            ghi_lich_su(
-                ten_bang="Luong",
-                ma_ban_ghi=None,
-                hanh_dong="Lỗi khi tính lương toàn bộ nhân viên",
-                gia_tri_moi=str(e),
-                nguoi_thuc_hien=nguoi_tinh,
-                ip=ip_address,
-                device=device_id,
-                scope=scope_text
-            )
-        except Exception as log_err:
-            print(f"[WARN] ⚠️ Không thể ghi log lỗi tính lương: {log_err}")
-
-        return jsonify({
-            "success": False,
-            "message": f"❌ Lỗi toàn hệ thống khi tính lương: {str(e)}"
-        })
+        if request.is_json or request.method == "POST":
+            return jsonify({"success": False, "message": f"❌ Lỗi hệ thống: {e}"})
+        flash(f"❌ Lỗi hệ thống khi tính lương: {e}", "danger")
+        return redirect(url_for("salary_bp.salary_view", month=month, year=year))
 
     finally:
         cursor.close()
         conn.close()
+
 # ============================================================
-# 💰 TÍNH LƯƠNG CHO 1 NHÂN VIÊN
+# 💰 TÍNH LƯƠNG RIÊNG CHO 1 NHÂN VIÊN — FINAL FIXED v6
 # ============================================================
-@salary_bp.route("/calculate_salary/<ma_nv>")
+
+@salary_bp.route("/calculate_salary/<ma_nv>", methods=["POST", "GET"])
 @require_role("admin", "hr")
 def calculate_salary_for_one(ma_nv):
+    """
+    ✅ Tính lại lương cho 1 nhân viên theo tháng/năm đang chọn.
+    - Xoá bản cũ theo MaLuong để tránh lỗi FK
+    - Gọi tinh_luong_nv() chuẩn, lưu DB, ghi log
+    - GET → flash, POST → JSON
+    """
+    from datetime import datetime, date
+    from core.salary_utils import tinh_luong_nv
+    from core.log_utils import ghi_lich_su
+
     conn = get_sql_connection()
     cursor = conn.cursor()
 
     nguoi_tinh = session.get("username", "Hệ thống")
     ip_address = request.remote_addr or "Unknown"
-    device_id = request.user_agent.string or "Unknown"
-    thang_nam = date.today().replace(day=1)
+    device_id = getattr(request.user_agent, "string", "Unknown")
+
+    month = request.args.get("month", default=datetime.now().month, type=int)
+    year = request.args.get("year", default=datetime.now().year, type=int)
+    thang_nam = date(year, month, 1)
     scope_text = f"Tính lương tháng {thang_nam.strftime('%Y-%m')}"
 
+    print(f"[DEBUG] 🚀 Bắt đầu tính lương cho {ma_nv} ({nguoi_tinh}) | {scope_text}")
+
     try:
-        # 1️⃣ Thực hiện tính lương cho nhân viên
-        tong_gio, tong_tien, _ = tinh_luong_nv(
-            cursor, ma_nv, thang_nam, nguoi_tinh, save_to_db=True, return_detail=True
+        # 1️⃣ Kiểm tra nhân viên hợp lệ
+        cursor.execute("SELECT HoTen FROM NhanVien WHERE MaNV=? AND TrangThai=1", (ma_nv,))
+        nv = cursor.fetchone()
+        if not nv:
+            msg = f"⚠️ Không tìm thấy nhân viên {ma_nv} hoặc đã nghỉ việc."
+            if request.is_json or request.method == "POST":
+                return jsonify({"success": False, "message": msg})
+            flash(msg, "warning")
+            return redirect(url_for("salary_bp.salary_view", month=month, year=year))
+        ho_ten = nv[0]
+
+        # 2️⃣ Xoá dữ liệu cũ theo MaLuong để tránh lỗi FK
+        ma_luong = f"L{ma_nv}_{year}{month:02d}"
+        cursor.execute("DELETE FROM ChiTietLuong WHERE MaLuong = ?", (ma_luong,))
+        cursor.execute("DELETE FROM Luong WHERE MaLuong = ?", (ma_luong,))
+        conn.commit()
+        print(f"[CLEAN] 🧹 Đã xoá dữ liệu lương cũ {ma_luong}")
+
+        # 3️⃣ Tính lại lương mới theo công thức chuẩn
+        tong_gio, tong_net, chi_tiet = tinh_luong_nv(
+            cursor=cursor,
+            ma_nv=ma_nv,
+            thangnam=thang_nam,
+            nguoi_tinh=nguoi_tinh,
+            save_to_db=True,
+            return_detail=True
         )
         conn.commit()
+        print(f"[OK] 💰 {ma_nv}: {tong_gio:.2f}h | Net={tong_net:,.0f}đ")
 
-        # 2️⃣ Tạo nội dung log
-        msg = f"Tính lương cho {ma_nv}: {tong_gio:.2f} giờ, {tong_tien:,.0f} VND"
-        print(f"✅ {msg}")
+        # 4️⃣ Ghi log
+        msg = f"✅ Đã tính lại lương cho {ho_ten} ({ma_nv}) tháng {month:02d}/{year}: {tong_gio:.2f}h, thực lĩnh {tong_net:,.0f}₫"
+        ghi_lich_su(
+            ten_bang="Luong",
+            ma_ban_ghi=ma_nv,
+            hanh_dong="Tính lương nhân viên",
+            gia_tri_moi=msg,
+            nguoi_thuc_hien=nguoi_tinh,
+            ip=ip_address,
+            device=device_id,
+            scope=scope_text
+        )
 
-        # 3️⃣ Ghi log thành công (sử dụng hàm tiện ích)
-        try:
-            ghi_lich_su(
-                ten_bang="Luong",
-                ma_ban_ghi=ma_nv,
-                hanh_dong="Tính lương cho nhân viên",
-                gia_tri_moi=msg,
-                nguoi_thuc_hien=nguoi_tinh,
-                ip=ip_address,
-                device=device_id,
-                scope=scope_text
-            )
-        except Exception as log_err:
-            print(f"[WARN] ⚠️ Không ghi được log tính lương {ma_nv}: {log_err}")
-
-        # 4️⃣ Trả kết quả cho client
-        return jsonify({
-            "success": True,
-            "message": f"✅ Đã tính lương cho {ma_nv}: {tong_gio:.2f} giờ, {tong_tien:,.0f} VND"
-        })
+        # 5️⃣ Trả phản hồi
+        if request.is_json or request.method == "POST":
+            return jsonify({"success": True, "message": msg, "chi_tiet": chi_tiet})
+        flash(msg, "success")
+        return redirect(url_for("salary_bp.salary_view", month=month, year=year))
 
     except Exception as e:
         conn.rollback()
-        print(f"[ERROR] ❌ Lỗi khi tính lương {ma_nv}: {e}")
-
-        # 5️⃣ Ghi log lỗi riêng biệt
+        err_msg = f"❌ Lỗi khi tính lương cho {ma_nv}: {e}"
+        print(f"[ERROR] {err_msg}")
+        import traceback; traceback.print_exc()
         try:
             ghi_lich_su(
                 ten_bang="Luong",
                 ma_ban_ghi=ma_nv,
-                hanh_dong="Lỗi khi tính lương cho nhân viên",
+                hanh_dong="Lỗi tính lương nhân viên",
                 gia_tri_moi=str(e),
                 nguoi_thuc_hien=nguoi_tinh,
                 ip=ip_address,
                 device=device_id,
                 scope=scope_text
             )
-        except Exception as log_err:
-            print(f"[WARN] ⚠️ Không thể ghi log lỗi tính lương {ma_nv}: {log_err}")
-
-        return jsonify({
-            "success": False,
-            "message": f"❌ Lỗi khi tính lương {ma_nv}: {str(e)}"
-        })
+        except:
+            pass
+        if request.is_json or request.method == "POST":
+            return jsonify({"success": False, "message": err_msg})
+        flash(err_msg, "danger")
+        return redirect(url_for("salary_bp.salary_view", month=month, year=year))
 
     finally:
         cursor.close()
         conn.close()
 
-
 # ============================================================
-# 💰 XEM CHI TIẾT LƯƠNG 1 NHÂN VIÊN
+# 💰 XEM CHI TIẾT LƯƠNG NHÂN VIÊN — FINAL FIXED V7 (ĐỒNG BỘ VỚI HÀM TÍNH V18)
 # ============================================================
 @salary_bp.route("/salary/<ma_nv>")
 @require_role("admin", "hr")
 def salary_detail(ma_nv):
     """
-    Trang xem chi tiết lương của 1 nhân viên trong tháng hiện tại.
-    - Gọi hàm tính lương (chỉ xem, không lưu DB)
-    - Hiển thị chi tiết các ca làm việc, phụ cấp, thuế, tổng lương thực nhận
+    ✅ Hiển thị chi tiết lương 1 nhân viên
+    ------------------------------------------------------------
+    - Đồng bộ với tinh_luong_nv() FINAL V18
+    - Tự động gọi tính lương, không lưu DB khi chỉ xem
+    - Truyền đầy đủ dữ liệu phụ cấp, khấu trừ, gross, net sang template
+    - Ghi log hành động xem chi tiết
+    ------------------------------------------------------------
     """
+
+    from datetime import date
     conn = get_sql_connection()
     cursor = conn.cursor()
 
@@ -357,139 +425,114 @@ def salary_detail(ma_nv):
     nguoi_xem = session.get("username", "Hệ thống")
     ip_address = request.remote_addr or "Unknown"
     device_id = request.user_agent.string or "Unknown"
-    thang_nam = date.today().replace(day=1)
-    scope_text = f"Xem chi tiết lương tháng {thang_nam.strftime('%Y-%m')}"
+
+    # 📅 Tháng/năm đang xem
+    month = request.args.get("month", default=date.today().month, type=int)
+    year = request.args.get("year", default=date.today().year, type=int)
+    thang_nam = date(year, month, 1)
+    scope_text = f"Xem chi tiết lương tháng {year}-{month:02d}"
 
     try:
-        # ============================================================
         # 1️⃣ Lấy thông tin nhân viên
-        # ============================================================
         cursor.execute("""
-            SELECT NV.MaNV, NV.HoTen, NV.ChucVu, PB.TenPB
+            SELECT NV.MaNV, NV.HoTen, NV.ChucVu, PB.TenPB, NV.SoCaPhepConLai
             FROM NhanVien NV
             LEFT JOIN PhongBan PB ON NV.MaPB = PB.MaPB
             WHERE NV.MaNV = ?
         """, (ma_nv,))
         emp = cursor.fetchone()
         if not emp:
-            return render_template("error.html", message=f"❌ Không tìm thấy nhân viên có mã {ma_nv}")
+            return render_template("error.html", message=f"❌ Không tìm thấy nhân viên {ma_nv}")
 
-        # ============================================================
-        # 2️⃣ Gọi hàm tính lương (chỉ xem, không lưu DB)
-        # ============================================================
-        tong_gio, tong_tien_thuc, records = tinh_luong_nv(
-            cursor,
-            ma_nv,
-            thang_nam,
-            nguoi_xem,
+        # 2️⃣ Gọi hàm tính lương chi tiết (không lưu DB)
+        tong_gio, net, chi_tiet, luong_chinh, gross = tinh_luong_nv(
+            cursor=cursor,
+            ma_nv=ma_nv,
+            thangnam=thang_nam,
+            nguoi_tinh=nguoi_xem,
             save_to_db=False,
             return_detail=True
         )
 
-        # Nếu không có dữ liệu chấm công
-        if not records:
-            return render_template(
-                "salary_detail.html",
-                emp=emp,
-                records=[],
-                tong_gio=0,
-                tong_tien=0,
-                phu_cap=0,
-                pit=0,
-                tong_tien_thuc=0,
-                role_label="Nhân viên",
-                role_icon="fa-user text-primary",
-                current_month=thang_nam.month,
-                current_year=thang_nam.year,
-                message="⚠️ Nhân viên này chưa có dữ liệu chấm công trong tháng."
-            )
-
-        # ============================================================
-        # 3️⃣ Tính phụ cấp & thuế để hiển thị công thức tổng
-        # ============================================================
+        # ⚙️ Tính lại phụ cấp & khấu trừ (giống V18)
+        from decimal import Decimal
         params = get_tham_so_luong(cursor)
-        phu_cap_xang = params.get("PhuCapXangXe", 500000)
-        phu_cap_an = params.get("PhuCapAnTrua", 30000) * len(records)
-        phu_cap_khac = params.get("PhuCapKhac", 200000)
-        phu_cap = phu_cap_xang + phu_cap_an + phu_cap_khac
+        dec = lambda k, d: Decimal(str(params.get(k, d)))
 
-        pit = max((tong_tien_thuc - phu_cap) * params.get("PIT_ThueThuNhap", 0.05), 0)
-        tong_tien = max(tong_tien_thuc - phu_cap + pit, 0)
+        # Số ca làm / vắng để tính phụ cấp & thưởng
+        so_ca_di_lam = sum(1 for r in chi_tiet if r["TrangThai"] in (1, 2))
+        so_ca_vang = sum(1 for r in chi_tiet if r["TrangThai"] == 0)
+        tong_ca = len(chi_tiet)
+        ty_le = (so_ca_di_lam / tong_ca) if tong_ca else 0
 
-        # ============================================================
-        # 4️⃣ Ghi log "Xem chi tiết lương"
-        # ============================================================
-        try:
-            log_msg = f"Xem chi tiết lương {ma_nv}: {tong_gio:.2f} giờ, {tong_tien_thuc:,.0f} VND"
-            ghi_lich_su(
-                ten_bang="Luong",
-                ma_ban_ghi=ma_nv,
-                hanh_dong="Xem chi tiết lương nhân viên",
-                gia_tri_moi=log_msg,
-                nguoi_thuc_hien=nguoi_xem,
-                ip=ip_address,
-                device=device_id,
-                scope=scope_text
-            )
-        except Exception as log_err:
-            print(f"[WARN] ⚠️ Không thể ghi log xem chi tiết lương {ma_nv}: {log_err}")
+        # Phụ cấp
+        phu_cap_xang = dec("PhuCapXangXe", 500_000)
+        phu_cap_an = dec("PhuCapAnTrua", 30_000) * Decimal(so_ca_di_lam)
+        phu_cap_khac = dec("PhuCapKhac", 200_000)
+        thuong_chuyen_can = dec("ThuongChuyenCan", 300_000) if (so_ca_vang == 0 and ty_le >= 0.95) else Decimal('0')
+        tong_phu_cap = phu_cap_xang + phu_cap_an + phu_cap_khac + thuong_chuyen_can
 
-        # ============================================================
-        # 5️⃣ Phân loại vai trò (icon + nhãn chức vụ)
-        # ============================================================
-        chucvu = (emp[2] or "").lower()
-        if "trưởng phòng" in chucvu:
-            role_label, role_icon = "Trưởng phòng", "fa-star text-warning"
-        elif "phó phòng" in chucvu:
-            role_label, role_icon = "Phó phòng", "fa-crown text-info"
-        elif "hr" in chucvu:
-            role_label, role_icon = "Nhân sự", "fa-users text-success"
-        elif "thực tập" in chucvu or "intern" in chucvu:
-            role_label, role_icon = "Thực tập sinh", "fa-user-graduate text-secondary"
-        else:
-            role_label, role_icon = "Nhân viên", "fa-user text-primary"
+        # Khấu trừ bảo hiểm + thuế (giống hàm)
+        tong_khau_tru_bh = dec("KhauTru_BHXH", 0.08) + dec("KhauTru_BHYT", 0.015) + dec("KhauTru_BHTN", 0.01)
+        bao_hiem = (Decimal(gross) * tong_khau_tru_bh).quantize(Decimal('1.'))
+        tnct = float(Decimal(gross) - bao_hiem - Decimal('11000000'))
+        pit = 0
+        if tnct > 0:
+            brackets = [(5_000_000, 0.05), (5_000_000, 0.10), (8_000_000, 0.15),
+                        (14_000_000, 0.20), (20_000_000, 0.25), (28_000_000, 0.30), (float('inf'), 0.35)]
+            for limit, rate in brackets:
+                if tnct <= 0: break
+                taxable = min(tnct, limit)
+                pit += taxable * rate
+                tnct -= taxable
 
-        # ============================================================
-        # 6️⃣ Render giao diện chi tiết
-        # ============================================================
+        pit = Decimal(pit).quantize(Decimal('1.'))
+        net_calc = (Decimal(gross) - bao_hiem - pit).quantize(Decimal('1.'))
+
+        # 3️⃣ Ghi log xem lương
+        ghi_lich_su(
+            ten_bang="Luong",
+            ma_ban_ghi=ma_nv,
+            hanh_dong="Xem chi tiết lương nhân viên",
+            gia_tri_moi=f"Xem chi tiết lương {ma_nv} tháng {month:02d}/{year} | Gross={gross:,.0f} | Net={net_calc:,.0f}",
+            nguoi_thuc_hien=nguoi_xem,
+            ip=ip_address,
+            device=device_id,
+            scope=scope_text
+        )
+
+        # 4️⃣ Render ra template (đủ biến cho phần tổng hợp)
         template_name = "hr_salary_detail.html" if role == "hr" else "salary_detail.html"
         return render_template(
             template_name,
             emp=emp,
-            records=records,
-            tong_gio=tong_gio or 0,
-            tong_tien=tong_tien or 0,
-            phu_cap=phu_cap or 0,
-            pit=pit or 0,
-            tong_tien_thuc=tong_tien_thuc or 0,
-            role_label=role_label,
-            role_icon=role_icon,
-            current_month=thang_nam.month,
-            current_year=thang_nam.year
+            records=chi_tiet,
+            luong_chinh=float(luong_chinh),
+            gross=float(gross),
+            net=float(net_calc),
+            tong_gio=float(tong_gio),
+            current_month=month,
+            current_year=year,
+            role_label="Nhân viên",
+            # --- Phụ cấp & thưởng ---
+            phu_cap_xang=float(phu_cap_xang),
+            phu_cap_an=float(phu_cap_an),
+            phu_cap_khac=float(phu_cap_khac),
+            thuong_chuyen_can=float(thuong_chuyen_can),
+            tong_phu_cap=float(tong_phu_cap),
+            # --- Khấu trừ ---
+            bao_hiem=float(bao_hiem),
+            pit=float(pit)
         )
 
     except Exception as e:
-        print(f"[ERROR] ❌ Lỗi khi xem chi tiết lương {ma_nv}: {e}")
-
-        # Ghi log lỗi xem chi tiết lương
-        try:
-            ghi_lich_su(
-                ten_bang="Luong",
-                ma_ban_ghi=ma_nv,
-                hanh_dong="Lỗi khi xem chi tiết lương nhân viên",
-                gia_tri_moi=str(e),
-                nguoi_thuc_hien=nguoi_xem,
-                ip=ip_address,
-                device=device_id,
-                scope=scope_text
-            )
-        except Exception as log_err:
-            print(f"[WARN] ⚠️ Không thể ghi log lỗi xem chi tiết lương {ma_nv}: {log_err}")
-
+        print(f"[ERROR] ❌ Lỗi xem chi tiết lương {ma_nv}: {e}")
         return render_template("error.html", message=f"Lỗi khi xem chi tiết lương: {e}")
 
     finally:
+        cursor.close()
         conn.close()
+
 
 # ============================================================
 # ❌ XÓA MỀM 1 BẢN GHI LƯƠNG
@@ -628,7 +671,7 @@ def get_payment_info(ma_luong: str):
                 L.MaLuong, L.MaNV, L.SoGioLam, L.TongTien, L.TrangThai, 
                 L.NgayTinhLuong, L.NguoiTinhLuong, L.NgayThanhToan, L.GhiChu,
                 L.PhuongThucChiTra, L.SoTaiKhoan, L.NganHang, L.PhiGiaoDich,
-                L.LoaiLuong, L.ThangNam, L.NguoiThanhToan,
+                 L.ThangNam, L.NguoiThanhToan,
                 N.HoTen, N.Email
             FROM Luong L
             LEFT JOIN NhanVien N ON L.MaNV = N.MaNV
@@ -648,8 +691,7 @@ def get_payment_info(ma_luong: str):
         cols = [
             "MaLuong","MaNV","SoGioLam","TongTien","TrangThai",
             "NgayTinhLuong","NguoiTinhLuong","NgayThanhToan","GhiChu",
-            "PhuongThucChiTra","SoTaiKhoan","NganHang","PhiGiaoDich",
-            "LoaiLuong","ThangNam","NguoiThanhToan",
+            "PhuongThucChiTra","SoTaiKhoan","NganHang","PhiGiaoDich","ThangNam","NguoiThanhToan",
             "HoTen","Email"
         ]
         data = {c: row[i] for i, c in enumerate(cols)}

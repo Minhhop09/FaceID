@@ -111,3 +111,4 @@ def record_attendance(ma_nv):
     
     conn.commit()
     conn.close()
+

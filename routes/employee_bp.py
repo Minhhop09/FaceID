@@ -6,6 +6,8 @@ from core.db_utils import get_sql_connection
 from core.decorators import require_role
 from threading import Thread
 from core.face_utils import async_encode_face
+import uuid
+
 
 import os
 employee_bp = Blueprint("employee_bp", __name__)
@@ -346,16 +348,13 @@ def employee_detail(ma_nv):
     return render_template(template_name, employee=employee, role=role)
 
 # ============================================================
-# ➕ THÊM NHÂN VIÊN MỚI
+# ➕ THÊM NHÂN VIÊN MỚI (KHÔNG CHỤP HÌNH)
 # ============================================================
 @employee_bp.route("/employees/add", methods=["GET", "POST"])
 @require_role("admin")
 def add_employee_web():
-    from core.db_utils import get_phongbans  # Nếu có tách ra core riêng
-    import os, base64, threading
-    from core.db_utils import get_sql_connection
-    from core.face_utils import encode_and_save
-    from routes.capture_photo_and_save import capture_photo_and_save
+    from core.db_utils import get_phongbans, get_sql_connection
+    from werkzeug.security import generate_password_hash
 
     departments = get_phongbans()
 
@@ -394,17 +393,12 @@ def add_employee_web():
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, GETDATE())
             """, (MaNV, HoTen, Email, SDT, GioiTinh, NgaySinh, MaPB, DiaChi, ChucVu))
 
-            # 3️⃣.1️⃣ Tự động tạo tài khoản đăng nhập
-            from werkzeug.security import generate_password_hash
-            role = "nhanvien"
-            role_id = 4
-
+            # 4️⃣ Tự động tạo tài khoản đăng nhập
+            role, role_id = "nhanvien", 4
             if "hr" in ChucVu.lower():
-                role = "hr"
-                role_id = 2
+                role, role_id = "hr", 2
             elif "quản lý" in ChucVu.lower() or "trưởng phòng" in ChucVu.lower():
-                role = "quanlyphongban"
-                role_id = 3
+                role, role_id = "quanlyphongban", 3
 
             username = MaNV
             password_hash = generate_password_hash("123456", method="scrypt")
@@ -415,9 +409,9 @@ def add_employee_web():
                 VALUES (?, ?, ?, ?, 1, GETDATE(), ?, 0)
             """, (username, password_hash, role, role_id, MaNV))
 
-            print(f"🔑 Đã tạo tài khoản cho {MaNV} ({role.upper()}) — mật khẩu: 123456")
+            print(f"🔑 Đã tạo tài khoản cho {MaNV} ({role.upper()}) — mật khẩu mặc định: 123456")
 
-            # 4️⃣ Lưu nhật ký thêm mới
+            # 5️⃣ Ghi lịch sử thay đổi
             cursor.execute("""
                 INSERT INTO LichSuThayDoi
                 (TenBang, MaBanGhi, HanhDong, TruongThayDoi, GiaTriCu, GiaTriMoi, ThoiGian, NguoiThucHien)
@@ -433,49 +427,8 @@ def add_employee_web():
             ))
 
             conn.commit()
-            print(f"✅ Đã thêm nhân viên {MaNV} ({HoTen}) thành công.")
-
-            # 5️⃣ Xử lý ảnh khuôn mặt
-            image_data = request.form.get("face_image")
-            image_path = None
-
-            if image_data:
-                print("🖼️ Nhận ảnh base64 từ trình duyệt, đang lưu...")
-                image_data = image_data.split(",")[1]
-                image_bytes = base64.b64decode(image_data)
-
-                os.makedirs("photos", exist_ok=True)
-                image_path = os.path.join("photos", f"{MaNV}.jpg")
-                with open(image_path, "wb") as f:
-                    f.write(image_bytes)
-
-                encode_and_save(MaNV, image_path, conn)
-                flash("✅ Đã thêm nhân viên và lưu ảnh khuôn mặt từ trình duyệt!", "success")
-
-            else:
-                print("📸 Không có ảnh từ trình duyệt → chụp bằng camera server...")
-
-                def capture_and_encode():
-                    img_path = capture_photo_and_save(MaNV)
-                    if img_path and os.path.exists(img_path):
-                        conn_inner = get_sql_connection()
-                        try:
-                            encode_and_save(MaNV, img_path, conn_inner)
-                            print(f"✅ Đã encode khuôn mặt cho {MaNV}")
-                        except Exception as e:
-                            print(f"⚠️ Lỗi encode: {e}")
-                        finally:
-                            conn_inner.close()
-                    else:
-                        conn_del = get_sql_connection()
-                        cur = conn_del.cursor()
-                        cur.execute("DELETE FROM NhanVien WHERE MaNV = ?", (MaNV,))
-                        conn_del.commit()
-                        conn_del.close()
-                        print(f"🗑️ Đã xóa nhân viên {MaNV} do không có ảnh hợp lệ.")
-
-                threading.Thread(target=capture_and_encode, daemon=True).start()
-                flash("✅ Nhân viên đã thêm, hệ thống đang chụp và xử lý khuôn mặt...", "info")
+            flash(f"✅ Đã thêm nhân viên {HoTen} ({ChucVu}) thành công!", "success")
+            print(f"✅ Thêm nhân viên {MaNV} ({HoTen}) thành công.")
 
             conn.close()
             return redirect(url_for("employee_bp.employee_list"))
@@ -493,7 +446,6 @@ def add_employee_web():
 
     # Nếu GET → hiển thị form thêm nhân viên
     return render_template("add_employee.html", departments=departments)
-
 
 # ============================================================
 # ❌ XÓA MỀM 1 NHÂN VIÊN
@@ -1546,3 +1498,234 @@ def my_salary():
         anh_nv=anh_nv,
         now=now
     )
+
+@employee_bp.route("/employee/leave_request", methods=["GET", "POST"])
+@require_role("nhanvien")
+def employee_leave_request():
+    """
+    Trang nhân viên gửi đơn nghỉ phép.
+    ✅ Không trừ phép khi gửi — chỉ trừ khi HR duyệt.
+    ✅ Mỗi ca/ngày chỉ lưu 1 dòng vào DonNghiPhep_CaLam.
+    ✅ Tự động tạo danh sách ngày nghỉ từ Từ ngày - Đến ngày.
+    ✅ Loại bỏ trùng dữ liệu trước khi INSERT.
+    """
+    import uuid
+    from datetime import datetime, date, timedelta
+
+    conn = get_sql_connection()
+    cursor = conn.cursor()
+    ma_nv = session.get("manv")
+
+    # 🟩 Lấy thông tin nhân viên + số ca phép còn lại
+    cursor.execute("""
+        SELECT nv.MaNV, nv.HoTen, nv.Email, nv.ChucVu, pb.TenPB AS PhongBan,
+               ISNULL(nv.SoCaPhepConLai, 0) AS SoCaPhepConLai
+        FROM NhanVien nv
+        LEFT JOIN PhongBan pb ON nv.MaPB = pb.MaPB
+        WHERE nv.MaNV = ?
+    """, (ma_nv,))
+    row = cursor.fetchone()
+    employee = dict(zip([c[0] for c in cursor.description], row)) if row else None
+
+    # 🟩 Lấy danh sách ca làm việc (để chọn trong form)
+    cursor.execute("SELECT MaCa, TenCa FROM CaLamViec WHERE TrangThai = 1")
+    ca_list = [dict(zip([c[0] for c in cursor.description], r)) for r in cursor.fetchall()]
+    today = date.today().isoformat()
+
+    # 🟥 POST: Gửi đơn nghỉ phép
+    if request.method == "POST":
+        ma_don = "DN" + uuid.uuid4().hex[:8].upper()
+        tu_ngay = request.form.get("tu_ngay")
+        den_ngay = request.form.get("den_ngay")
+        ly_do = (request.form.get("ly_do") or "").strip()
+
+        # ⚙️ Kiểm tra ngày hợp lệ
+        try:
+            tu_ngay_dt = datetime.strptime(tu_ngay, "%Y-%m-%d").date()
+            den_ngay_dt = datetime.strptime(den_ngay, "%Y-%m-%d").date()
+        except ValueError:
+            flash("⚠️ Định dạng ngày không hợp lệ.", "danger")
+            conn.close()
+            return redirect(url_for("employee_bp.employee_leave_request"))
+
+        if tu_ngay_dt < date.today():
+            flash("⚠️ Không thể chọn ngày trong quá khứ.", "danger")
+            conn.close()
+            return redirect(url_for("employee_bp.employee_leave_request"))
+
+        if den_ngay_dt < tu_ngay_dt:
+            flash("⚠️ Ngày kết thúc phải sau hoặc bằng ngày bắt đầu.", "danger")
+            conn.close()
+            return redirect(url_for("employee_bp.employee_leave_request"))
+
+        try:
+            # 🟢 Lưu đơn nghỉ phép chính
+            cursor.execute("""
+                INSERT INTO DonNghiPhep 
+                (MaDon, MaNV, TuNgay, DenNgay, LyDo, LoaiNghi, TrangThaiDuyet, DaXoa, NgayTao)
+                VALUES (?, ?, ?, ?, ?, N'Nghỉ phép năm', N'Chờ duyệt', 0, GETDATE())
+            """, (ma_don, ma_nv, tu_ngay_dt, den_ngay_dt, ly_do))
+
+            # 🟢 Sinh danh sách ngày trong khoảng
+            ngay_hien_tai = tu_ngay_dt
+            inserted = set()
+
+            while ngay_hien_tai <= den_ngay_dt:
+                key = f"ca_lam_{ngay_hien_tai}"
+                ca_ngay = request.form.getlist(key)
+
+                for ma_ca in ca_ngay:
+                    pair = (ma_ca, ngay_hien_tai)
+                    if pair not in inserted:
+                        cursor.execute("""
+                            IF NOT EXISTS (
+                                SELECT 1 FROM DonNghiPhep_CaLam 
+                                WHERE MaDon = ? AND MaCa = ? AND NgayNghi = ?
+                            )
+                            INSERT INTO DonNghiPhep_CaLam (MaDon, MaCa, NgayNghi)
+                            VALUES (?, ?, ?)
+                        """, (ma_don, ma_ca, ngay_hien_tai, ma_don, ma_ca, ngay_hien_tai))
+                        inserted.add(pair)
+
+                ngay_hien_tai += timedelta(days=1)
+
+            conn.commit()
+            flash("✅ Đã gửi đơn nghỉ phép, vui lòng chờ HR duyệt.", "success")
+
+        except Exception as e:
+            conn.rollback()
+            flash(f"❌ Lỗi khi gửi đơn: {e}", "danger")
+
+        finally:
+            conn.close()
+
+        return redirect(url_for("employee_bp.employee_leave_list"))
+
+    # 🟩 GET: Hiển thị form gửi đơn
+    conn.close()
+    return render_template(
+        "employee_leave_request.html",
+        employee=employee,
+        ca_list=ca_list,
+        today=today
+    )
+
+@employee_bp.route("/employee/leave_list")
+@require_role("nhanvien")
+def employee_leave_list():
+    """
+    Trang nhân viên xem danh sách đơn nghỉ phép.
+    ✅ Không bị trùng ngày/ca
+    ✅ Gom nhóm từng ngày – ca nghỉ (FOR XML PATH)
+    ✅ Hiển thị rõ trạng thái, người duyệt, ghi chú
+    """
+    from datetime import date
+    conn = get_sql_connection()
+    cursor = conn.cursor()
+    ma_nv = session.get("manv")
+
+    # 🟩 Lấy thông tin nhân viên
+    cursor.execute("""
+        SELECT nv.MaNV, nv.HoTen, nv.Email, nv.ChucVu, pb.TenPB AS PhongBan,
+               ISNULL(nv.SoCaPhepConLai, 0) AS SoCaPhepConLai
+        FROM NhanVien nv
+        LEFT JOIN PhongBan pb ON nv.MaPB = pb.MaPB
+        WHERE nv.MaNV = ?
+    """, (ma_nv,))
+    row = cursor.fetchone()
+    employee = dict(zip([c[0] for c in cursor.description], row)) if row else None
+
+    # 🟦 Lấy danh sách đơn nghỉ phép + gom nhóm ca/ngày bằng FOR XML PATH
+    cursor.execute("""
+        SELECT 
+            D.MaDon,
+            CONVERT(varchar, D.TuNgay, 23) AS TuNgay,
+            CONVERT(varchar, D.DenNgay, 23) AS DenNgay,
+            D.LyDo,
+            D.TrangThaiDuyet,
+            ISNULL(D.NguoiDuyet, '-') AS NguoiDuyet,
+            ISNULL(CONVERT(varchar, D.NgayDuyet, 23), '-') AS NgayDuyet,
+            ISNULL(D.GhiChu, '') AS GhiChu,
+            D.NgayTao,
+            -- 🔹 Gom nhóm các ngày + ca nghỉ, tránh trùng lặp
+            STUFF((
+                SELECT DISTINCT CHAR(10) + CONVERT(varchar, C2.NgayNghi, 23) + N' – ' + CL2.TenCa
+                FROM DonNghiPhep_CaLam C2
+                INNER JOIN CaLamViec CL2 ON C2.MaCa = CL2.MaCa
+                WHERE C2.MaDon = D.MaDon
+                FOR XML PATH(''), TYPE
+            ).value('.', 'NVARCHAR(MAX)'), 1, 1, '') AS ChiTietCa
+        FROM DonNghiPhep D
+        WHERE D.MaNV = ? AND (D.DaXoa = 0 OR D.DaXoa IS NULL)
+        ORDER BY D.NgayTao DESC;
+    """, (ma_nv,))
+
+    cols = [c[0] for c in cursor.description]
+    don_list = [dict(zip(cols, r)) for r in cursor.fetchall()]
+
+    # 🧩 Xử lý dữ liệu để hiển thị gọn trong template
+    for d in don_list:
+        chi_tiet = d.get("ChiTietCa", "")
+        if chi_tiet:
+            # Chuẩn hóa: tách theo mọi kiểu xuống dòng (\r, \n, \r\n)
+            d["CaNghiList"] = [s.strip() for s in chi_tiet.replace("\r", "").split("\n") if s.strip()]
+        else:
+            d["CaNghiList"] = []
+
+        # 🎨 Gán nhãn trạng thái cho badge hiển thị
+        tt = (d["TrangThaiDuyet"] or "").strip()
+        if tt == "Đã duyệt":
+            d["TrangThaiText"] = "Đã duyệt"
+            d["BadgeClass"] = "bg-success"
+        elif tt == "Từ chối":
+            d["TrangThaiText"] = "Từ chối"
+            d["BadgeClass"] = "bg-danger"
+        elif tt == "Thu hồi":
+            d["TrangThaiText"] = "Thu hồi"
+            d["BadgeClass"] = "bg-secondary"
+        else:
+            d["TrangThaiText"] = "Chờ duyệt"
+            d["BadgeClass"] = "bg-warning text-dark"
+
+    conn.close()
+
+    return render_template(
+        "employee_leave_list.html",
+        employee=employee,
+        don_list=don_list,
+        today=date.today().isoformat()
+    )
+
+@employee_bp.route("/employee/delete_leave/<ma_don>", methods=["POST"])
+@require_role("nhanvien")
+def employee_delete_leave(ma_don):
+    from flask import jsonify, request
+
+    conn = get_sql_connection()
+    cursor = conn.cursor()
+    ma_nv = session.get("manv")
+
+    try:
+        cursor.execute("""
+            SELECT TrangThaiDuyet FROM DonNghiPhep 
+            WHERE MaDon = ? AND MaNV = ?
+        """, (ma_don, ma_nv))
+        row = cursor.fetchone()
+
+        if not row:
+            return jsonify({"success": False, "message": "❌ Không tìm thấy đơn nghỉ phép."})
+
+        trang_thai = row[0]
+        if trang_thai == "Đã duyệt":
+            return jsonify({"success": False, "message": "⚠️ Không thể xóa đơn đã duyệt."})
+
+        cursor.execute("DELETE FROM DonNghiPhep_CaLam WHERE MaDon = ?", (ma_don,))
+        cursor.execute("DELETE FROM DonNghiPhep WHERE MaDon = ? AND MaNV = ?", (ma_don, ma_nv))
+        conn.commit()
+        return jsonify({"success": True, "message": f"🗑️ Đã xóa đơn {ma_don} thành công."})
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"success": False, "message": f"❌ Lỗi khi xóa đơn: {e}"})
+    finally:
+        conn.close()

@@ -5,331 +5,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập - FaceID System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Biến CSS */
-        :root {
-            --primary: #2563EB;
-            --primary-dark: #1D4ED8;
-            --primary-light: #3B82F6;
-            --primary-extra-light: #EFF6FF;
-            --secondary: #10B981;
-            --dark: #1F2937;
-            --light: #F9FAFB;
-            --gray: #6B7280;
-            --gray-light: #E5E7EB;
-            --card-bg: #FFFFFF;
-            --error: #EF4444;
-            --success: #10B981;
-            --shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
+        :root{--primary:#2563EB;--primary-dark:#1D4ED8;--primary-light:#3B82F6;--primary-extra-light:#EFF6FF;--secondary:#10B981;--accent:#8B5CF6;--dark:#1F2937;--light:#F9FAFB;--gray:#6B7280;--gray-light:#E5E7EB;--card-bg:#FFFFFF;--error:#EF4444;--success:#10B981;--shadow:0 10px 30px rgba(0,0,0,0.1);--shadow-hover:0 15px 40px rgba(0,0,0,0.15);--transition:all 0.2s ease;--glow:0 0 0 3px rgba(37,99,235,0.1)}
+        *{margin:0;padding:0;box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{background:linear-gradient(135deg,#f8fafc 0%,#e2e8f0 100%);color:var(--dark);font-family:'Inter',sans-serif;min-height:100vh;padding:20px;position:relative;overflow-x:hidden}
+        .page-container{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+        .background-shapes{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+        .shape{position:absolute;border-radius:50%;opacity:0.05}
+        .shape-1{width:300px;height:300px;background:var(--primary);top:-150px;right:-150px;animation:float 15s ease-in-out infinite}
+        .shape-2{width:200px;height:200px;background:var(--secondary);bottom:-100px;left:-100px;animation:float 20s ease-in-out infinite reverse}
+        .shape-3{width:150px;height:150px;background:var(--accent);top:30%;left:10%;animation:float 18s ease-in-out infinite}
+        @keyframes float{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-15px) rotate(180deg)}}
+        .login-container{background:var(--card-bg);border-radius:20px;box-shadow:var(--shadow);width:100%;max-width:450px;padding:35px 25px;border:1px solid var(--gray-light);animation:fadeIn 0.4s ease-out;position:relative;overflow:visible;max-height:90vh;overflow-y:auto}
+        .login-container::-webkit-scrollbar{width:6px}
+        .login-container::-webkit-scrollbar-track{background:var(--gray-light);border-radius:10px}
+        .login-container::-webkit-scrollbar-thumb{background:var(--primary);border-radius:10px}
+        .login-container::-webkit-scrollbar-thumb:hover{background:var(--primary-dark)}
+        .login-container::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--primary)}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+        .login-header{text-align:center;margin-bottom:25px;padding-bottom:15px;border-bottom:1px solid var(--gray-light)}
+        .logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:15px;flex-wrap:wrap}
+        .logo-icon{width:45px;height:45px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-size:20px;box-shadow:0 4px 15px rgba(37,99,235,0.2)}
+        .logo-text{font-size:24px;font-weight:700;color:var(--dark);white-space:nowrap}
+        .logo-text span{color:var(--primary)}
+        .login-header h2{font-size:22px;font-weight:600;color:var(--dark);margin-bottom:5px;line-height:1.3}
+        .login-header p{color:var(--gray);font-size:14px;margin:0;line-height:1.4}
+        .flash-messages{margin-bottom:15px;max-height:100px;overflow-y:auto}
+        .alert{padding:12px 14px;border-radius:10px;margin-bottom:8px;display:flex;align-items:flex-start;gap:8px;animation:slideIn 0.3s ease-out;font-size:13px;font-weight:500;line-height:1.4}
+        .alert-error{background:#fef2f2;color:var(--error);border:1px solid #fecaca}
+        .alert-success{background:#f0fdf4;color:var(--success);border:1px solid #bbf7d0}
+        .alert i{font-size:14px;flex-shrink:0;margin-top:2px}
+        @keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+        .form-group{margin-bottom:20px}
+        .form-group label{display:block;margin-bottom:6px;font-weight:500;color:var(--dark);font-size:13px}
+        .input-wrapper{position:relative}
+        .input-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--gray);font-size:15px;z-index:1;transition:var(--transition)}
+        .form-control{width:100%;padding:12px 12px 12px 42px;border:1px solid var(--gray-light);border-radius:10px;font-size:14px;transition:var(--transition);background:var(--light);font-weight:400;height:44px}
+        .form-control:focus{outline:none;border-color:var(--primary);box-shadow:var(--glow);background:#fff}
+        .form-control::placeholder{color:var(--gray);opacity:0.6}
+        .password-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--gray);font-size:15px;transition:var(--transition);opacity:0.7;z-index:1}
+        .password-toggle:hover{color:var(--primary)}
+        .forgot-password{text-align:right;margin-top:4px}
+        .forgot-password a{color:var(--primary);font-size:12px;text-decoration:none;font-weight:500;transition:var(--transition)}
+        .forgot-password a:hover{text-decoration:underline}
+        .btn-login{width:100%;padding:13px 18px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:var(--transition);box-shadow:0 4px 15px rgba(37,99,235,0.2);display:flex;align-items:center;justify-content:center;gap:6px;height:46px;margin:5px 0;position:relative;overflow:hidden}
+        .btn-login:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,0.3);background:linear-gradient(135deg,var(--primary-dark),var(--primary))}
+        .btn-login:active{transform:translateY(0);box-shadow:0 2px 10px rgba(37,99,235,0.2)}
+        .btn-login.loading{cursor:not-allowed;opacity:0.8}
+        .btn-login.loading::after{content:'';position:absolute;top:50%;left:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border:2px solid transparent;border-top:2px solid white;border-radius:50%;animation:spin 1s linear infinite}
+        .btn-login.loading span{opacity:0}
+        @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+        .divider{text-align:center;margin:18px 0 15px;position:relative;color:var(--gray);font-size:12px;font-weight:500}
+        .divider::before{content:'';position:absolute;top:50%;left:0;width:100%;height:1px;background:var(--gray-light)}
+        .divider span{background:var(--card-bg);padding:0 12px;position:relative}
+        .btn-login-google{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#fff;border:1px solid var(--gray-light);border-radius:10px;padding:12px 16px;font-size:13px;font-weight:500;color:var(--dark);text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,0.05);transition:var(--transition);height:44px;margin:5px 0}
+        .btn-login-google img{width:18px;height:18px;flex-shrink:0}
+        .btn-login-google:hover{background:var(--primary-extra-light);transform:translateY(-1px);box-shadow:0 4px 15px rgba(37,99,235,0.1);border-color:var(--primary);text-decoration:none}
+        .login-footer{text-align:center;margin-top:20px;padding-top:15px;border-top:1px solid var(--gray-light);padding-bottom:10px}
+        .btn-home{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(--primary-light),var(--primary-dark));color:white;text-decoration:none;font-weight:500;padding:8px 15px;border-radius:8px;margin:5px 0 8px 0;transition:var(--transition);box-shadow:0 3px 12px rgba(37,99,235,0.2);font-size:13px;height:36px}
+        .btn-home:hover{transform:translateY(-1px);box-shadow:0 5px 15px rgba(37,99,235,0.3);text-decoration:none}
+        .login-footer p{color:var(--gray);font-size:12px;margin:0;opacity:0.8;line-height:1.3}
+        .form-actions{margin:10px 0}
+        @media (max-width: 576px){
+            .page-container{padding:10px}
+            .login-container{padding:25px 20px;max-width:95%;max-height:95vh;margin:10px auto;border-radius:16px}
+            .logo{gap:8px}
+            .logo-text{font-size:22px}
+            .login-header h2{font-size:20px}
+            .login-header p{font-size:13px}
+            .form-group{margin-bottom:18px}
+            .form-control{padding:11px 11px 11px 40px;font-size:14px;height:42px}
+            .shape-1,.shape-2,.shape-3{display:none}
         }
-
-        /* Reset và base styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        @media (max-width: 400px){
+            .login-container{padding:20px 15px}
+            .logo{flex-direction:column;gap:6px}
+            .logo-icon{width:40px;height:40px;font-size:18px}
+            .logo-text{font-size:20px;text-align:center}
+            .login-header h2{font-size:18px}
+            .login-header p{font-size:12px}
+            .btn-login,.btn-login-google{padding:12px 14px;font-size:13px;height:42px}
         }
-
-        body {
-            background-color: var(--light);
-            color: var(--dark);
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-            line-height: 1.6;
-        }
-
-        /* Background shapes */
-        .background-shapes {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-
-        .shape {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.1;
-        }
-
-        .shape-1 {
-            width: 300px;
-            height: 300px;
-            background: var(--primary);
-            top: -150px;
-            right: -150px;
-        }
-
-        .shape-2 {
-            width: 200px;
-            height: 200px;
-            background: var(--secondary);
-            bottom: -100px;
-            left: -100px;
-        }
-
-        .shape-3 {
-            width: 150px;
-            height: 150px;
-            background: var(--primary-light);
-            top: 50%;
-            left: 10%;
-        }
-
-        /* Login container */
-        .login-container {
-            background: var(--card-bg);
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            width: 100%;
-            max-width: 450px;
-            padding: 40px;
-            border: 1px solid var(--gray-light);
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        /* Login header */
-        .login-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .logo-icon {
-            width: 50px;
-            height: 50px;
-            background: var(--primary);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-        }
-
-        .logo-text {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--dark);
-        }
-
-        .logo-text span {
-            color: var(--primary);
-        }
-
-        .login-header h2 {
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 10px;
-        }
-
-        .login-header p {
-            color: var(--gray);
-            font-size: 16px;
-        }
-
-        /* Flash messages */
-        .flash-messages {
-            margin-bottom: 20px;
-        }
-
-        .alert {
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            animation: slideIn 0.5s ease-out;
-        }
-
-        .alert-error {
-            background: #FEE2E2;
-            color: var(--error);
-            border: 1px solid #FECACA;
-        }
-
-        .alert-success {
-            background: #D1FAE5;
-            color: var(--success);
-            border: 1px solid #A7F3D0;
-        }
-
-        .alert i {
-            font-size: 18px;
-        }
-
-        /* Form styles */
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--dark);
-        }
-
-        .input-with-icon {
-            position: relative;
-        }
-
-        .input-with-icon i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-            z-index: 1;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 15px 15px 15px 45px;
-            border: 1px solid var(--gray-light);
-            border-radius: 12px;
-            font-size: 16px;
-            transition: var(--transition);
-            background-color: var(--light);
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        /* Button styles */
-        .btn-login {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(37, 99, 235, 0.3);
-        }
-
-        /* Login footer */
-        .login-footer {
-            text-align: center;
-            margin-top: 25px;
-            color: var(--gray);
-            font-size: 14px;
-        }
-        /* Nút Google */
-.btn-login-google {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-    background-color: #ffffff;
-    border: 1px solid var(--gray-light);
-    border-radius: 12px;
-    padding: 12px 15px;
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--dark);
-    text-decoration: none;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    transition: var(--transition);
-}
-
-.btn-login-google img {
-    width: 22px;
-    height: 22px;
-}
-
-.btn-login-google:hover {
-    background-color: var(--primary-extra-light);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-}
-
-
-        /* Animations */
-        @keyframes slideIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(-10px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
-        }
-
-        @keyframes fadeIn {
-            from { 
-                opacity: 0; 
-                transform: scale(0.95); 
-            }
-            to { 
-                opacity: 1; 
-                transform: scale(1); 
-            }
-        }
-
-        /* Responsive styles */
-        @media (max-width: 576px) {
-            .login-container { 
-                padding: 30px 25px; 
-            }
-            
-            .logo-text { 
-                font-size: 24px; 
-            }
-            
-            .login-header h2 { 
-                font-size: 20px; 
-            }
-            
-            .shape-1, .shape-2, .shape-3 {
-                display: none;
-            }
-        }
-
-        @media (max-width: 400px) {
-            .login-container { 
-                padding: 25px 20px; 
-            }
-            
-            .logo {
-                flex-direction: column;
-                gap: 8px;
-            }
-        }
+        .custom-scrollbar{width:100%;height:8px;background:var(--gray-light);border-radius:4px;margin:10px 0;overflow:hidden}
+        .custom-scrollbar::-webkit-scrollbar{display:none}
     </style>
 </head>
 <body>
@@ -339,121 +99,352 @@
         <div class="shape shape-3"></div>
     </div>
 
-    <div class="login-container">
-        <div class="login-header">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-id-badge"></i>
+    <div class="page-container">
+        <div class="login-container" id="loginContainer">
+            <div class="login-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-id-badge"></i>
+                    </div>
+                    <div class="logo-text">Face<span>ID</span></div>
                 </div>
-                <div class="logo-text">Face<span>ID</span></div>
+                <h2>Đăng nhập hệ thống</h2>
+                <p>Vui lòng nhập thông tin để tiếp tục</p>
             </div>
-            <h2>Đăng nhập hệ thống</h2>
-            <p>Vui lòng nhập thông tin để tiếp tục</p>
-        </div>
 
-        <div class="flash-messages">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
-                            <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>
-                            <span>{{ message }}</span>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-        </div>
+            <div class="flash-messages" id="flashMessages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                                <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' }}"></i>
+                                <span>{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
 
-        <form method="POST" class="login-form">
-    <!-- Ô nhập tài khoản -->
-    <div class="form-group">
-        <label for="username">Mã nhân viên hoặc Email</label>
+            <form method="POST" class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="username">Mã nhân viên hoặc Email</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" 
+                               id="username" 
+                               name="username" 
+                               class="form-control" 
+                               placeholder="Nhập mã nhân viên hoặc email" 
+                               required
+                               autocomplete="username">
+                    </div>
+                </div>
 
-        <div class="input-with-icon">
-            <i class="fas fa-user"></i>
-            <input type="text" 
-                   id="username" 
-                   name="username" 
-                   class="form-control" 
-                   placeholder="Nhập mã nhân viên hoặc email" 
-                   required>
-        </div>
-    </div>
+                <div class="form-group">
+                    <label for="password">Mật khẩu</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" 
+                               id="password" 
+                               name="password" 
+                               class="form-control" 
+                               placeholder="Nhập mật khẩu" 
+                               required
+                               autocomplete="current-password">
+                        <i class="fas fa-eye password-toggle" onclick="togglePassword()"></i>
+                    </div>
+                    <div class="forgot-password">
+                        <a href="{{ url_for('auth_bp.forgot_password') }}">Quên mật khẩu?</a>
+                    </div>
+                </div>
 
-    <!-- Ô nhập mật khẩu -->
-<div class="form-group">
-    <label for="password">Mật khẩu</label>
-    <div class="input-with-icon">
-        <i class="fas fa-lock"></i>
-        <input type="password" 
-               id="password" 
-               name="password" 
-               class="form-control" 
-               placeholder="Nhập mật khẩu" 
-               required>
-    </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-login" id="loginBtn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Đăng nhập</span>
+                    </button>
 
-    <!-- 🔹 Thêm liên kết quên mật khẩu -->
-    <div style="text-align: right; margin-top: 8px;">
-        <a href="{{ url_for('auth_bp.forgot_password') }}" 
-           style="color: var(--primary); font-size: 14px; text-decoration: none;">
-           Quên mật khẩu?
-        </a>
-    </div>
-</div>
+                    <div class="divider">
+                        <span>Hoặc</span>
+                    </div>
 
+                    <a href="{{ url_for('auth_bp.login_google') }}" class="btn-login-google">
+                        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
+                        <span>Đăng nhập bằng Google</span>
+                    </a>
+                </div>
+            </form>
 
-    <!-- Nút đăng nhập -->
-    <button type="submit" class="btn-login">
-        <i class="fas fa-sign-in-alt"></i>
-        <span>Đăng nhập</span>
-    </button>
-    <!-- Nút đăng nhập Google -->
-<div style="text-align: center; margin-top: 20px;">
-    <p style="color: var(--gray); font-size: 14px; margin-bottom: 10px;">Hoặc đăng nhập bằng</p>
-    <a href="{{ url_for('auth_bp.login_google') }}" class="btn-login-google">
-        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
-        <span>Đăng nhập bằng Google</span>
-    </a>
-</div>
-
-</form>
-
-
-        <div class="login-footer">
-            <p>© 2025 FaceID System. Phiên bản 3.0.0</p>
+            <div class="login-footer">
+                <a href="{{ url_for('index') }}" class="btn-home">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Về trang chủ</span>
+                </a>
+                <p>© 2025 FaceID System. Phiên bản 3.0.0</p>
+            </div>
         </div>
     </div>
 
     <script>
-        // Tự động ẩn thông báo sau 4 giây
+        // Utility function to add loading state
+        function setLoadingState(button, isLoading) {
+            const icon = button.querySelector('i');
+            const span = button.querySelector('span');
+            
+            if (isLoading) {
+                button.classList.add('loading');
+                button.disabled = true;
+                if (icon) icon.style.display = 'none';
+                span.textContent = 'Đang đăng nhập...';
+            } else {
+                button.classList.remove('loading');
+                button.disabled = false;
+                if (icon) icon.style.display = 'inline-block';
+                span.textContent = 'Đăng nhập';
+            }
+        }
+
+        // Password toggle function
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.querySelector('.password-toggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        // Dynamic height adjustment
+        function adjustContainerHeight() {
+            const container = document.getElementById('loginContainer');
+            const windowHeight = window.innerHeight;
+            const containerHeight = container.scrollHeight;
+            const maxHeight = Math.min(windowHeight * 0.9, 600); // Max 600px or 90% viewport
+
+            if (containerHeight > maxHeight) {
+                container.style.maxHeight = maxHeight + 'px';
+                container.style.overflowY = 'auto';
+            } else {
+                container.style.maxHeight = 'none';
+                container.style.overflowY = 'visible';
+            }
+
+            // Ensure container is centered vertically
+            const pageContainer = document.querySelector('.page-container');
+            if (containerHeight <= windowHeight * 0.8) {
+                pageContainer.style.alignItems = 'center';
+            } else {
+                pageContainer.style.alignItems = 'flex-start';
+                pageContainer.style.paddingTop = '20px';
+            }
+        }
+
+        // Form submission handler
         document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('loginForm');
+            const loginBtn = document.getElementById('loginBtn');
+            const flashMessages = document.getElementById('flashMessages');
             const alerts = document.querySelectorAll('.alert');
+
+            // Adjust height on load
+            adjustContainerHeight();
+            
+            // Adjust height on window resize
+            window.addEventListener('resize', adjustContainerHeight);
+
+            // Auto-hide alerts after 4 seconds
             alerts.forEach(alert => {
                 setTimeout(() => {
                     alert.style.opacity = '0';
-                    alert.style.transition = 'opacity 0.5s';
-                    setTimeout(() => alert.remove(), 500);
+                    alert.style.transform = 'translateY(-5px)';
+                    alert.style.transition = 'all 0.3s ease';
+                    setTimeout(() => {
+                        if (alert.parentNode) {
+                            alert.remove();
+                        }
+                    }, 300);
                 }, 4000);
             });
 
-            // Focus vào username khi load
-            document.getElementById('username').focus();
-            
-            // Thêm hiệu ứng khi nhập vào form
+            // Focus on username input
+            const usernameInput = document.getElementById('username');
+            if (usernameInput) {
+                setTimeout(() => usernameInput.focus(), 100);
+            }
+
+            // Form validation and submission
+            form.addEventListener('submit', function(e) {
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+
+                // Basic client-side validation
+                if (!username || !password) {
+                    e.preventDefault();
+                    showAlert('Vui lòng nhập đầy đủ thông tin', 'error');
+                    return false;
+                }
+
+                if (username.length < 3) {
+                    e.preventDefault();
+                    showAlert('Mã nhân viên hoặc email không hợp lệ', 'error');
+                    return false;
+                }
+
+                if (password.length < 6) {
+                    e.preventDefault();
+                    showAlert('Mật khẩu phải có ít nhất 6 ký tự', 'error');
+                    return false;
+                }
+
+                // Set loading state immediately
+                setLoadingState(loginBtn, true);
+
+                // Reset loading state if something goes wrong (optional timeout)
+                setTimeout(() => {
+                    if (loginBtn.classList.contains('loading')) {
+                        setLoadingState(loginBtn, false);
+                        showAlert('Kết nối timeout, vui lòng thử lại', 'error');
+                    }
+                }, 10000);
+            });
+
+            // Input focus/blur effects
             const inputs = document.querySelectorAll('.form-control');
             inputs.forEach(input => {
                 input.addEventListener('focus', function() {
-                    this.parentElement.classList.add('focused');
+                    const wrapper = this.parentElement;
+                    const icon = wrapper.querySelector('.input-icon');
+                    this.style.borderColor = 'var(--primary)';
+                    if (icon) icon.style.color = 'var(--primary)';
                 });
-                
+
                 input.addEventListener('blur', function() {
-                    if (this.value === '') {
-                        this.parentElement.classList.remove('focused');
+                    const wrapper = this.parentElement;
+                    const icon = wrapper.querySelector('.input-icon');
+                    if (!this.value) {
+                        this.style.borderColor = 'var(--gray-light)';
+                        if (icon) icon.style.color = 'var(--gray)';
+                    }
+                });
+
+                // Show password toggle on focus
+                if (input.type === 'password') {
+                    input.addEventListener('focus', function() {
+                        document.querySelector('.password-toggle').style.opacity = '1';
+                    });
+                }
+            });
+
+            // Enter key support
+            inputs.forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && form.checkValidity()) {
+                        form.dispatchEvent(new Event('submit'));
                     }
                 });
             });
+
+            // Real-time validation
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            
+            if (usernameInput) {
+                usernameInput.addEventListener('input', function() {
+                    this.setCustomValidity('');
+                    if (this.value.length < 3 && this.value.length > 0) {
+                        this.setCustomValidity('Mã nhân viên hoặc email phải có ít nhất 3 ký tự');
+                    }
+                    adjustContainerHeight();
+                });
+            }
+
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function() {
+                    this.setCustomValidity('');
+                    if (this.value.length < 6 && this.value.length > 0) {
+                        this.setCustomValidity('Mật khẩu phải có ít nhất 6 ký tự');
+                    }
+                    adjustContainerHeight();
+                });
+            }
+
+            // Flash messages scroll to top
+            if (flashMessages.children.length > 0) {
+                flashMessages.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         });
+
+        // Alert utility function
+        function showAlert(message, type = 'error') {
+            const flashContainer = document.getElementById('flashMessages');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            flashContainer.insertBefore(alertDiv, flashContainer.firstChild);
+            adjustContainerHeight();
+            
+            // Auto remove after 4 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.style.opacity = '0';
+                    alertDiv.style.transform = 'translateY(-5px)';
+                    alertDiv.style.transition = 'all 0.3s ease';
+                    setTimeout(() => {
+                        if (alertDiv.parentNode) {
+                            alertDiv.remove();
+                            adjustContainerHeight();
+                        }
+                    }, 300);
+                }
+            }, 4000);
+
+            // Scroll to top if needed
+            flashContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Prevent double submission
+        let isSubmitting = false;
+        document.addEventListener('submit', function(e) {
+            if (isSubmitting) {
+                e.preventDefault();
+                return false;
+            }
+            isSubmitting = true;
+            setTimeout(() => isSubmitting = false, 30000);
+        });
+
+        // Touch-friendly scroll for mobile
+        let isDown = false;
+        let startY;
+        let scrollTop;
+
+        document.getElementById('loginContainer').addEventListener('touchstart', e => {
+            isDown = true;
+            startY = e.touches[0].clientY;
+            scrollTop = e.currentTarget.scrollTop;
+        }, { passive: true });
+
+        document.getElementById('loginContainer').addEventListener('touchmove', e => {
+            if (!isDown) return;
+            e.preventDefault();
+            const y = e.touches[0].clientY;
+            const walk = (startY - y) * 2;
+            e.currentTarget.scrollTop = scrollTop - walk;
+        }, { passive: false });
+
+        document.getElementById('loginContainer').addEventListener('touchend', () => {
+            isDown = false;
+        }, { passive: true });
     </script>
 </body>
 </html>

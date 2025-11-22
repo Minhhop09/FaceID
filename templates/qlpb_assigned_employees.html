@@ -197,17 +197,30 @@ body{background:#ffffff;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
     <td>{{ r.GioVaoText }}</td>
     <td>{{ r.GioRaText }}</td>
 
-    <td>
-        {% if r.TrangThaiText == 'Đã chấm công' %}
-            <span class="badge bg-success">{{ r.TrangThaiText }}</span>
-        {% elif r.TrangThaiText == 'Vắng' %}
-            <span class="badge bg-danger">{{ r.TrangThaiText }}</span>
-        {% elif r.TrangThaiText == 'Chưa chấm' %}
-            <span class="badge bg-warning text-dark">{{ r.TrangThaiText }}</span>
-        {% else %}
-            <span class="badge bg-secondary">{{ r.TrangThaiText }}</span>
-        {% endif %}
-    </td>
+<td>
+    {% if r.TrangThai == 3 %}
+        <span class="badge bg-info text-dark">
+            <i class="fa-solid fa-umbrella-beach me-1"></i>Nghỉ phép
+        </span>
+    {% elif r.TrangThai == 1 %}
+        <span class="badge bg-success">
+            <i class="fa-solid fa-user-check me-1"></i>Đã chấm công
+        </span>
+    {% elif r.TrangThai == 2 %}
+        <span class="badge bg-danger">
+            <i class="fa-solid fa-user-slash me-1"></i>Vắng
+        </span>
+    {% elif r.TrangThai == 0 %}
+        <span class="badge bg-secondary">
+            <i class="fa-solid fa-question-circle me-1"></i>Chưa chấm
+        </span>
+    {% else %}
+        <span class="badge bg-dark">
+            <i class="fa-solid fa-circle-question me-1"></i>Không xác định
+        </span>
+    {% endif %}
+</td>
+
 
    
 </tr>

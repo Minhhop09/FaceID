@@ -1,0 +1,163 @@
+<!-- ============================================================
+💳 PAYMENT MODAL — Cổng thanh toán tổng hợp (MoMo / ZaloPay / Napas / Bank)
+Dành cho FaceID Payroll
+============================================================ -->
+<style>
+  .gateway-modal {max-width: 900px; width: 95%;}
+  .gateway-header {
+    background: linear-gradient(135deg,#6a11cb,#2575fc);
+    color:#fff; padding:16px 24px;
+    display:flex; justify-content:space-between; align-items:center;
+    border-top-left-radius:8px;border-top-right-radius:8px;
+  }
+  .gateway-body {display:flex; flex-wrap:wrap; background:#fff;}
+  .gateway-left {
+    flex:1; min-width:280px; border-right:1px solid #e0e0e0; padding:24px;
+  }
+  .gateway-right {
+    flex:1.5; min-width:380px; padding:24px;
+  }
+  .order-box {
+    background:#fafafa; border-radius:10px; padding:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.05);
+  }
+  .order-item {margin-bottom:8px;}
+  .order-item span {float:right;font-weight:600;}
+  .pay-tabs {display:flex;border-bottom:2px solid #ddd;margin-bottom:16px;}
+  .pay-tab {
+    flex:1;text-align:center;padding:10px;cursor:pointer;
+    font-weight:600;color:#555;border-bottom:3px solid transparent;
+    transition:0.3s;
+  }
+  .pay-tab.active {border-color:#2575fc;color:#2575fc;}
+  .pay-content {display:none;}
+  .pay-content.active {display:block;animation:fadeIn .3s ease;}
+  @keyframes fadeIn {from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .qr-box {text-align:center;padding:20px;border:1px dashed #ccc;border-radius:10px;}
+  .qr-box img {width:150px;height:150px;margin-bottom:10px;}
+  .form-control-sm {font-size:0.9rem;}
+</style>
+
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered gateway-modal">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="gateway-header">
+        <h5 class="m-0"><i class="fa-solid fa-credit-card me-2"></i> Cổng thanh toán</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="gateway-body">
+        <!-- LEFT -->
+        <div class="gateway-left">
+          <h6 class="fw-bold mb-3 text-primary">Thông tin đơn hàng</h6>
+          <div class="order-box">
+            <div class="order-item">Nhân viên: <span id="orderName">---</span></div>
+            <div class="order-item">Mã giao dịch: <span id="orderCode">---</span></div>
+            <div class="order-item">Số tiền: <span id="orderAmount">---</span></div>
+            <div class="order-item">Ngày tạo: <span id="orderDate"></span></div>
+          </div>
+          <div class="mt-4 text-center">
+            <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              <i class="fa-solid fa-xmark me-1"></i> Hủy thanh toán
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="gateway-right">
+          <div class="pay-tabs">
+            <div class="pay-tab active" data-target="momo">MoMo</div>
+            <div class="pay-tab" data-target="zalopay">ZaloPay</div>
+            <div class="pay-tab" data-target="napas">Napas</div>
+            <div class="pay-tab" data-target="bank">Ngân hàng</div>
+          </div>
+
+          <!-- MoMo -->
+          <div class="pay-content active" id="pay-momo">
+            <div class="qr-box">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ThanhToanMoMo" alt="MoMo QR">
+              <p class="text-danger fw-bold">Quét mã bằng ứng dụng MoMo để thanh toán</p>
+            </div>
+          </div>
+
+          <!-- ZaloPay -->
+          <div class="pay-content" id="pay-zalopay">
+            <div class="qr-box">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ThanhToanZaloPay" alt="ZaloPay QR">
+              <p class="text-primary fw-bold">Quét mã bằng ZaloPay để hoàn tất giao dịch</p>
+            </div>
+          </div>
+
+          <!-- Napas -->
+          <div class="pay-content" id="pay-napas">
+            <div class="mb-3">
+              <label class="form-label">Số thẻ</label>
+              <input type="text" class="form-control form-control-sm" placeholder="9704 0000 0000 0000">
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col">
+                <label class="form-label">Ngày hết hạn</label>
+                <input type="text" class="form-control form-control-sm" placeholder="MM/YY">
+              </div>
+              <div class="col">
+                <label class="form-label">CVV</label>
+                <input type="password" class="form-control form-control-sm" placeholder="***">
+              </div>
+            </div>
+            <div class="text-center">
+              <button class="btn btn-primary w-100"><i class="fa-solid fa-lock me-1"></i> Thanh toán qua Napas</button>
+            </div>
+          </div>
+
+          <!-- Bank -->
+          <div class="pay-content" id="pay-bank">
+            <div class="mb-3">
+              <label class="form-label">Số tài khoản</label>
+              <input type="text" class="form-control form-control-sm" placeholder="Nhập số tài khoản">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Ngân hàng</label>
+              <select class="form-select form-select-sm">
+                <option>Vietcombank</option>
+                <option>ACB</option>
+                <option>Techcombank</option>
+                <option>BIDV</option>
+              </select>
+            </div>
+            <div class="text-center">
+              <button class="btn btn-success w-100"><i class="fa-solid fa-paper-plane me-1"></i> Gửi OTP & Thanh toán</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 🎯 Tab chuyển giữa MoMo / ZaloPay / Napas / Bank
+  document.querySelectorAll(".pay-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".pay-tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      document.querySelectorAll(".pay-content").forEach(c => c.classList.remove("active"));
+      document.getElementById("pay-" + tab.dataset.target).classList.add("active");
+    });
+  });
+
+  // 🕓 Hiển thị ngày hiện tại
+  document.addEventListener("DOMContentLoaded", () => {
+    const now = new Date();
+    const date = now.toLocaleDateString("vi-VN");
+    const el = document.getElementById("orderDate");
+    if (el) el.textContent = date;
+  });
+
+  // 🧾 Cập nhật thông tin đơn hàng khi mở modal
+  document.addEventListener("show.bs.modal", e => {
+    if (e.target.id === "paymentModal") {
+      document.getElementById("orderName").textContent = window.currentOrderName || "Không xác định";
+      document.getElementById("orderCode").textContent = "TXN" + Math.floor(Math.random() * 100000);
+      document.getElementById("orderAmount").textContent = (window.currentOrderAmount || "0") + " ₫";
+    }
+  });
+</script>

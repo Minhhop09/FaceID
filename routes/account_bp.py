@@ -197,43 +197,61 @@ def edit_account(username):
 
     return render_template("edit_account.html", account=account)
 
-# HÀM CHUNG – CẬP NHẬT TRẠNG THÁI TÀI KHOẢN
 def send_mail_background(email, subject, body):
-    """Hàm gửi email trong thread nền (không làm chậm request chính)."""
-    try:
-        send_email_notification(email, subject, body)
-    except Exception as e:
-        print(f"❌ [THREAD] Lỗi gửi email nền: {e}")
+    """Gửi email trong thread an toàn với Flask context."""
+    app = current_app._get_current_object()  # Lấy app thật (không proxy)
+
+    def _send():
+        with app.app_context():  # 🔒 Tạo context cho thread
+            try:
+                send_email_notification(email, subject, body)
+                print(f"📧 [OK] Đã gửi email nền đến {email}")
+            except Exception as e:
+                print(f"❌ [THREAD ERROR] Không gửi được email: {e}")
+
+    Thread(target=_send, daemon=True).start()
 
 
-def change_account_status(ma_nv, new_status, action_name):
+from flask import current_app, session, flash
+from threading import Thread
+from core.db_utils import get_sql_connection
+from core.email_utils import notify_attendance
+
+def change_account_status(identifier, new_status, action_name):
     """
-    Cập nhật trạng thái tài khoản (khóa / kích hoạt),
-    gửi email thông báo cho nhân viên (nền),
-    và ghi log vào LichSuThayDoi + LichSuEmail.
+    ✅ Cập nhật trạng thái tài khoản (khóa / kích hoạt)
+    - Có thể truyền vào MaNV hoặc TenDangNhap
+    - Gửi email thông báo trong nền (Flask context)
+    - Ghi log vào LichSuThayDoi + LichSuEmail
     """
     conn = get_sql_connection()
     cursor = conn.cursor()
 
     try:
-        print(f"🔍 [DEBUG] Bắt đầu thay đổi trạng thái cho nhân viên {ma_nv} → {new_status}")
+        print(f"🔍 [DEBUG] Bắt đầu thay đổi trạng thái cho '{identifier}' → {new_status}")
 
-        # 1️⃣ Lấy trạng thái cũ
-        cursor.execute("SELECT TrangThai FROM TaiKhoan WHERE MaNV = ?", (ma_nv,))
-        old_row = cursor.fetchone()
-        old_status = old_row[0] if old_row else None
+        # 1️⃣ Lấy thông tin tài khoản (tìm theo MaNV hoặc TenDangNhap)
+        cursor.execute("""
+            SELECT MaTK, MaNV, TenDangNhap, TrangThai
+            FROM TaiKhoan
+            WHERE MaNV = ? OR TenDangNhap = ?
+        """, (identifier, identifier))
+        row_tk = cursor.fetchone()
 
-        if old_status is None:
-            flash("❌ Không tìm thấy tài khoản tương ứng với nhân viên này!", "danger")
-            print("⚠️ Không có tài khoản ứng với nhân viên.")
+        if not row_tk:
+            print("⚠️ Không có tài khoản ứng với nhân viên hoặc tên đăng nhập.")
+            flash("❌ Không tìm thấy tài khoản tương ứng!", "danger")
             return False
+
+        ma_tk, ma_nv, username, old_status = row_tk
+        print(f"✅ Tìm thấy tài khoản: {username} (MaNV={ma_nv or 'NULL'}) — TrangThai cũ: {old_status}")
 
         # 2️⃣ Cập nhật trạng thái mới
         cursor.execute("""
             UPDATE TaiKhoan
             SET TrangThai = ?
-            WHERE MaNV = ?
-        """, (new_status, ma_nv))
+            WHERE MaTK = ?
+        """, (new_status, ma_tk))
         print("✅ Đã cập nhật trạng thái tài khoản.")
 
         # 3️⃣ Ghi log thay đổi
@@ -242,12 +260,9 @@ def change_account_status(ma_nv, new_status, action_name):
                 TenBang, MaBanGhi, HanhDong, TruongThayDoi,
                 GiaTriCu, GiaTriMoi, ThoiGian, NguoiThucHien
             )
-            VALUES (
-                N'TaiKhoan', ?, ?, N'TrangThai',
-                ?, ?, GETDATE(), ?
-            )
+            VALUES (N'TaiKhoan', ?, ?, N'TrangThai', ?, ?, GETDATE(), ?)
         """, (
-            ma_nv,
+            str(ma_nv or username),
             action_name,
             str(old_status),
             str(new_status),
@@ -255,58 +270,68 @@ def change_account_status(ma_nv, new_status, action_name):
         ))
         print("📝 Đã ghi log LichSuThayDoi.")
 
-        # 4️⃣ Lấy thông tin nhân viên
+        # 4️⃣ Lấy thông tin email nhân viên (nếu có)
         cursor.execute("""
-            SELECT TK.MaTK, NV.Email, NV.HoTen
-            FROM TaiKhoan TK
-            JOIN NhanVien NV ON TK.MaNV = NV.MaNV
+            SELECT NV.Email, NV.HoTen
+            FROM NhanVien NV
             WHERE NV.MaNV = ?
         """, (ma_nv,))
-        row = cursor.fetchone()
+        nv_row = cursor.fetchone()
 
-        if not row:
-            print(f"⚠️ Không tìm thấy nhân viên có mã {ma_nv} để gửi email.")
+        email = nv_row[0] if nv_row else None
+        hoten = nv_row[1] if nv_row else username
+
+        if not email:
+            print(f"⚠️ Không có email cho nhân viên {hoten} ({username}).")
         else:
-            ma_tk, email, hoten = row
-            print(f"📧 Chuẩn bị gửi email cho {hoten} ({email})")
-
             # 5️⃣ Chuẩn bị nội dung email
             if new_status == 0:
                 subject = "🔒 Tài khoản của bạn đã bị khóa"
                 body = (
-                    f"Kính gửi {hoten},\n\n"
-                    f"Tài khoản của bạn (Mã NV: {ma_nv}) đã bị khóa bởi quản trị viên.\n"
-                    f"Vui lòng liên hệ phòng nhân sự để được hỗ trợ.\n\n"
-                    f"Trân trọng,\nHệ thống FaceID"
+                    f"Kính gửi {hoten},<br><br>"
+                    f"Tài khoản của bạn (Tên đăng nhập: <b>{username}</b>) đã bị <b>khóa</b>.<br>"
+                    f"Vui lòng liên hệ phòng nhân sự để được hỗ trợ.<br><br>"
+                    f"Trân trọng,<br><b>Hệ thống FaceID</b>"
                 )
                 loai_thong_bao = "Khóa tài khoản"
             else:
                 subject = "🔓 Tài khoản của bạn đã được kích hoạt"
                 body = (
-                    f"Kính gửi {hoten},\n\n"
-                    f"Tài khoản của bạn (Mã NV: {ma_nv}) đã được kích hoạt trở lại.\n"
-                    f"Chúc bạn làm việc hiệu quả!\n\n"
-                    f"Trân trọng,\nHệ thống FaceID"
+                    f"Kính gửi {hoten},<br><br>"
+                    f"Tài khoản của bạn (Tên đăng nhập: <b>{username}</b>) đã được <b>kích hoạt trở lại</b>.<br>"
+                    f"Chúc bạn làm việc hiệu quả!<br><br>"
+                    f"Trân trọng,<br><b>Hệ thống FaceID</b>"
                 )
                 loai_thong_bao = "Mở khóa tài khoản"
 
-            # 6️⃣ Gửi email nền (Thread) + ghi log LichSuEmail
-            try:
-                Thread(target=send_mail_background, args=(email, subject, body), daemon=True).start()
-                print(f"📤 Đang gửi email nền {loai_thong_bao} đến {email}...")
+            # 6️⃣ Gửi email nền (giữ đúng Flask context)
+            app = current_app._get_current_object()
 
-                cursor.execute("""
-                    INSERT INTO LichSuEmail (MaTK, EmailTo, LoaiThongBao, ThoiGian, TrangThai)
-                    VALUES (?, ?, ?, GETDATE(), N'Đang gửi (nền)')
-                """, (ma_tk, email, loai_thong_bao))
-            except Exception as e:
-                print(f"❌ Lỗi khởi tạo thread gửi email: {e}")
-                cursor.execute("""
-                    INSERT INTO LichSuEmail (MaTK, EmailTo, LoaiThongBao, ThoiGian, TrangThai)
-                    VALUES (?, ?, ?, GETDATE(), N'Lỗi khởi tạo thread')
-                """, (ma_tk, email, loai_thong_bao))
+            def background_job():
+                with app.app_context():
+                    try:
+                        send_email_notification(
+                            to_email = email,
+                            subject=subject,
+                            html_body=body,
+                            loai=loai_thong_bao,
+                            ma_tham_chieu=str(ma_nv or username),
+                            ma_tk=ma_tk
+                        )
+                        print(f"✅ Email đã gửi đến {email} — {subject}")
+                    except Exception as e:
+                        print(f"❌ [EMAIL ERROR] {e}")
 
-        # 7️⃣ Lưu tất cả thay đổi
+            Thread(target=background_job, daemon=True).start()
+            print(f"📤 Đang gửi email nền {loai_thong_bao} đến {email}...")
+
+            # 7️⃣ Ghi log email
+            cursor.execute("""
+                INSERT INTO LichSuEmail (MaTK, EmailTo, LoaiThongBao, ThoiGian, TrangThai)
+                VALUES (?, ?, ?, GETDATE(), N'Đang gửi (nền)')
+            """, (ma_tk, email, loai_thong_bao))
+
+        # 8️⃣ Lưu thay đổi
         conn.commit()
         print("💾 COMMIT HOÀN TẤT.")
         flash("✅ Cập nhật trạng thái tài khoản thành công!", "success")
@@ -321,23 +346,31 @@ def change_account_status(ma_nv, new_status, action_name):
     finally:
         conn.close()
         print("🔚 Đã đóng kết nối SQL.")
-        
-#VÔ HIỆU HÓA (XÓA MỀM)
 
+
+# ============================================================
+# ✅ VÔ HIỆU HÓA (XÓA MỀM)
+# ============================================================
 @account_bp.route("/accounts/deactivate/<username>", methods=["POST"])
 @require_role("admin")
 def deactivate_account(username):
+    """Vô hiệu hóa (xóa mềm) tài khoản."""
     if change_account_status(username, 0, "Vô hiệu hóa"):
         flash(f"Đã vô hiệu hóa tài khoản: {username}", "warning")
+    else:
+        flash(f"Lỗi khi vô hiệu hóa tài khoản: {username}", "danger")
     return redirect(url_for("account_bp.accounts"))
 
-# CHUYỂN TRẠNG THÁI (AJAX)
-
+# ============================================================
+# ✅ CHUYỂN TRẠNG THÁI (AJAX)
+# ============================================================
 @account_bp.route("/accounts/toggle_status/<username>", methods=["POST"])
 @require_role("admin")
 def toggle_account_status(username):
+    """Chuyển trạng thái hoạt động / ngừng hoạt động (AJAX)."""
     conn = get_sql_connection()
     cursor = conn.cursor()
+
     cursor.execute("SELECT TrangThai FROM TaiKhoan WHERE TenDangNhap = ?", (username,))
     result = cursor.fetchone()
     conn.close()
@@ -355,8 +388,9 @@ def toggle_account_status(username):
         "status_text": "Đang hoạt động" if new_status == 1 else "Ngừng hoạt động"
     })
 
-#XÓA MỀM (CHO NÚT RIÊNG)
-
+# ============================================================
+# ✅ XÓA MỀM (CHO NÚT RIÊNG)
+# ============================================================
 @account_bp.route("/accounts/delete/<username>", methods=["POST"])
 @require_role("admin")
 def delete_account(username):
@@ -366,7 +400,6 @@ def delete_account(username):
     else:
         flash(f"Lỗi khi vô hiệu hóa tài khoản {username}.", "danger")
     return redirect(url_for("account_bp.accounts"))
-
 # KHÔI PHỤC MỘT TÀI KHOẢN
 
 @account_bp.route("/accounts/activate/<username>", methods=["POST"])
@@ -377,7 +410,8 @@ def activate_account(username):
         flash(f"Đã khôi phục tài khoản {username} thành công!", "success")
     else:
         flash("Lỗi khi khôi phục tài khoản!", "danger")
-    return redirect(request.referrer or url_for("deleted_records", tab="accounts"))
+    return redirect(request.referrer or url_for("account_bp.deleted_accounts_list"))
+
 
 # KHÔI PHỤC NHIỀU TÀI KHOẢN
 
@@ -390,15 +424,17 @@ def restore_multiple_accounts():
 
     if not selected_usernames:
         flash("⚠️ Chưa chọn tài khoản nào để khôi phục!", "warning")
-        return redirect(url_for("deleted_records", tab="accounts"))
+        return redirect(url_for("account_bp.deleted_accounts_list"))
+
 
     count = 0
     for uname in selected_usernames:
         if change_account_status(uname, 1, "Khôi phục nhiều"):
             count += 1
 
-    flash(f"ã khôi phục {count} tài khoản thành công.", "success")
-    return redirect(url_for("deleted_records", tab="accounts"))
+    flash(f"Đã khôi phục {count} tài khoản thành công.", "success")
+    return redirect(request.referrer or url_for("account_bp.deleted_accounts_list"))
+
 
 # DANH SÁCH TÀI KHOẢN ĐÃ VÔ HIỆU HÓA
 

@@ -1,8 +1,35 @@
 import pyodbc
 from datetime import datetime
 from core.db_utils import get_sql_connection
+from flask import request, session
+from datetime import datetime
 
-
+def log_action(action, detail="", result="Thành công", scope="Hệ thống", ma_tk=None):
+    try:
+        conn = get_sql_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO LichSuHeThong (MaTK, HanhDong, NoiDung, KetQua, IP, ThietBi, ThoiGian, NguoiThucHien, Scope)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            ma_tk or session.get("user_id"),
+            action,
+            detail,
+            result,
+            (request.remote_addr or "")[:50],
+            (request.user_agent.string if request.user_agent else "")[:300],
+            datetime.now(),  # ✅ đúng
+            session.get("username", "Hệ thống"),
+            scope
+        ))
+        conn.commit()
+        print(f"[LOG] ✅ {action} - {detail} ({result})")
+    except Exception as e:
+        print(f"[LOG_ERROR] Không thể ghi log: {e}")
+    finally:
+        if conn:
+            conn.close()
+            
 # ============================================================
 # 🧾 Ghi log thay đổi dữ liệu (dành cho CRUD)
 # ============================================================

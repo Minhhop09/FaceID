@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gửi đơn nghỉ phép - {{ employee.HoTen }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4361ee; --primary-dark: #3a56d4; --secondary: #6c757d; 
+      --success: #28a745; --info: #17a2b8; --warning: #ffc107; 
+      --danger: #dc3545; --light: #f8f9fa; --dark: #343a40; 
+      --sidebar-bg: #ffffff; --sidebar-hover: #f1f5f9; --sidebar-active: #4361ee;
+      --card-bg: #ffffff; --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+    
+    body { 
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%); 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      min-height: 100vh; 
+      color: #495057;
+    }
+    
+    .sidebar { 
+      min-height: 100vh; 
+      width: 280px; 
+      background: var(--sidebar-bg); 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      z-index: 1000; 
+      transition: all 0.3s ease; 
+      box-shadow: 3px 0 15px rgba(0, 0, 0, 0.05); 
+      border-right: 1px solid rgba(0, 0, 0, 0.05); 
+    }
+    
+    .sidebar-header { 
+      padding: 25px 20px; 
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
+      text-align: center; 
+    }
+    
+    .sidebar-brand { 
+      color: var(--dark); 
+      text-decoration: none; 
+      font-size: 1.5rem; 
+      font-weight: 700; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 10px; 
+    }
+    
+    .sidebar-brand i { 
+      background: linear-gradient(135deg, var(--primary), #4895ef); 
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent; 
+      font-size: 1.8rem; 
+    }
+    
+    .sidebar-nav { 
+      padding: 20px 0 80px; 
+      overflow-y: auto; 
+      height: calc(100vh - 80px); 
+    }
+    
+    .nav-item { 
+      margin-bottom: 5px; 
+    }
+    
+    .nav-link { 
+      color: var(--secondary); 
+      padding: 15px 25px; 
+      text-decoration: none; 
+      display: flex; 
+      align-items: center; 
+      gap: 12px; 
+      transition: all 0.3s ease; 
+      border-left: 3px solid transparent; 
+      font-weight: 500; 
+    }
+    
+    .nav-link:hover { 
+      color: var(--primary); 
+      background: var(--sidebar-hover); 
+      border-left-color: var(--primary); 
+      transform: translateX(5px); 
+    }
+    
+    .nav-link.active { 
+      color: white; 
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+      border-left-color: white; 
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3); 
+    }
+    
+    .nav-link i { 
+      width: 20px; 
+      text-align: center; 
+      font-size: 1.1rem; 
+    }
+    
+    .logout-link { 
+      color: var(--danger); 
+      border-top: 1px solid rgba(0, 0, 0, 0.05); 
+      margin-top: 20px; 
+    }
+    
+    .logout-link:hover { 
+      color: white; 
+      background: var(--danger); 
+    }
+    
+    .main-content { 
+      margin-left: 280px; 
+      padding: 30px; 
+      transition: all 0.3s ease; 
+    }
+    
+    .dashboard-header { 
+      background: white; 
+      border-radius: 15px; 
+      padding: 25px 30px; 
+      margin-bottom: 30px; 
+      box-shadow: var(--card-shadow); 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+    }
+    
+    .header-title h1 { 
+      color: var(--dark); 
+      font-weight: 700; 
+      margin-bottom: 5px; 
+      font-size: 1.8rem;
+    }
+    
+    .header-title p { 
+      color: var(--secondary); 
+      margin: 0; 
+      font-size: 0.95rem;
+    }
+    
+    .user-profile { 
+      display: flex; 
+      align-items: center; 
+      gap: 15px; 
+      background: var(--light); 
+      padding: 12px 20px; 
+      border-radius: 12px; 
+      border: 1px solid rgba(0, 0, 0, 0.05); 
+      transition: all 0.3s ease;
+    }
+    
+    .user-profile:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+    
+    .user-avatar { 
+      width: 45px; 
+      height: 45px; 
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+      border-radius: 50%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      color: white; 
+      font-weight: 600; 
+      font-size: 1.2rem; 
+    }
+    
+    .user-info { 
+      line-height: 1.4; 
+    }
+    
+    .user-name { 
+      font-weight: 600; 
+      color: var(--dark); 
+      margin: 0; 
+      font-size: 1rem;
+    }
+    
+    .user-role { 
+      color: var(--secondary); 
+      font-size: 0.85rem; 
+      margin: 0; 
+    }
+    
+    .leave-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: var(--card-shadow);
+      padding: 40px;
+      max-width: 1000px;
+      margin: 0 auto;
+      transition: all 0.3s ease;
+    }
+    
+    .leave-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+    }
+    
+    .leave-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    
+    .leave-header h2 {
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 15px;
+      font-size: 2.2rem;
+    }
+    
+    .leave-header p {
+      color: var(--secondary);
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+    
+    .badge-info {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1rem;
+    }
+    
+    .form-label {
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 10px;
+      font-size: 1.05rem;
+    }
+    
+    .form-control, textarea {
+      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 12px 18px;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+    
+    .form-control:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.15);
+    }
+    
+    .btn {
+      border-radius: 12px;
+      font-weight: 600;
+      padding: 12px 25px;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 1rem;
+      border: none;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
+    }
+    
+    .btn-outline-primary {
+      border: 2px solid var(--primary);
+      color: var(--primary);
+      background: transparent;
+    }
+    
+    .btn-outline-primary:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-3px);
+    }
+    
+    .btn-secondary {
+      background: var(--secondary);
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background: #5a6268;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
+    }
+    
+    .table {
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+      margin-top: 20px;
+    }
+    
+    .table thead {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+    }
+    
+    .table th {
+      border: none;
+      padding: 18px 15px;
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    .table td {
+      border: none;
+      padding: 15px;
+      vertical-align: middle;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .table tbody tr:hover {
+      background-color: rgba(67, 97, 238, 0.03);
+    }
+    
+    .form-check-input {
+      width: 18px;
+      height: 18px;
+      margin-right: 8px;
+    }
+    
+    .form-check-label {
+      display: flex;
+      align-items: center;
+    }
+    
+    @media (max-width: 992px) {
+      .sidebar { width: 80px; }
+      .sidebar-brand span, .nav-link span { display: none; }
+      .main-content { margin-left: 80px; }
+      .sidebar-header { padding: 20px 10px; }
+      .nav-link { justify-content: center; padding: 15px; }
+      .nav-link i { font-size: 1.3rem; }
+    }
+    
+    @media (max-width: 768px) {
+      .main-content { padding: 20px; }
+      .dashboard-header { flex-direction: column; gap: 20px; text-align: center; }
+      .leave-card { padding: 25px; }
+      .leave-header h2 { font-size: 1.8rem; }
+      .table-responsive { font-size: 0.9rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="sidebar-brand">
+        <i class="fas fa-id-card-alt"></i>
+        <span>FaceID System</span>
+      </a>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-item"><a href="{{ url_for('employee_bp.employee_dashboard') }}" class="nav-link"><i class="fas fa-home"></i><span>Trang chủ</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('employee_bp.employee_profile') }}" class="nav-link"><i class="fas fa-user"></i><span>Hồ sơ cá nhân</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('employee_bp.my_schedule') }}" class="nav-link"><i class="fas fa-calendar"></i><span>Lịch làm việc</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('employee_bp.employee_attendance') }}" class="nav-link"><i class="fas fa-check-circle"></i><span>Chấm công</span></a></div>
+<div class="nav-item"><a href="{{ url_for('employee_bp.employee_leave_request') }}" class="nav-link active"><i class="fa-solid fa-file-pen"></i><span>Gửi đơn nghỉ phép</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('employee_bp.employee_leave_list') }}" class="nav-link"><i class="fas fa-list"></i><span>Danh sách đơn</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('employee_bp.my_salary') }}" class="nav-link"><i class="fas fa-coins"></i><span>Lương của tôi</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('employee_bp.my_face') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt của tôi</span></a></div>
+      <div class="nav-item"><a href="{{ url_for('auth_bp.login') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
+    </nav>
+  </div>
+
+  <div class="main-content">
+    <!-- Header -->
+    <div class="dashboard-header">
+      <div class="header-title">
+        <h1>Gửi đơn nghỉ phép</h1>
+        <p>Điền thông tin chi tiết để gửi yêu cầu nghỉ phép</p>
+      </div>
+      
+      <div class="user-profile">
+        {% if employee.AnhDaiDien %}
+          <img src="{{ employee.AnhDaiDien }}" alt="Ảnh nhân viên"
+               class="rounded-circle me-3 shadow-sm"
+               width="60" height="60" style="object-fit: cover; border: 2px solid #4361ee;">
+        {% else %}
+          <div class="user-avatar rounded-circle bg-primary text-white fw-bold d-flex align-items-center justify-content-center me-3"
+               style="width:60px; height:60px; font-size:24px;">
+            {{ employee.HoTen[0]|upper }}
+          </div>
+        {% endif %}
+        <div class="user-info">
+          <div class="user-name fw-semibold">{{ employee.HoTen }}</div>
+          <div class="user-role text-muted small">Nhân viên</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leave Request Form -->
+    <div class="leave-card">
+      <div class="leave-header">
+        <h2><i class="fa-solid fa-file-pen me-2"></i>Gửi đơn nghỉ phép</h2>
+        <p>Điền thông tin chi tiết để gửi yêu cầu nghỉ phép</p>
+        <span class="badge-info"><i class="fa-regular fa-calendar me-1"></i>Ca phép còn lại: {{ employee.SoCaPhepConLai }}</span>
+      </div>
+<form method="POST" id="leaveForm">
+  <div class="row g-4">
+
+    <!-- Ngày bắt đầu và kết thúc -->
+    <div class="col-md-6">
+      <label class="form-label">Từ ngày</label>
+      <input type="date" name="tu_ngay" id="tu_ngay" class="form-control" min="{{ today }}" required>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">Đến ngày</label>
+      <input type="date" name="den_ngay" id="den_ngay" class="form-control" min="{{ today }}" required>
+    </div>
+
+    <!-- Nút tạo danh sách ngày -->
+    <div class="col-12 text-center mt-2">
+      <button type="button" class="btn btn-outline-primary" id="btn-generate">
+        <i class="fa-solid fa-calendar-check me-2"></i>Tạo danh sách ngày nghỉ
+      </button>
+    </div>
+
+    <!-- Container chứa danh sách ngày -->
+    <div id="ngay-container" class="mt-4"></div>
+
+    <!-- Lý do nghỉ -->
+    <div class="col-12">
+      <label class="form-label">Lý do nghỉ phép</label>
+      <textarea name="ly_do" class="form-control" rows="3" placeholder="Nhập lý do nghỉ..." required></textarea>
+    </div>
+
+    <!-- Nút gửi -->
+    <div class="col-12 text-end mt-4">
+      <a href="{{ url_for('employee_bp.employee_leave_list') }}" class="btn btn-secondary me-2">
+        <i class="fas fa-arrow-left me-2"></i>Danh sách đơn
+      </a>
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-paper-plane me-2"></i>Gửi đơn
+      </button>
+    </div>
+  </div>
+</form>
+
+<script>
+document.getElementById("btn-generate").addEventListener("click", function() {
+  const tuNgay = document.getElementById("tu_ngay").value;
+  const denNgay = document.getElementById("den_ngay").value;
+  const container = document.getElementById("ngay-container");
+  container.innerHTML = "";
+
+  if (!tuNgay || !denNgay) {
+    alert("⚠️ Vui lòng chọn đầy đủ ngày bắt đầu và kết thúc!");
+    return;
+  }
+
+  const start = new Date(tuNgay);
+  const end = new Date(denNgay);
+
+  if (end < start) {
+    alert("⚠️ Ngày kết thúc phải sau hoặc bằng ngày bắt đầu!");
+    return;
+  }
+
+  // Sinh danh sách ngày nghỉ
+  let html = "";
+  let current = new Date(start);
+
+  while (current <= end) {
+    const dateStr = current.toISOString().split("T")[0];
+    html += `
+      <div class="border rounded p-3 mb-3 bg-light shadow-sm">
+        <div class="fw-semibold mb-2">
+          <i class="fa-solid fa-calendar-day text-primary me-2"></i>${dateStr}
+        </div>
+        <div class="form-check form-check-inline ms-3">
+          <input class="form-check-input" type="checkbox" name="ca_lam_${dateStr}" value="Ca1" id="ca1_${dateStr}">
+          <label class="form-check-label" for="ca1_${dateStr}">Ca sáng</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" name="ca_lam_${dateStr}" value="Ca2" id="ca2_${dateStr}">
+          <label class="form-check-label" for="ca2_${dateStr}">Ca chiều</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" name="ca_lam_${dateStr}" value="Ca3" id="ca3_${dateStr}">
+          <label class="form-check-label" for="ca3_${dateStr}">Ca tối</label>
+        </div>
+      </div>
+    `;
+    current.setDate(current.getDate() + 1);
+  }
+
+  container.innerHTML = html;
+});
+</script>
+
+</body>
+</html>

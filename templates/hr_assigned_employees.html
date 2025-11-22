@@ -462,6 +462,14 @@
             <div class="nav-item"><a href="{{ url_for('shift_bp.shifts') }}" class="nav-link"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
             <div class="nav-item"><a href="{{ url_for('schedule_bp.assigned_employees') }}" class="nav-link active"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
             <div class="nav-item"><a href="{{ url_for('attendance_bp.attendance_report') }}" class="nav-link"><i class="fas fa-clipboard-check"></i><span>Chấm công</span></a></div>
+            <div class="nav-item position-relative">
+  <a href="{{ url_for('attendance_bp.hr_leave_approval') }}" class="nav-link d-flex align-items-center justify-content-between">
+    <div><i class="fas fa-file-signature me-2"></i><span>Đơn nghỉ phép</span></div>
+    {% if pending_count and pending_count > 0 %}
+      <span class="badge bg-danger rounded-pill ms-2">{{ pending_count }}</span>
+    {% endif %}
+  </a>
+</div>
             <div class="nav-item"><a href="{{ url_for('salary_bp.salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
             <div class="nav-item"><a href="{{ url_for('faces_bp.faces') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt</span></a></div>
             <div class="nav-item"><a href="{{ url_for('reports_bp.hr_reports_view') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Báo cáo thống kê</span></a></div>
@@ -568,15 +576,23 @@
                             <td>{{ r.GioBatDau[:5] if r.GioBatDau else '-' }}</td>
                             <td>{{ r.GioKetThuc[:5] if r.GioKetThuc else '-' }}</td>
 
-                            <td>
-                                {% if r.TrangThaiText == 'Đã chấm công' %}
-                                    <span class="badge bg-success">{{ r.TrangThaiText }}</span>
-                                {% elif r.TrangThaiText == 'Vắng' %}
-                                    <span class="badge bg-danger">{{ r.TrangThaiText }}</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">{{ r.TrangThaiText }}</span>
-                                {% endif %}
-                            </td>
+<td>
+    {% if r.TrangThai == 1 %}
+        <span class="badge bg-success"><i class="fa-solid fa-check-circle me-1"></i>Đúng giờ</span>
+    {% elif r.TrangThai == 2 %}
+        <span class="badge bg-warning text-dark"><i class="fa-solid fa-clock me-1"></i>Đi muộn</span>
+    {% elif r.TrangThai == 3 %}
+        <span class="badge bg-info text-dark"><i class="fa-solid fa-umbrella-beach me-1"></i>Nghỉ phép</span>
+    {% elif r.TrangThai == 0 %}
+        <span class="badge bg-danger"><i class="fa-solid fa-user-slash me-1"></i>Vắng mặt</span>
+    {% elif r.TrangThai == 4 %}
+    <span class="badge bg-secondary">Chưa chấm</span>
+    {% else %}
+        <span class="badge bg-secondary"><i class="fa-solid fa-question-circle me-1"></i>Không xác định</span>
+    {% endif %}
+</td>
+
+
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
                                     
