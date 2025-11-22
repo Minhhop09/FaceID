@@ -14,6 +14,7 @@ import datetime as dt
 import time as tm
 import socket
 import cv2
+<<<<<<< HEAD
 import logging
 import atexit
 from routes.attendance_system import load_known_faces, generate_frames, update_current_employee
@@ -41,10 +42,38 @@ app.secret_key = os.environ.get("SECRET_KEY", "faceid-secret-key-123456") # đ�
 # ============================================================
 # ✉️ CẤU HÌNH FLASK-MAIL
 # ============================================================
+=======
+from routes.attendance_system import load_known_faces, generate_frames, update_current_employee
+import logging
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.INFO) 
+
+import atexit
+from core.face_utils import generate_frames
+
+# --- Import core ---
+from core.db_utils import (
+    get_sql_connection, get_connection, get_phongbans, find_employees_by_name_or_manv
+)
+from core.decorators import require_role
+from core.salary_utils import tinh_luong_nv, get_tham_so_luong
+from core.face_utils import encode_and_save
+from core.email_utils import send_email_notification
+from core.config_mail import mail  
+
+
+# 🔧 Tạo Flask App và cấu hình
+
+app = Flask(__name__)
+app.secret_key = "faceid_secret_2025"
+
+# --- Cấu hình Flask-Mail ---
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 app.config.update(
     MAIL_SERVER='smtp.gmail.com',
     MAIL_PORT=587,
     MAIL_USE_TLS=True,
+<<<<<<< HEAD
     MAIL_USERNAME='faceid.system@gmail.com',
     MAIL_PASSWORD='bdrs phlg crme xrpf',  # App Password từ Google
     MAIL_DEFAULT_SENDER=('FaceID System', 'faceid.system@gmail.com'),
@@ -82,6 +111,26 @@ from routes.auth_bp import auth_bp
 from routes.register_bp import register_bp
 from routes.salary_bp import salary_bp
 from routes.update_absences_route import update_absences_bp, sync_leaves
+=======
+    MAIL_USERNAME='tranminhhop09@gmail.com',
+    MAIL_PASSWORD='jqow ssav eltz eugk',
+    MAIL_DEFAULT_SENDER=('FaceID System', 'tranminhhop09@gmail.com'),
+    MAX_CONTENT_LENGTH=16 * 1024 * 1024
+)
+app.config["MAIL_SUPPRESS_SEND"] = False   
+app.config["MAIL_DEBUG"] = False           
+
+# --- Khởi tạo mail ---
+mail.init_app(app)
+
+
+#Đăng ký tất cả Blueprint sau khi app + mail đã init
+
+from routes.auth_bp import auth_bp
+from routes.register_bp import register_bp
+from routes.salary_bp import salary_bp
+from routes.update_absences_route import update_absences_bp
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 from routes.capture_photo_and_save import capture_photo_and_save
 from routes.faces_bp import faces_bp
 from routes.employee_bp import employee_bp
@@ -89,18 +138,29 @@ from routes.deleted_bp import deleted_bp
 from routes.department_bp import department_bp
 from routes.shift_bp import shift_bp
 from routes.schedule_bp import schedule_bp
+<<<<<<< HEAD
 from routes.account_bp import account_bp
+=======
+from routes.account_bp import account_bp 
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 from routes.reports_bp import reports_bp
 from routes.history_bp import history_bp
 from routes.dashboard_bp import dashboard_bp
 from routes.qlpb_bp import qlpb_bp
 from routes.attendance_bp import attendance_bp
+<<<<<<< HEAD
 from routes.setting_bp import setting_bp
 
 
 # ============================================================
 # 🎨 TEMPLATE FILTER HIỂN THỊ LOẠI NHÂN VIÊN
 # ============================================================
+=======
+
+# ===============================================
+# 🧩 ĐĂNG KÝ TEMPLATE FILTER HIỂN THỊ LOẠI NHÂN VIÊN
+# ===============================================
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 @app.template_filter('badge_loai_nv')
 def badge_loai_nv(chucvu):
     if not chucvu:
@@ -123,9 +183,13 @@ def badge_loai_nv(chucvu):
         return '<span class="badge bg-dark"><i class="fas fa-user me-1"></i>Nhân viên</span>'
 
 
+<<<<<<< HEAD
 # ============================================================
 # 🔗 ĐĂNG KÝ BLUEPRINT
 # ============================================================
+=======
+# --- Đăng ký blueprint ---
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 app.register_blueprint(auth_bp)
 app.register_blueprint(register_bp)
 app.register_blueprint(salary_bp)
@@ -142,6 +206,7 @@ app.register_blueprint(history_bp)
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(qlpb_bp)
 app.register_blueprint(attendance_bp)
+<<<<<<< HEAD
 app.register_blueprint(setting_bp)
 
 
@@ -149,10 +214,17 @@ app.register_blueprint(setting_bp)
 # ⚙️ CẤU HÌNH KHỞI TẠO KHÁC
 # ============================================================
 ENABLE_SCHEDULER = False
+=======
+
+
+ENABLE_SCHEDULER = False  
+
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 if ENABLE_SCHEDULER:
     from routes.scheduler import start_scheduler
     start_scheduler(app)
 
+<<<<<<< HEAD
 init_local_cache()
 background_sync_loop(get_sql_connection, interval_sec=300)  # mỗi 5 phút auto sync
 
@@ -167,6 +239,9 @@ except Exception as e:
     print(f"[WARN] ⚠️ Không thể tải khuôn mặt: {e}")
     known_encodings, known_ids, known_names = [], [], []
 
+=======
+# Bộ lọc và hàm tiện ích chung
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
 @app.template_filter('strftime')
 def _jinja2_filter_datetime(value, format="%d/%m/%Y"):
@@ -183,6 +258,7 @@ current_employee = {}
 # Kết nối SQL Server
 
 def get_sql_connection():
+<<<<<<< HEAD
     """Kết nối SQL Server an toàn — nếu lỗi thì trả None (cho chế độ offline)."""
     try:
         conn = pyodbc.connect(
@@ -204,6 +280,22 @@ def get_sql_connection():
         print(f"❌ Lỗi kết nối CSDL: {e}")
         return None
 
+=======
+    conn = pyodbc.connect(
+        "Driver={SQL Server};"
+        "Server=MINHHOP\\SQLEXPRESS;"
+        "Database=FaceID;"
+        "UID=sa;PWD=123456"
+    )
+    cursor = conn.cursor()
+    try:
+        username = session.get('username') or session.get('user_id') or 'admin'
+        cursor.execute("EXEC sys.sp_set_session_context @key=N'user', @value=?", (username,))
+        conn.commit()
+    except:
+        pass 
+    return conn
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
 
 @app.route('/photos/<path:filename>')
@@ -276,6 +368,7 @@ def register_feed():
     return Response(gen_register_cam(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
+<<<<<<< HEAD
 def record_manual_attendance(ma_nv, ma_ca):
     from datetime import datetime, time
     import pyodbc
@@ -283,10 +376,18 @@ def record_manual_attendance(ma_nv, ma_ca):
     conn = get_sql_connection()
     cursor = conn.cursor()
 
+=======
+# Chấm công thủ công
+
+def record_manual_attendance(ma_nv):
+    conn = get_sql_connection()
+    cursor = conn.cursor()
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
     now = datetime.now()
     today = now.strftime("%Y-%m-%d")
     time_now = now.strftime("%H:%M:%S")
 
+<<<<<<< HEAD
     # ============================================================
     # 1️⃣ Lấy hoặc tạo MaLLV
     # ============================================================
@@ -369,6 +470,21 @@ def record_manual_attendance(ma_nv, ma_ca):
     return f"Vào ca lúc {time_now} ({trang_thai_text})"
 
 
+=======
+    cursor.execute("SELECT COUNT(*) FROM ChamCong WHERE MaNV=? AND NgayChamCong=?", (ma_nv, today))
+    exists = cursor.fetchone()[0]
+    if exists:
+        conn.close()
+        raise Exception("Nhân viên đã chấm công hôm nay!")
+
+    cursor.execute("""
+        INSERT INTO ChamCong (MaNV, NgayChamCong, GioVao, TrangThai)
+        VALUES (?, ?, ?, ?)
+    """, (ma_nv, today, time_now, 1))
+    conn.commit()
+    conn.close()
+
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 # Trang chính
 
 @app.route("/")
@@ -398,6 +514,7 @@ def attendance():
    
     return render_template("attendance.html")
 
+<<<<<<< HEAD
 # ============================================================
 # 📋 FINAL FIXED V22 — CHẤM CÔNG THỦ CÔNG (SQL + EMAIL + KHÓA CAMERA + UI ĐÚNG)
 # ============================================================
@@ -593,6 +710,71 @@ def manual_attendance():
         save_offline_record(ma_nv, today, ma_ca, time_now)
         flash(f"{ma_ca} - Lưu tạm offline (SQL lỗi)", "warning")
 
+=======
+# Chấm công thủ công
+
+@app.route("/manual_attendance", methods=["POST"])
+def manual_attendance():
+    ma_nv = request.form.get("ma_nv")
+    mode = request.form.get("mode")      # 'in' hoặc 'out'
+    ma_ca = request.form.get("ma_ca")    # 'Ca1', 'Ca2', 'Ca3'
+
+    if not ma_nv:
+        flash("Không tìm thấy nhân viên!", "danger")
+        return redirect(url_for("attendance"))
+
+    conn = get_sql_connection()
+    cursor = conn.cursor()
+    today = datetime.now().strftime("%Y-%m-%d")
+    now_time = datetime.now().strftime("%H:%M:%S")
+
+    # Lấy MaLLV tương ứng trong LichLamViec
+    cursor.execute("""
+        SELECT TOP 1 MaLLV
+        FROM LichLamViec
+        WHERE MaNV = ? AND MaCa = ? AND NgayLam = ? AND DaXoa = 1
+    """, (ma_nv, ma_ca, today))
+    result = cursor.fetchone()
+    ma_llv = result[0] if result else None
+
+    # Kiểm tra xem đã có bản ghi chấm công chưa
+    cursor.execute("""
+        SELECT GioVao, GioRa FROM ChamCong
+        WHERE MaNV=? AND NgayChamCong=? AND MaCa=?
+    """, (ma_nv, today, ma_ca))
+    row = cursor.fetchone()
+
+    if not row:
+        if mode == "in":
+            cursor.execute("""
+                INSERT INTO ChamCong (MaNV, MaLLV, MaCa, NgayChamCong, GioVao, TrangThai, DaXoa)
+                VALUES (?, ?, ?, ?, ?, ?, 1)
+            """, (ma_nv, ma_llv, ma_ca, today, now_time, 1))
+            conn.commit()
+            flash(f"{ma_ca} - Vào ca lúc {now_time}", "success")
+        else:
+            flash("Chưa vào ca này, không thể ra ca!", "warning")
+    else:
+        gio_vao, gio_ra = row
+        if mode == "in":
+            flash(f"Đã chấm vào {ma_ca} rồi!", "warning")
+        elif mode == "out":
+            if gio_ra:
+                flash(f"Đã ra ca {ma_ca} rồi!", "warning")
+            else:
+                cursor.execute("""
+                    UPDATE ChamCong 
+                    SET GioRa=?, TrangThai=2
+                    WHERE MaNV=? AND NgayChamCong=? AND MaCa=?
+                """, (now_time, ma_nv, today, ma_ca))
+                conn.commit()
+                flash(f"{ma_ca} - Ra ca lúc {now_time}", "success")
+
+    conn.close()
+
+    # Cập nhật lại thông tin hiển thị bên phải
+    update_current_employee(ma_nv, ma_ca)
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
     return redirect(url_for("attendance"))
 
 # Trang Admin
@@ -630,6 +812,7 @@ def admin_dashboard():
         flash("Bạn không có quyền truy cập!", "danger")
         return redirect(url_for('login'))
 
+<<<<<<< HEAD
 @app.context_processor
 def inject_pending_count():
     from core.db_utils import get_sql_connection
@@ -652,6 +835,8 @@ def inject_pending_count():
         print(f"[WARN] inject_pending_count() failed: {e}")
         return dict(pending_count=0)
 
+=======
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 # Giải phóng camera khi app dừng
 
 def close_camera():
@@ -691,6 +876,7 @@ def logout():
 
 @app.route("/get_current_employee")
 def get_current_employee():
+<<<<<<< HEAD
     """
     FINAL FIX V24 — Hiển thị đúng thông tin nhân viên vừa chấm công.
     Khắc phục lỗi JOIN khiến UI không hiển thị.
@@ -746,6 +932,14 @@ def get_current_employee():
         return jsonify({"found": False})
 
 
+=======
+    """Trả về thông tin nhân viên hiện tại cho giao diện"""
+    from routes.attendance_system import current_employee as att_emp
+    print(f"📡 [DEBUG] current_employee = {att_emp}")
+    if att_emp and att_emp.get("found"):
+        return jsonify(att_emp)
+    return jsonify({"found": False})
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
 # API stream camera chấm công
 
@@ -761,7 +955,10 @@ def attendance_feed():
 
 # Run app
 if __name__ == "__main__":
+<<<<<<< HEAD
     init_local_cache()
+=======
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
     print("Server đang chạy tại: http://127.0.0.1:5000")
     app.run(host="127.0.0.1", port=5000, debug=True, use_reloader=False)
 

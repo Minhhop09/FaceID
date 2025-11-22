@@ -1,14 +1,25 @@
+<<<<<<< HEAD
 # ============================================================
 # 📘 routes/history_bp.py — FINAL VERSION (Hiển thị 4 loại lịch sử)
 # ============================================================
 from flask import Blueprint, render_template, request, session, flash
 from core.db_utils import get_sql_connection
 from core.decorators import require_role
+=======
+# routes/history_bp.py
+from flask import Blueprint, render_template, request, session, flash
+from core.db_utils import get_sql_connection
+from core.decorators import require_role  # hoặc import require_role từ đúng nơi bạn định nghĩa
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
 history_bp = Blueprint("history_bp", __name__)
 
 # ============================================================
+<<<<<<< HEAD
 # 🕒 LỊCH SỬ HỆ THỐNG (TỔNG HỢP)
+=======
+# 🕒 LỊCH SỬ THAY ĐỔI (ADMIN)
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 # ============================================================
 @history_bp.route("/history")
 @require_role("admin")
@@ -16,6 +27,7 @@ def history():
     conn = get_sql_connection()
     cursor = conn.cursor()
 
+<<<<<<< HEAD
     # --- Tham số lọc ---
     selected_type = request.args.get("type", "all")  # all | thaydoi | hethong | email | giaodich
     selected_table = request.args.get("table", "")
@@ -170,6 +182,53 @@ def history():
         # ============================================================
         # 5️⃣ Lấy danh sách bảng + hành động
         # ============================================================
+=======
+    # --- Lấy tham số từ form hoặc query ---
+    selected_table = request.args.get("table")
+    selected_action = request.args.get("action")
+    keyword_user = request.args.get("user", "").strip()
+
+    # --- Câu truy vấn chính ---
+    base_query = """
+        SELECT 
+            ls.*, 
+            COALESCE(tk.TenDangNhap, ls.NguoiThucHien) AS TenDangNhap
+        FROM LichSuThayDoi ls
+        LEFT JOIN TaiKhoan tk 
+            ON TRY_CAST(ls.NguoiThucHien AS INT) = tk.MaTK
+    """
+
+    filters = []
+    params = []
+
+    # --- Lọc theo bảng ---
+    if selected_table:
+        filters.append("ls.TenBang = ?")
+        params.append(selected_table)
+
+    # --- Lọc theo hành động ---
+    if selected_action:
+        filters.append("ls.HanhDong = ?")
+        params.append(selected_action)
+
+    # --- Lọc theo người thực hiện (LIKE) ---
+    if keyword_user:
+        filters.append("(tk.TenDangNhap LIKE ? OR ls.NguoiThucHien LIKE ?)")
+        like_pattern = f"%{keyword_user}%"
+        params.extend([like_pattern, like_pattern])
+
+    if filters:
+        base_query += " WHERE " + " AND ".join(filters)
+
+    base_query += " ORDER BY ls.ThoiGian DESC"
+
+    # --- Truy vấn dữ liệu lịch sử ---
+    try:
+        cursor.execute(base_query, params)
+        rows = cursor.fetchall()
+
+        # --- Danh sách bảng và hành động (thêm “Xem chi tiết”) ---
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
         cursor.execute("SELECT DISTINCT TenBang FROM LichSuThayDoi ORDER BY TenBang")
         table_names = [r[0] for r in cursor.fetchall()]
 
@@ -182,17 +241,29 @@ def history():
         action_names = [r[0] for r in cursor.fetchall()]
 
     except Exception as e:
+<<<<<<< HEAD
         flash(f"❌ Lỗi khi tải lịch sử: {e}", "danger")
         histories, table_names, action_names = [], [], []
+=======
+        flash(f"❌ Lỗi khi tải lịch sử thay đổi: {e}", "danger")
+        rows, table_names, action_names = [], [], []
+
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
     finally:
         conn.close()
 
     return render_template(
         "history.html",
+<<<<<<< HEAD
         histories=histories,
         tables=table_names,
         actions=action_names,
         selected_type=selected_type,
+=======
+        histories=rows,
+        tables=table_names,
+        actions=action_names,
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
         selected_table=selected_table,
         selected_action=selected_action,
         keyword_user=keyword_user

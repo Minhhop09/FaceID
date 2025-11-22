@@ -103,7 +103,10 @@ body{background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Seg
             <div class="nav-item"><a href="{{ url_for('reports_bp.reports_view') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Báo cáo thống kê</span></a></div>
             <div class="nav-item"><a href="{{ url_for('employee_bp.employee_list_deleted') }}" class="nav-link"><i class="fas fa-trash"></i><span>Dữ liệu đã xóa</span></a></div>
             <div class="nav-item"><a href="{{ url_for('history_bp.history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+<<<<<<< HEAD
             <div class="nav-item"><a href="{{ url_for('setting_bp.settings_view') }}" class="nav-link"><i class="fas fa-gear"></i><span>Cài đặt hệ thống</span></a></div>
+=======
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
             <div class="nav-item"><a href="{{ url_for('auth_bp.login') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
         </nav>
 </div>
@@ -166,6 +169,7 @@ body{background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Seg
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
     <h4 class="mb-0">Danh sách bản ghi chấm công</h4>
     <div class="d-flex gap-2 flex-wrap">
+<<<<<<< HEAD
 <!-- 🔹 Nút cập nhật vắng hôm nay -->
 <form action="{{ url_for('update_absences_bp.update_absences') }}" method="POST" class="d-inline">
     <button type="submit" class="btn btn-outline-danger"
@@ -182,6 +186,16 @@ body{background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Seg
     </button>
 </form>
 
+=======
+        <!-- 🔹 Nút cập nhật vắng hôm nay -->
+        <form action="{{ url_for('update_absences_bp.update_absences') }}" method="POST" class="d-inline">
+
+            <button type="submit" class="btn btn-outline-danger"
+                onclick="return confirm('Cập nhật trạng thái VẮNG cho nhân viên chưa chấm công hôm nay?')">
+                <i class="fas fa-user-times me-2"></i> Cập nhật vắng hôm nay
+            </button>
+        </form>
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
         <!-- Ô tìm kiếm -->
         <div class="d-flex align-items-center gap-2">
@@ -213,6 +227,7 @@ body{background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Seg
                         <th>Hành động</th>
                     </tr>
                 </thead>
+<<<<<<< HEAD
 <tbody>
     {% for r in records %}
     <tr>
@@ -294,6 +309,48 @@ body{background:linear-gradient(135deg,#f5f7fa 0%,#e4edf5 100%);font-family:'Seg
 </tbody>
 
 
+=======
+                <tbody>
+                    {% for r in records %}
+                    <tr>
+                        <td><input type="checkbox" name="selected_attendance" value="{{ r.MaChamCong }}" class="form-check-input attendance-checkbox"></td>
+                        <td class="fw-bold">{{ r.MaNV }}</td>
+                        <td>{{ r.HoTen }}</td>
+                        <td>{{ r.PhongBan }}</td>
+                        <td>{{ r.NgayChamCong }}</td>
+                        <td>{{ r.CaLam }}</td>
+                        <td>{{ r.GioVao or '—' }}</td>
+                        <td>{{ r.GioRa or '—' }}</td>
+                        <td>{{ "%.2f"|format(r.SoGioLam or 0) }}</td>
+                        <td>
+                            {% if r.TrangThaiText == 'Đúng giờ' %}
+                                <span class="badge bg-success">{{ r.TrangThaiText }}</span>
+                            {% elif r.TrangThaiText == 'Đi muộn' %}
+                                <span class="badge bg-warning text-dark">{{ r.TrangThaiText }}</span>
+                            {% elif r.TrangThaiText == 'Vắng' %}
+                                <span class="badge bg-danger">{{ r.TrangThaiText }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ r.TrangThaiText }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="/attendance/edit/{{ r.MaChamCong }}" class="btn-action btn-edit" title="Sửa">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form action="{{ url_for('attendance_bp.delete_attendance', id=r.MaChamCong) }}" method="POST" style="display:inline;">
+                                    <button type="submit" class="btn-action btn-delete"
+                                        onclick="return confirm('Xóa mềm bản ghi của {{ r.HoTen }} ngày {{ r.NgayChamCong }}?')"
+                                        title="Xóa mềm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
             </table>
         </div>
 

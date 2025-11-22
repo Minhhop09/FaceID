@@ -197,6 +197,7 @@ body{background:#ffffff;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
     <td>{{ r.GioVaoText }}</td>
     <td>{{ r.GioRaText }}</td>
 
+<<<<<<< HEAD
 <td>
     {% if r.TrangThai == 3 %}
         <span class="badge bg-info text-dark">
@@ -221,6 +222,19 @@ body{background:#ffffff;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
     {% endif %}
 </td>
 
+=======
+    <td>
+        {% if r.TrangThaiText == 'Đã chấm công' %}
+            <span class="badge bg-success">{{ r.TrangThaiText }}</span>
+        {% elif r.TrangThaiText == 'Vắng' %}
+            <span class="badge bg-danger">{{ r.TrangThaiText }}</span>
+        {% elif r.TrangThaiText == 'Chưa chấm' %}
+            <span class="badge bg-warning text-dark">{{ r.TrangThaiText }}</span>
+        {% else %}
+            <span class="badge bg-secondary">{{ r.TrangThaiText }}</span>
+        {% endif %}
+    </td>
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
    
 </tr>

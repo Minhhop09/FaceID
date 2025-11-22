@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+=======
+# ============================================================
+# 📦 core/db_utils.py — Kết nối và thao tác cơ bản với SQL Server
+# ============================================================
+
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 import pyodbc
 from datetime import datetime
 
@@ -24,6 +31,11 @@ def get_sql_connection():
         cursor = conn.cursor()
         cursor.execute("SELECT DB_NAME(), SUSER_NAME()")
         db, user = cursor.fetchone()
+<<<<<<< HEAD
+=======
+        print(f"📂 Đang dùng database: {db} | Người đăng nhập: {user}")
+        print(f"🧩 Driver: {conn.getinfo(pyodbc.SQL_DRIVER_NAME)}")  # debug
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
         return conn
     except Exception as e:
         print(f"❌ Lỗi kết nối CSDL: {e}")
@@ -111,4 +123,7 @@ def record_attendance(ma_nv):
     
     conn.commit()
     conn.close()
+<<<<<<< HEAD
 
+=======
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c

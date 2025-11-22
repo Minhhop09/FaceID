@@ -453,6 +453,7 @@
             <div class="nav-item"><a href="{{ url_for('shift_bp.shifts') }}" class="nav-link"><i class="fas fa-clock"></i><span>Ca làm việc</span></a></div>
             <div class="nav-item"><a href="{{ url_for('schedule_bp.assigned_employees') }}" class="nav-link"><i class="fas fa-calendar-check"></i><span>Phân ca</span></a></div>
             <div class="nav-item"><a href="{{ url_for('attendance_bp.attendance_report') }}" class="nav-link active"><i class="fas fa-clipboard-check"></i><span>Chấm công</span></a></div>
+<<<<<<< HEAD
             <div class="nav-item position-relative">
   <a href="{{ url_for('attendance_bp.hr_leave_approval') }}" class="nav-link d-flex align-items-center justify-content-between">
     <div><i class="fas fa-file-signature me-2"></i><span>Đơn nghỉ phép</span></div>
@@ -462,6 +463,8 @@
   </a>
 </div>
 
+=======
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
             <div class="nav-item"><a href="{{ url_for('salary_bp.salary_view') }}" class="nav-link"><i class="fas fa-coins"></i><span>Tính lương</span></a></div>
             <div class="nav-item"><a href="{{ url_for('faces_bp.faces') }}" class="nav-link"><i class="fas fa-id-card"></i><span>Khuôn mặt</span></a></div>
             <div class="nav-item"><a href="{{ url_for('reports_bp.hr_reports_view') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Báo cáo thống kê</span></a></div>
@@ -469,6 +472,7 @@
         </nav>
     </div>
 
+<<<<<<< HEAD
  <!-- ============================== -->
 <!-- 🧾 TRANG QUẢN LÝ CHẤM CÔNG HR -->
 <!-- ============================== -->
@@ -632,6 +636,161 @@
     </div>
   </form>
   {% else %}
+=======
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="dashboard-header">
+            <div class="header-title">
+                <h1>Thống kê chấm công</h1>
+                <p>Tổng hợp và theo dõi tình hình chấm công</p>
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar">{{ session['username'][0]|upper }}</div>
+                <div class="user-info">
+                    <div class="user-name">{{ session['username'] }}</div>
+                    <div class="user-role">HR</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show mb-4" role="alert">
+                        <i class="fa-solid fa-{{ 'triangle-exclamation' if category == 'error' else 'circle-check' }} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                <div class="stat-value">{{ records|length }}</div>
+                <div class="stat-label">Tổng bản ghi</div>
+            </div>
+            <div class="stat-card on-time">
+                <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+                <div class="stat-value">{{ on_time_count }}</div>
+                <div class="stat-label">Đúng giờ</div>
+            </div>
+            <div class="stat-card late">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-value">{{ late_count }}</div>
+                <div class="stat-label">Đi muộn</div>
+            </div>
+            <div class="stat-card absent">
+                <div class="stat-icon"><i class="fas fa-user-times"></i></div>
+                <div class="stat-value">{{ absent_count }}</div>
+                <div class="stat-label">Vắng mặt</div>
+            </div>
+        </div>
+
+        <!-- Header Actions + Search -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+            <h4 class="mb-0">Danh sách bản ghi chấm công</h4>
+            <div class="d-flex gap-2 flex-wrap">
+                <!-- 🔹 Nút cập nhật vắng hôm nay -->
+                <form action="{{ url_for('update_absences_bp.update_absences') }}" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-outline-danger"
+                        onclick="return confirm('Cập nhật trạng thái VẮNG cho nhân viên chưa chấm công hôm nay?')">
+                        <i class="fas fa-user-times me-2"></i> Cập nhật vắng hôm nay
+                    </button>
+                </form>
+
+                <!-- Ô tìm kiếm -->
+                <div class="d-flex align-items-center gap-2">
+                    <input type="text" id="searchInput" class="form-control"
+                           placeholder="🔍 Tìm theo tên, mã, phòng ban..."
+                           style="max-width:250px;">
+                </div>
+            </div>
+        </div>
+
+        {% if records %}
+<form id="deleteForm" method="POST" action="{{ url_for('attendance_bp.delete_multiple_attendance') }}">
+  <div class="table-responsive shadow-sm rounded">
+    <table class="table table-striped table-hover align-middle text-center">
+      <thead class="table-primary">
+        <tr>
+          <th style="width:40px;">
+            <input type="checkbox" id="selectAll" class="form-check-input">
+          </th>
+          <th>Mã NV</th>
+          <th>Họ tên</th>
+          <th>Phòng ban</th>
+          <th>Ngày chấm công</th>
+          <th>Ca làm</th>
+          <th>Giờ vào</th>
+          <th>Giờ ra</th>
+          <th>Số giờ làm</th>
+          <th>Trạng thái</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td>
+            <input type="checkbox" name="selected_attendance" value="{{ r.MaChamCong }}" class="form-check-input attendance-checkbox">
+          </td>
+          <td class="fw-bold">{{ r.MaNV }}</td>
+          <td>{{ r.HoTen }}</td>
+          <td>{{ r.PhongBan }}</td>
+          <td>{{ r.NgayChamCong[:10] if r.NgayChamCong else '—' }}</td>
+          <td>{{ r.CaLam }}</td>
+          <td>{{ r.GioVao[:5] if r.GioVao else '—' }}</td>
+          <td>{{ r.GioRa[:5] if r.GioRa else '—' }}</td>
+          <td>{{ "%.2f"|format(r.SoGioLam or 0) }}</td>
+          <td>
+            {% if r.TrangThaiText == 'Đúng giờ' %}
+              <span class="badge bg-success">{{ r.TrangThaiText }}</span>
+            {% elif r.TrangThaiText == 'Đi muộn' %}
+              <span class="badge bg-warning text-dark">{{ r.TrangThaiText }}</span>
+            {% elif r.TrangThaiText == 'Vắng' %}
+              <span class="badge bg-danger">{{ r.TrangThaiText }}</span>
+            {% else %}
+              <span class="badge bg-secondary">{{ r.TrangThaiText or 'Không xác định' }}</span>
+            {% endif %}
+          </td>
+          <td>
+            <form action="{{ url_for('attendance_bp.delete_attendance', id=r.MaChamCong) }}" method="POST" style="display:inline;">
+              <button type="submit" class="btn btn-sm btn-outline-danger"
+                onclick="return confirm('Xóa mềm bản ghi của {{ r.HoTen }} ngày {{ r.NgayChamCong }}?')"
+                title="Xóa mềm">
+                <i class="fas fa-trash"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Thanh hành động -->
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <div class="text-muted">
+      <span id="selectedCount">0</span> bản ghi được chọn
+    </div>
+    <div class="d-flex gap-2">
+      <button type="button" id="deselectAllBtn" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-times me-2"></i> Hủy chọn
+      </button>
+      <button type="submit" id="deleteSelectedBtn" class="btn btn-danger btn-sm" disabled
+        onclick="return confirm('Bạn có chắc muốn xóa các bản ghi chấm công đã chọn không?')">
+        <i class="fas fa-trash-alt me-2"></i> Xóa đã chọn
+      </button>
+    </div>
+  </div>
+</form>
+{% else %}
+
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
         <div class="empty-state">
             <div class="empty-icon"><i class="fa-solid fa-inbox"></i></div>

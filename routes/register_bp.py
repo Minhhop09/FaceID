@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session
+=======
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 from werkzeug.security import generate_password_hash
 import datetime as dt
 import time as tm
 from core.add_employee import generate_ma_nv, add_new_employee
+<<<<<<< HEAD
 from core.db_utils import get_connection, get_phongbans
 from core.face_utils import encode_and_save
 from routes.capture_photo_and_save import capture_photo_and_save
@@ -20,6 +25,28 @@ def register():
     phongbans = get_phongbans()
     conn = get_connection()
     cursor = conn.cursor()
+=======
+
+# ✅ Import các hàm cần thiết
+from core.db_utils import get_connection, get_phongbans
+from core.face_utils import encode_and_save
+from core.face_utils import async_encode_face
+from routes.capture_photo_and_save import capture_photo_and_save
+from core.add_employee import generate_ma_nv
+
+from routes.attendance_system import current_employee
+
+
+# Blueprint
+register_bp = Blueprint("register_bp", __name__)
+
+# ===============================
+# Route /register
+# ===============================
+@register_bp.route("/register", methods=["GET", "POST"])
+def register():
+    phongbans = get_phongbans()
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
     if request.method == "POST":
         hoten = request.form.get("HoTen", "").strip()
@@ -31,6 +58,7 @@ def register():
         ma_pb = request.form.get("PhongBan", "").strip()
         chucvu = request.form.get("ChucVu", "").strip()
 
+<<<<<<< HEAD
         if not email:
             flash("⚠️ Cần nhập email để kiểm tra thông tin nhân viên!", "danger")
             return redirect(url_for("register_bp.register"))
@@ -69,11 +97,16 @@ def register():
         if not hoten or not ma_pb:
             flash("⚠️ Thiếu thông tin bắt buộc (Họ tên, Phòng ban).", "danger")
             conn.close()
+=======
+        if not hoten or not email or not ma_pb:
+            flash("⚠️ Vui lòng điền đầy đủ thông tin bắt buộc!", "danger")
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
             return redirect(url_for("register_bp.register"))
 
         gioitinh = 1 if gioitinh_input == "nam" else 0 if gioitinh_input == "nữ" else None
         if gioitinh is None:
             flash("⚠️ Giới tính không hợp lệ. Vui lòng nhập 'Nam' hoặc 'Nữ'.", "danger")
+<<<<<<< HEAD
             conn.close()
             return redirect(url_for("register_bp.register"))
 
@@ -89,6 +122,25 @@ def register():
 
             # 4️⃣ Tạo tài khoản
             role, role_id = "nhanvien", 4
+=======
+            return redirect(url_for("register_bp.register"))
+
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        try:
+            start_all = tm.time()
+
+            # 1️⃣ Sinh mã NV và thêm nhân viên mới
+            ma_nv_moi = generate_ma_nv()
+
+            add_new_employee(cursor, conn, ma_nv_moi, hoten, email, sdt, gioitinh, ngaysinh, diachi, ma_pb, chucvu)
+            print(f"✅ Đã thêm nhân viên {ma_nv_moi}")
+
+            # 2️⃣ Tạo tài khoản đăng nhập
+            role = "nhanvien"
+            role_id = 4
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
             if "hr" in chucvu.lower():
                 role, role_id = "hr", 2
             elif "quản lý" in chucvu.lower() or "trưởng phòng" in chucvu.lower():
@@ -104,7 +156,11 @@ def register():
             conn.commit()
             print(f"🔑 Đã tạo tài khoản [{role.upper()}] cho {ma_nv_moi}")
 
+<<<<<<< HEAD
             # 5️⃣ Nếu là quản lý → cập nhật phòng ban
+=======
+            # 3️⃣ Nếu là quản lý → cập nhật phòng ban
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
             capbac = {"Giám đốc": 1, "Trưởng phòng": 2, "Quản lý": 3}
             if chucvu in capbac:
                 cursor.execute("""
@@ -119,6 +175,7 @@ def register():
                 new_rank = capbac.get(chucvu, 999)
 
                 if not current_manager or new_rank < current_rank:
+<<<<<<< HEAD
                     cursor.execute("UPDATE PhongBan SET QuanLyPB = ? WHERE MaPB = ?", (ma_nv_moi, ma_pb))
                     conn.commit()
                     print(f"🏢 Cập nhật {ma_nv_moi} làm quản lý phòng {ma_pb}")
@@ -129,6 +186,20 @@ def register():
                 encode_and_save(ma_nv_moi, image_path, conn)
                 cursor.execute("UPDATE TaiKhoan SET DaDangKyKhuonMat = 1 WHERE MaNV = ?", (ma_nv_moi,))
                 conn.commit()
+=======
+                    cursor.execute("""
+                        UPDATE PhongBan
+                        SET QuanLyPB = ?
+                        WHERE MaPB = ?
+                    """, (ma_nv_moi, ma_pb))
+                    conn.commit()
+                    print(f"🏢 Cập nhật {ma_nv_moi} làm quản lý phòng {ma_pb}")
+
+            # 4️⃣ Chụp ảnh và encode khuôn mặt
+            image_path = capture_photo_and_save(ma_nv_moi)
+            if image_path:
+                encode_and_save(ma_nv_moi, image_path, conn)
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
                 flash(f"✅ Đã thêm nhân viên {hoten} ({chucvu}) và tạo tài khoản [{role.upper()}]. Ảnh khuôn mặt đã được lưu.", "success")
             else:
                 flash(f"⚠️ Nhân viên {hoten} thêm thành công nhưng chưa có ảnh khuôn mặt.", "warning")
@@ -145,6 +216,7 @@ def register():
 
         return redirect(url_for("register_bp.register"))
 
+<<<<<<< HEAD
     # GET method
     conn.close()
     return render_template("register.html", phongbans=phongbans)
@@ -153,6 +225,15 @@ def register():
 # ==============================================================
 # 🔍 API lấy nhân viên gần nhất
 # ==============================================================
+=======
+    return render_template("register.html", phongbans=phongbans)
+
+
+# ===============================
+# API lấy nhân viên gần nhất
+# ===============================
+
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
 @register_bp.route("/get_current_employee")
 def get_current_employee():
@@ -173,3 +254,7 @@ def get_current_employee():
             "TrangThai": current_employee.get("TrangThai")
         })
     return jsonify({"found": False})
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c

@@ -197,6 +197,7 @@ def edit_account(username):
 
     return render_template("edit_account.html", account=account)
 
+<<<<<<< HEAD
 def send_mail_background(email, subject, body):
     """Gửi email trong thread an toàn với Flask context."""
     app = current_app._get_current_object()  # Lấy app thật (không proxy)
@@ -223,11 +224,28 @@ def change_account_status(identifier, new_status, action_name):
     - Có thể truyền vào MaNV hoặc TenDangNhap
     - Gửi email thông báo trong nền (Flask context)
     - Ghi log vào LichSuThayDoi + LichSuEmail
+=======
+# HÀM CHUNG – CẬP NHẬT TRẠNG THÁI TÀI KHOẢN
+def send_mail_background(email, subject, body):
+    """Hàm gửi email trong thread nền (không làm chậm request chính)."""
+    try:
+        send_email_notification(email, subject, body)
+    except Exception as e:
+        print(f"❌ [THREAD] Lỗi gửi email nền: {e}")
+
+
+def change_account_status(ma_nv, new_status, action_name):
+    """
+    Cập nhật trạng thái tài khoản (khóa / kích hoạt),
+    gửi email thông báo cho nhân viên (nền),
+    và ghi log vào LichSuThayDoi + LichSuEmail.
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
     """
     conn = get_sql_connection()
     cursor = conn.cursor()
 
     try:
+<<<<<<< HEAD
         print(f"🔍 [DEBUG] Bắt đầu thay đổi trạng thái cho '{identifier}' → {new_status}")
 
         # 1️⃣ Lấy thông tin tài khoản (tìm theo MaNV hoặc TenDangNhap)
@@ -246,12 +264,31 @@ def change_account_status(identifier, new_status, action_name):
         ma_tk, ma_nv, username, old_status = row_tk
         print(f"✅ Tìm thấy tài khoản: {username} (MaNV={ma_nv or 'NULL'}) — TrangThai cũ: {old_status}")
 
+=======
+        print(f"🔍 [DEBUG] Bắt đầu thay đổi trạng thái cho nhân viên {ma_nv} → {new_status}")
+
+        # 1️⃣ Lấy trạng thái cũ
+        cursor.execute("SELECT TrangThai FROM TaiKhoan WHERE MaNV = ?", (ma_nv,))
+        old_row = cursor.fetchone()
+        old_status = old_row[0] if old_row else None
+
+        if old_status is None:
+            flash("❌ Không tìm thấy tài khoản tương ứng với nhân viên này!", "danger")
+            print("⚠️ Không có tài khoản ứng với nhân viên.")
+            return False
+
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
         # 2️⃣ Cập nhật trạng thái mới
         cursor.execute("""
             UPDATE TaiKhoan
             SET TrangThai = ?
+<<<<<<< HEAD
             WHERE MaTK = ?
         """, (new_status, ma_tk))
+=======
+            WHERE MaNV = ?
+        """, (new_status, ma_nv))
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
         print("✅ Đã cập nhật trạng thái tài khoản.")
 
         # 3️⃣ Ghi log thay đổi
@@ -260,9 +297,18 @@ def change_account_status(identifier, new_status, action_name):
                 TenBang, MaBanGhi, HanhDong, TruongThayDoi,
                 GiaTriCu, GiaTriMoi, ThoiGian, NguoiThucHien
             )
+<<<<<<< HEAD
             VALUES (N'TaiKhoan', ?, ?, N'TrangThai', ?, ?, GETDATE(), ?)
         """, (
             str(ma_nv or username),
+=======
+            VALUES (
+                N'TaiKhoan', ?, ?, N'TrangThai',
+                ?, ?, GETDATE(), ?
+            )
+        """, (
+            ma_nv,
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
             action_name,
             str(old_status),
             str(new_status),
@@ -270,6 +316,7 @@ def change_account_status(identifier, new_status, action_name):
         ))
         print("📝 Đã ghi log LichSuThayDoi.")
 
+<<<<<<< HEAD
         # 4️⃣ Lấy thông tin email nhân viên (nếu có)
         cursor.execute("""
             SELECT NV.Email, NV.HoTen
@@ -284,19 +331,44 @@ def change_account_status(identifier, new_status, action_name):
         if not email:
             print(f"⚠️ Không có email cho nhân viên {hoten} ({username}).")
         else:
+=======
+        # 4️⃣ Lấy thông tin nhân viên
+        cursor.execute("""
+            SELECT TK.MaTK, NV.Email, NV.HoTen
+            FROM TaiKhoan TK
+            JOIN NhanVien NV ON TK.MaNV = NV.MaNV
+            WHERE NV.MaNV = ?
+        """, (ma_nv,))
+        row = cursor.fetchone()
+
+        if not row:
+            print(f"⚠️ Không tìm thấy nhân viên có mã {ma_nv} để gửi email.")
+        else:
+            ma_tk, email, hoten = row
+            print(f"📧 Chuẩn bị gửi email cho {hoten} ({email})")
+
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
             # 5️⃣ Chuẩn bị nội dung email
             if new_status == 0:
                 subject = "🔒 Tài khoản của bạn đã bị khóa"
                 body = (
+<<<<<<< HEAD
                     f"Kính gửi {hoten},<br><br>"
                     f"Tài khoản của bạn (Tên đăng nhập: <b>{username}</b>) đã bị <b>khóa</b>.<br>"
                     f"Vui lòng liên hệ phòng nhân sự để được hỗ trợ.<br><br>"
                     f"Trân trọng,<br><b>Hệ thống FaceID</b>"
+=======
+                    f"Kính gửi {hoten},\n\n"
+                    f"Tài khoản của bạn (Mã NV: {ma_nv}) đã bị khóa bởi quản trị viên.\n"
+                    f"Vui lòng liên hệ phòng nhân sự để được hỗ trợ.\n\n"
+                    f"Trân trọng,\nHệ thống FaceID"
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
                 )
                 loai_thong_bao = "Khóa tài khoản"
             else:
                 subject = "🔓 Tài khoản của bạn đã được kích hoạt"
                 body = (
+<<<<<<< HEAD
                     f"Kính gửi {hoten},<br><br>"
                     f"Tài khoản của bạn (Tên đăng nhập: <b>{username}</b>) đã được <b>kích hoạt trở lại</b>.<br>"
                     f"Chúc bạn làm việc hiệu quả!<br><br>"
@@ -332,6 +404,32 @@ def change_account_status(identifier, new_status, action_name):
             """, (ma_tk, email, loai_thong_bao))
 
         # 8️⃣ Lưu thay đổi
+=======
+                    f"Kính gửi {hoten},\n\n"
+                    f"Tài khoản của bạn (Mã NV: {ma_nv}) đã được kích hoạt trở lại.\n"
+                    f"Chúc bạn làm việc hiệu quả!\n\n"
+                    f"Trân trọng,\nHệ thống FaceID"
+                )
+                loai_thong_bao = "Mở khóa tài khoản"
+
+            # 6️⃣ Gửi email nền (Thread) + ghi log LichSuEmail
+            try:
+                Thread(target=send_mail_background, args=(email, subject, body), daemon=True).start()
+                print(f"📤 Đang gửi email nền {loai_thong_bao} đến {email}...")
+
+                cursor.execute("""
+                    INSERT INTO LichSuEmail (MaTK, EmailTo, LoaiThongBao, ThoiGian, TrangThai)
+                    VALUES (?, ?, ?, GETDATE(), N'Đang gửi (nền)')
+                """, (ma_tk, email, loai_thong_bao))
+            except Exception as e:
+                print(f"❌ Lỗi khởi tạo thread gửi email: {e}")
+                cursor.execute("""
+                    INSERT INTO LichSuEmail (MaTK, EmailTo, LoaiThongBao, ThoiGian, TrangThai)
+                    VALUES (?, ?, ?, GETDATE(), N'Lỗi khởi tạo thread')
+                """, (ma_tk, email, loai_thong_bao))
+
+        # 7️⃣ Lưu tất cả thay đổi
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
         conn.commit()
         print("💾 COMMIT HOÀN TẤT.")
         flash("✅ Cập nhật trạng thái tài khoản thành công!", "success")
@@ -346,6 +444,7 @@ def change_account_status(identifier, new_status, action_name):
     finally:
         conn.close()
         print("🔚 Đã đóng kết nối SQL.")
+<<<<<<< HEAD
 
 
 # ============================================================
@@ -371,6 +470,25 @@ def toggle_account_status(username):
     conn = get_sql_connection()
     cursor = conn.cursor()
 
+=======
+        
+#VÔ HIỆU HÓA (XÓA MỀM)
+
+@account_bp.route("/accounts/deactivate/<username>", methods=["POST"])
+@require_role("admin")
+def deactivate_account(username):
+    if change_account_status(username, 0, "Vô hiệu hóa"):
+        flash(f"Đã vô hiệu hóa tài khoản: {username}", "warning")
+    return redirect(url_for("account_bp.accounts"))
+
+# CHUYỂN TRẠNG THÁI (AJAX)
+
+@account_bp.route("/accounts/toggle_status/<username>", methods=["POST"])
+@require_role("admin")
+def toggle_account_status(username):
+    conn = get_sql_connection()
+    cursor = conn.cursor()
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
     cursor.execute("SELECT TrangThai FROM TaiKhoan WHERE TenDangNhap = ?", (username,))
     result = cursor.fetchone()
     conn.close()
@@ -388,9 +506,14 @@ def toggle_account_status(username):
         "status_text": "Đang hoạt động" if new_status == 1 else "Ngừng hoạt động"
     })
 
+<<<<<<< HEAD
 # ============================================================
 # ✅ XÓA MỀM (CHO NÚT RIÊNG)
 # ============================================================
+=======
+#XÓA MỀM (CHO NÚT RIÊNG)
+
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 @account_bp.route("/accounts/delete/<username>", methods=["POST"])
 @require_role("admin")
 def delete_account(username):
@@ -400,6 +523,10 @@ def delete_account(username):
     else:
         flash(f"Lỗi khi vô hiệu hóa tài khoản {username}.", "danger")
     return redirect(url_for("account_bp.accounts"))
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 # KHÔI PHỤC MỘT TÀI KHOẢN
 
 @account_bp.route("/accounts/activate/<username>", methods=["POST"])
@@ -410,8 +537,12 @@ def activate_account(username):
         flash(f"Đã khôi phục tài khoản {username} thành công!", "success")
     else:
         flash("Lỗi khi khôi phục tài khoản!", "danger")
+<<<<<<< HEAD
     return redirect(request.referrer or url_for("account_bp.deleted_accounts_list"))
 
+=======
+    return redirect(request.referrer or url_for("deleted_records", tab="accounts"))
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
 # KHÔI PHỤC NHIỀU TÀI KHOẢN
 
@@ -424,17 +555,26 @@ def restore_multiple_accounts():
 
     if not selected_usernames:
         flash("⚠️ Chưa chọn tài khoản nào để khôi phục!", "warning")
+<<<<<<< HEAD
         return redirect(url_for("account_bp.deleted_accounts_list"))
 
+=======
+        return redirect(url_for("deleted_records", tab="accounts"))
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
     count = 0
     for uname in selected_usernames:
         if change_account_status(uname, 1, "Khôi phục nhiều"):
             count += 1
 
+<<<<<<< HEAD
     flash(f"Đã khôi phục {count} tài khoản thành công.", "success")
     return redirect(request.referrer or url_for("account_bp.deleted_accounts_list"))
 
+=======
+    flash(f"ã khôi phục {count} tài khoản thành công.", "success")
+    return redirect(url_for("deleted_records", tab="accounts"))
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
 # DANH SÁCH TÀI KHOẢN ĐÃ VÔ HIỆU HÓA
 

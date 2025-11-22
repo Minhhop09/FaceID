@@ -1,6 +1,10 @@
 # ===============================================
 # 📦 AUTH_BP — ĐĂNG NHẬP & KHÔI PHỤC MẬT KHẨU
 # ===============================================
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 from flask import (
     Blueprint, render_template, request, redirect,
     url_for, flash, session, current_app
@@ -8,6 +12,7 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime, timedelta
 from threading import Thread
+<<<<<<< HEAD
 import random, socket, time, secrets, os
 import pyotp
 from core.log_utils import log_action
@@ -16,10 +21,18 @@ from core.email_utils import notify_attendance
 from config_google import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
 from core.add_employee import generate_ma_nv
 import pyotp, qrcode, io, base64
+=======
+import random, socket, time
+
+from core.db_utils import get_sql_connection
+from core.email_utils import send_email_notification
+
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 # ===============================================
 # ⚙️ KHỞI TẠO BLUEPRINT & BIẾN TOÀN CỤC
 # ===============================================
 auth_bp = Blueprint("auth_bp", __name__)
+<<<<<<< HEAD
 otp_expire_time = {}
 
 def _fetch_user_by_username(username: str):
@@ -520,6 +533,12 @@ def authorize_google():
 
 # ==========================
 # 1️⃣ ĐĂNG NHẬP HỆ THỐNG (Thường)
+=======
+otp_expire_time = {}  # { email: datetime_expire }
+
+# ==========================
+# 1️⃣ ĐĂNG NHẬP HỆ THỐNG
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 # ==========================
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
@@ -534,6 +553,7 @@ def login():
         conn = get_sql_connection()
         cursor = conn.cursor()
 
+<<<<<<< HEAD
         # 🔍 Lấy thông tin tài khoản và vai trò
         cursor.execute("""
             SELECT tk.MaTK, tk.TenDangNhap, tk.TrangThai, 
@@ -542,6 +562,13 @@ def login():
             FROM TaiKhoan tk
             LEFT JOIN NhanVien nv ON tk.MaNV = nv.MaNV
             LEFT JOIN VaiTro vt ON tk.MaVT = vt.MaVT
+=======
+        cursor.execute("""
+            SELECT tk.MaTK, tk.TenDangNhap, tk.TrangThai,
+                   nv.MaNV, nv.HoTen, nv.Email, tk.MatKhauHash
+            FROM TaiKhoan tk
+            LEFT JOIN NhanVien nv ON tk.MaNV = nv.MaNV
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
             WHERE (tk.MaNV = ? OR nv.Email = ? OR tk.TenDangNhap = ?)
         """, (login_input, login_input, login_input))
         user = cursor.fetchone()
@@ -551,6 +578,7 @@ def login():
             conn.close()
             return redirect(url_for("auth_bp.login"))
 
+<<<<<<< HEAD
         ma_tk, ten_dang_nhap, trang_thai, ma_nv, ho_ten, email, matkhau_db, twofa_enabled, totp_secret, da_km, vai_tro = user
         vai_tro = (vai_tro or "nhanvien").strip().lower()
 
@@ -619,10 +647,41 @@ def login():
         session["username"] = ten_dang_nhap or ma_nv or email
         session["role"] = vai_tro
         session["roles"] = (vai_tro,)
+=======
+        ma_tk, ten_dang_nhap, trang_thai, ma_nv, ho_ten, email, matkhau_db = user
+
+        if not matkhau_db or not check_password_hash(matkhau_db, password):
+            flash("Sai mật khẩu!", "danger")
+            conn.close()
+            return redirect(url_for("auth_bp.login"))
+
+        if trang_thai != 1:
+            flash("Tài khoản này đang bị khóa!", "warning")
+            conn.close()
+            return redirect(url_for("auth_bp.login"))
+
+        # Lấy vai trò
+        cursor.execute("""
+            SELECT vt.TenVaiTro
+            FROM TaiKhoan tk
+            JOIN VaiTro vt ON tk.MaVT = vt.MaVT
+            WHERE tk.MaTK = ?
+        """, (ma_tk,))
+        role_row = cursor.fetchone()
+        conn.close()
+
+        vai_tro = (role_row[0] if role_row else "NhanVien").strip().lower()
+
+        # Lưu session
+        session.clear()
+        session["username"] = ten_dang_nhap or ma_nv or email
+        session["role"] = vai_tro
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
         session["manv"] = ma_nv
         session["hoten"] = ho_ten
         session["email"] = email
 
+<<<<<<< HEAD
         conn.close()
 
         # ✅ Điều hướng theo vai trò
@@ -638,14 +697,30 @@ def login():
             return redirect(url_for("qlpb_bp.qlpb_dashboard"))
         elif vai_tro == "nhanvien":
             flash("✅ Đăng nhập thành công!", "success")
+=======
+        # Điều hướng theo vai trò
+        if vai_tro == "admin":
+            return redirect(url_for("admin_dashboard"))
+        elif vai_tro == "hr":
+            return redirect(url_for("dashboard_bp.hr_dashboard"))
+        elif vai_tro == "quanlyphongban":
+            return redirect(url_for("qlpb_bp.qlpb_dashboard"))
+        elif vai_tro == "nhanvien":
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
             return redirect(url_for("employee_bp.employee_dashboard"))
         else:
             flash("⚠️ Vai trò không hợp lệ hoặc chưa được gán!", "warning")
             return redirect(url_for("auth_bp.login"))
 
+<<<<<<< HEAD
     # Nếu GET
     return render_template("login.html")
 
+=======
+    return render_template("login.html")
+
+
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 # ==========================
 # 2️⃣ QUÊN MẬT KHẨU — GỬI OTP
 # ==========================

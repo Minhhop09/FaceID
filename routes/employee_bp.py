@@ -6,8 +6,11 @@ from core.db_utils import get_sql_connection
 from core.decorators import require_role
 from threading import Thread
 from core.face_utils import async_encode_face
+<<<<<<< HEAD
 import uuid
 
+=======
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
 import os
 employee_bp = Blueprint("employee_bp", __name__)
@@ -348,13 +351,25 @@ def employee_detail(ma_nv):
     return render_template(template_name, employee=employee, role=role)
 
 # ============================================================
+<<<<<<< HEAD
 # ➕ THÊM NHÂN VIÊN MỚI (KHÔNG CHỤP HÌNH)
+=======
+# ➕ THÊM NHÂN VIÊN MỚI
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 # ============================================================
 @employee_bp.route("/employees/add", methods=["GET", "POST"])
 @require_role("admin")
 def add_employee_web():
+<<<<<<< HEAD
     from core.db_utils import get_phongbans, get_sql_connection
     from werkzeug.security import generate_password_hash
+=======
+    from core.db_utils import get_phongbans  # Nếu có tách ra core riêng
+    import os, base64, threading
+    from core.db_utils import get_sql_connection
+    from core.face_utils import encode_and_save
+    from routes.capture_photo_and_save import capture_photo_and_save
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
     departments = get_phongbans()
 
@@ -393,12 +408,26 @@ def add_employee_web():
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, GETDATE())
             """, (MaNV, HoTen, Email, SDT, GioiTinh, NgaySinh, MaPB, DiaChi, ChucVu))
 
+<<<<<<< HEAD
             # 4️⃣ Tự động tạo tài khoản đăng nhập
             role, role_id = "nhanvien", 4
             if "hr" in ChucVu.lower():
                 role, role_id = "hr", 2
             elif "quản lý" in ChucVu.lower() or "trưởng phòng" in ChucVu.lower():
                 role, role_id = "quanlyphongban", 3
+=======
+            # 3️⃣.1️⃣ Tự động tạo tài khoản đăng nhập
+            from werkzeug.security import generate_password_hash
+            role = "nhanvien"
+            role_id = 4
+
+            if "hr" in ChucVu.lower():
+                role = "hr"
+                role_id = 2
+            elif "quản lý" in ChucVu.lower() or "trưởng phòng" in ChucVu.lower():
+                role = "quanlyphongban"
+                role_id = 3
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
             username = MaNV
             password_hash = generate_password_hash("123456", method="scrypt")
@@ -409,9 +438,15 @@ def add_employee_web():
                 VALUES (?, ?, ?, ?, 1, GETDATE(), ?, 0)
             """, (username, password_hash, role, role_id, MaNV))
 
+<<<<<<< HEAD
             print(f"🔑 Đã tạo tài khoản cho {MaNV} ({role.upper()}) — mật khẩu mặc định: 123456")
 
             # 5️⃣ Ghi lịch sử thay đổi
+=======
+            print(f"🔑 Đã tạo tài khoản cho {MaNV} ({role.upper()}) — mật khẩu: 123456")
+
+            # 4️⃣ Lưu nhật ký thêm mới
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
             cursor.execute("""
                 INSERT INTO LichSuThayDoi
                 (TenBang, MaBanGhi, HanhDong, TruongThayDoi, GiaTriCu, GiaTriMoi, ThoiGian, NguoiThucHien)
@@ -427,8 +462,54 @@ def add_employee_web():
             ))
 
             conn.commit()
+<<<<<<< HEAD
             flash(f"✅ Đã thêm nhân viên {HoTen} ({ChucVu}) thành công!", "success")
             print(f"✅ Thêm nhân viên {MaNV} ({HoTen}) thành công.")
+=======
+            print(f"✅ Đã thêm nhân viên {MaNV} ({HoTen}) thành công.")
+
+            # 5️⃣ Xử lý ảnh khuôn mặt
+            image_data = request.form.get("face_image")
+            image_path = None
+
+            if image_data:
+                print("🖼️ Nhận ảnh base64 từ trình duyệt, đang lưu...")
+                image_data = image_data.split(",")[1]
+                image_bytes = base64.b64decode(image_data)
+
+                os.makedirs("photos", exist_ok=True)
+                image_path = os.path.join("photos", f"{MaNV}.jpg")
+                with open(image_path, "wb") as f:
+                    f.write(image_bytes)
+
+                encode_and_save(MaNV, image_path, conn)
+                flash("✅ Đã thêm nhân viên và lưu ảnh khuôn mặt từ trình duyệt!", "success")
+
+            else:
+                print("📸 Không có ảnh từ trình duyệt → chụp bằng camera server...")
+
+                def capture_and_encode():
+                    img_path = capture_photo_and_save(MaNV)
+                    if img_path and os.path.exists(img_path):
+                        conn_inner = get_sql_connection()
+                        try:
+                            encode_and_save(MaNV, img_path, conn_inner)
+                            print(f"✅ Đã encode khuôn mặt cho {MaNV}")
+                        except Exception as e:
+                            print(f"⚠️ Lỗi encode: {e}")
+                        finally:
+                            conn_inner.close()
+                    else:
+                        conn_del = get_sql_connection()
+                        cur = conn_del.cursor()
+                        cur.execute("DELETE FROM NhanVien WHERE MaNV = ?", (MaNV,))
+                        conn_del.commit()
+                        conn_del.close()
+                        print(f"🗑️ Đã xóa nhân viên {MaNV} do không có ảnh hợp lệ.")
+
+                threading.Thread(target=capture_and_encode, daemon=True).start()
+                flash("✅ Nhân viên đã thêm, hệ thống đang chụp và xử lý khuôn mặt...", "info")
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
             conn.close()
             return redirect(url_for("employee_bp.employee_list"))
@@ -447,6 +528,10 @@ def add_employee_web():
     # Nếu GET → hiển thị form thêm nhân viên
     return render_template("add_employee.html", departments=departments)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 # ============================================================
 # ❌ XÓA MỀM 1 NHÂN VIÊN
 # ============================================================
@@ -954,14 +1039,23 @@ def my_schedule():
 @employee_bp.route("/employee/dashboard")
 @require_role("nhanvien")
 def employee_dashboard():
+<<<<<<< HEAD
     ho_ten_session = session.get("hoten", "")
     email_session = session.get("email", "")
     ma_nv = session.get("manv")
     avatar = session.get("avatar", "")
+=======
+    if "manv" not in session:
+        return redirect(url_for("login"))
+
+    ma_nv = session["manv"]
+    ho_ten_session = session.get("hoten", "")
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
     conn = get_sql_connection()
     cursor = conn.cursor()
 
+<<<<<<< HEAD
     nhanvien = {}
     chamcong = []
     lichsu = []
@@ -1042,6 +1136,59 @@ def employee_dashboard():
             "ChucVu": "Nhân viên",
             "DuongDanAnh": avatar
         }
+=======
+    # 1️⃣ Thông tin nhân viên
+    cursor.execute("""
+        SELECT nv.MaNV, nv.HoTen, nv.Email, nv.NgaySinh, nv.ChucVu, nv.DiaChi, 
+               pb.TenPB AS PhongBan, nv.LuongGioCoBan, k.DuongDanAnh
+        FROM NhanVien nv
+        LEFT JOIN PhongBan pb ON nv.MaPB = pb.MaPB
+        LEFT JOIN KhuonMat k ON nv.MaNV = k.MaNV
+        WHERE nv.MaNV = ?
+    """, (ma_nv,))
+    row = cursor.fetchone()
+    nhanvien = dict(zip([col[0] for col in cursor.description], row)) if row else {}
+
+    # 2️⃣ Ca làm việc hôm nay
+    cursor.execute("""
+        SELECT clv.TenCa, clv.GioBatDau, clv.GioKetThuc
+        FROM LichLamViec llv
+        JOIN CaLamViec clv ON llv.MaCa = clv.MaCa
+        WHERE llv.MaNV = ?
+          AND CAST(llv.NgayLam AS DATE) = CAST(GETDATE() AS DATE)
+          AND llv.DaXoa = 1
+    """, (ma_nv,))
+    ca_rows = cursor.fetchall()
+
+    def fmt_time(t):
+        if not t:
+            return ""
+        if hasattr(t, "strftime"):
+            return t.strftime("%H:%M")
+        return str(t)[:5]
+
+    ca_hom_nay = ", ".join(
+        [f"{r[0]} ({fmt_time(r[1])} - {fmt_time(r[2])})" for r in ca_rows]
+    ) if ca_rows else "Không có ca hôm nay"
+
+    # 3️⃣ Lịch sử chấm công
+    cursor.execute("""
+        SELECT MaChamCong, NgayChamCong, GioVao, GioRa, TrangThai
+        FROM ChamCong
+        WHERE MaNV = ?
+        ORDER BY NgayChamCong DESC
+    """, (ma_nv,))
+    chamcong = [dict(zip([col[0] for col in cursor.description], r)) for r in cursor.fetchall()]
+
+    # 4️⃣ Lịch sử hoạt động
+    cursor.execute("""
+        SELECT ThoiGian, TenBang, HanhDong, TruongThayDoi, GiaTriCu, GiaTriMoi
+        FROM LichSuThayDoi
+        WHERE NguoiThucHien = ?
+        ORDER BY ThoiGian DESC
+    """, (ho_ten_session,))
+    lichsu = [dict(zip([col[0] for col in cursor.description], r)) for r in cursor.fetchall()]
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
     conn.close()
 
@@ -1053,9 +1200,16 @@ def employee_dashboard():
         ho_ten=nhanvien.get("HoTen", "(Không rõ)"),
         phongban=nhanvien.get("PhongBan", "(Chưa có)"),
         ca_hom_nay=ca_hom_nay,
+<<<<<<< HEAD
         anh_nv=nhanvien.get("DuongDanAnh", avatar or "")
     )
 
+=======
+        anh_nv=nhanvien.get("DuongDanAnh", "")
+    )
+
+
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 # ============================================================
 # 🧍‍♂️ TRANG THÔNG TIN NHÂN VIÊN
 # ============================================================
@@ -1498,6 +1652,7 @@ def my_salary():
         anh_nv=anh_nv,
         now=now
     )
+<<<<<<< HEAD
 
 @employee_bp.route("/employee/leave_request", methods=["GET", "POST"])
 @require_role("nhanvien")
@@ -1729,3 +1884,5 @@ def employee_delete_leave(ma_don):
         return jsonify({"success": False, "message": f"❌ Lỗi khi xóa đơn: {e}"})
     finally:
         conn.close()
+=======
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c

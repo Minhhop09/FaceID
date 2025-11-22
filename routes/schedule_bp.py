@@ -4,15 +4,22 @@ from core.db_utils import get_sql_connection, get_connection
 from core.decorators import require_role
 
 schedule_bp = Blueprint("schedule_bp", __name__)
+<<<<<<< HEAD
 # ============================================================
 # 👥 DANH SÁCH NHÂN VIÊN ĐÃ PHÂN CA — FINAL FIXED v4 (Chuẩn xác & Hiển thị phép đúng)
 
 # ============================================================
 # 👥 DANH SÁCH NHÂN VIÊN ĐÃ PHÂN CA — FINAL FIXED v6 (Chuẩn xác nhất)
+=======
+
+# ============================================================
+# 👥 DANH SÁCH NHÂN VIÊN ĐÃ PHÂN CA
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 # ============================================================
 @schedule_bp.route("/assigned_employees")
 @require_role("admin", "hr", "quanlyphongban")
 def assigned_employees():
+<<<<<<< HEAD
     """
     ✅ DANH SÁCH PHÂN CA — FINAL FIXED
     - Trạng thái chuẩn:
@@ -36,11 +43,26 @@ def assigned_employees():
         FROM LichLamViec llv
         LEFT JOIN CaLamViec clv ON llv.MaCa = clv.MaCa
         WHERE llv.DaXoa = 1
+=======
+    conn = get_connection()
+    cursor = conn.cursor()
+    now = datetime.now()
+
+    # 1️⃣ Cập nhật trạng thái "Vắng" tự động
+    cursor.execute("""
+        UPDATE llv
+        SET llv.TrangThai = 2
+        FROM LichLamViec llv
+        LEFT JOIN CaLamViec clv ON llv.MaCa = clv.MaCa
+        WHERE llv.TrangThai = 0
+          AND llv.DaXoa = 1
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
           AND (
                 llv.NgayLam < CAST(GETDATE() AS DATE)
                 OR (llv.NgayLam = CAST(GETDATE() AS DATE)
                     AND CONVERT(TIME, GETDATE()) > clv.GioKetThuc)
               )
+<<<<<<< HEAD
           AND llv.TrangThai NOT IN (1, 2, 3)
           AND NOT EXISTS (
                 SELECT 1 FROM ChamCong cc
@@ -63,6 +85,18 @@ def assigned_employees():
     # ============================================================
     # 2️⃣ LẤY VAI TRÒ NGƯỜI DÙNG
     # ============================================================
+=======
+          AND NOT EXISTS (
+                SELECT 1 FROM ChamCong cc
+                WHERE cc.MaNV = llv.MaNV 
+                  AND cc.NgayChamCong = llv.NgayLam
+                  AND cc.MaCa = llv.MaCa
+              )
+    """)
+    conn.commit()
+
+    # 2️⃣ Xác định phạm vi dữ liệu theo vai trò
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
     role = session.get("role")
     username = session.get("username")
     ma_pb_user = None
@@ -77,9 +111,13 @@ def assigned_employees():
         row = cursor.fetchone()
         ma_pb_user = row[0] if row else None
 
+<<<<<<< HEAD
     # ============================================================
     # 3️⃣ TRUY VẤN CHÍNH — GHÉP LỊCH + CHẤM CÔNG
     # ============================================================
+=======
+    # 3️⃣ Lấy danh sách phân ca
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
     base_query = """
         SELECT 
             llv.MaLLV,
@@ -89,6 +127,7 @@ def assigned_employees():
             clv.TenCa,
             CONVERT(VARCHAR(5), clv.GioBatDau, 108) AS GioBatDau,
             CONVERT(VARCHAR(5), clv.GioKetThuc, 108) AS GioKetThuc,
+<<<<<<< HEAD
             FORMAT(cc.GioVao, 'HH:mm') AS GioVao,
             FORMAT(cc.GioRa, 'HH:mm') AS GioRa,
             llv.NgayLam,
@@ -133,12 +172,42 @@ def assigned_employees():
               AND (c.MaCa = llv.MaCa OR c.MaCa IS NULL)
               AND c.DaXoa = 1
             ORDER BY c.MaChamCong DESC
+=======
+
+            FORMAT(cc.GioVao, 'HH:mm') AS GioVao,
+            FORMAT(cc.GioRa, 'HH:mm') AS GioRa,
+            llv.NgayLam,
+            CASE 
+                WHEN cc.MaChamCong IS NOT NULL THEN 1
+                ELSE llv.TrangThai
+            END AS TrangThai,
+            CASE 
+                WHEN cc.MaChamCong IS NOT NULL THEN N'Đã chấm công'
+                WHEN llv.TrangThai = 0 THEN N'Chưa chấm'
+                WHEN llv.TrangThai = 2 THEN N'Vắng'
+                ELSE N'Không xác định'
+            END AS TrangThaiText
+        FROM LichLamViec llv
+        LEFT JOIN NhanVien nv ON llv.MaNV = nv.MaNV
+        LEFT JOIN PhongBan pb ON nv.MaPB = pb.MaPB
+        LEFT JOIN CaLamViec clv ON llv.MaCa = clv.MaCa
+        OUTER APPLY (
+            SELECT TOP 1 c.GioVao, c.GioRa, c.MaChamCong
+            FROM ChamCong c
+            WHERE c.MaNV = llv.MaNV 
+              AND c.NgayChamCong = llv.NgayLam
+              AND (c.MaCa = llv.MaCa OR c.MaCa IS NULL)
+            ORDER BY 
+                CASE WHEN c.MaCa = llv.MaCa THEN 0 ELSE 1 END, 
+                c.GioVao ASC
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
         ) AS cc
         WHERE llv.DaXoa = 1
     """
 
     if role == "quanlyphongban" and ma_pb_user:
         base_query += " AND nv.MaPB = ?"
+<<<<<<< HEAD
         cursor.execute(base_query + " ORDER BY llv.NgayLam DESC, nv.HoTen, clv.TenCa", (ma_pb_user,))
     else:
         cursor.execute(base_query + " ORDER BY llv.NgayLam DESC, nv.HoTen, clv.TenCa")
@@ -168,12 +237,60 @@ def assigned_employees():
         return str(d)
 
     for r in records:
+=======
+
+    base_query += " ORDER BY llv.NgayLam DESC, nv.HoTen, clv.TenCa"
+
+    if role == "quanlyphongban" and ma_pb_user:
+        cursor.execute(base_query, (ma_pb_user,))
+    else:
+        cursor.execute(base_query)
+
+    columns = [col[0] for col in cursor.description]
+    records = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    conn.close()
+
+    # 🔹 Hàm định dạng thời gian
+    def fmt_time(t):
+        if not t:
+            return "-"
+        try:
+            if hasattr(t, "strftime"):
+                return t.strftime("%H:%M")
+            if isinstance(t, str):
+                return datetime.strptime(t.strip(), "%H:%M:%S").strftime("%H:%M")
+        except Exception:
+            pass
+        return str(t)
+
+    # 🔹 Hàm định dạng ngày
+    def fmt_date(d):
+        """Đảm bảo trả về 'dd/mm/yyyy' dù SQL trả ra string hay datetime"""
+        if not d:
+            return "-"
+        try:
+            if hasattr(d, "strftime"):
+                return d.strftime("%d/%m/%Y")
+            if isinstance(d, str):
+                return datetime.strptime(d.strip(), "%Y-%m-%d").strftime("%d/%m/%Y")
+        except Exception:
+            pass
+        return str(d)
+
+    # 4️⃣ Chuẩn hóa dữ liệu
+    for r in records:
+        for f in ["GioBatDau", "GioKetThuc", "GioVao", "GioRa"]:
+            val = r.get(f)
+            if isinstance(val, datetime): 
+                r[f] = val.time()
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
         r["GioBatDauText"] = fmt_time(r.get("GioBatDau"))
         r["GioKetThucText"] = fmt_time(r.get("GioKetThuc"))
         r["GioVaoText"] = fmt_time(r.get("GioVao"))
         r["GioRaText"] = fmt_time(r.get("GioRa"))
         r["NgayLamText"] = fmt_date(r.get("NgayLam"))
 
+<<<<<<< HEAD
     # ============================================================
     # 5️⃣ THỐNG KÊ
     # ============================================================
@@ -187,6 +304,15 @@ def assigned_employees():
     # ============================================================
     # 6️⃣ CHỌN TEMPLATE
     # ============================================================
+=======
+    # 5️⃣ Thống kê
+    present_count = sum(1 for r in records if r["TrangThai"] == 1)
+    absent_count = sum(1 for r in records if r["TrangThai"] == 2)
+    pending_count = sum(1 for r in records if r["TrangThai"] == 0)
+    total_count = len(records)
+
+    # 6️⃣ Chọn template phù hợp
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
     template = (
         "hr_assigned_employees.html"
         if role == "hr" else
@@ -195,21 +321,32 @@ def assigned_employees():
         "assigned_employees.html"
     )
 
+<<<<<<< HEAD
     conn.close()
+=======
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
     return render_template(
         template,
         records=records,
         present_count=present_count,
+<<<<<<< HEAD
         late_count=late_count,
         leave_count=leave_count,
         absent_count=absent_count,
         unchecked_count=unchecked_count,
+=======
+        absent_count=absent_count,
+        pending_count=pending_count,
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
         total_count=total_count,
         role=role
     )
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 # ============================================================
 # 📅 API LỊCH PHÂN CA CỦA NHÂN VIÊN
 # ============================================================

@@ -64,21 +64,34 @@
             <div class="nav-item"><a href="{{ url_for('reports_bp.reports_view') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Báo cáo thống kê</span></a></div>
             <div class="nav-item"><a href="{{ url_for('employee_bp.employee_list_deleted') }}" class="nav-link"><i class="fas fa-trash"></i><span>Dữ liệu đã xóa</span></a></div>
             <div class="nav-item"><a href="{{ url_for('history_bp.history') }}" class="nav-link"><i class="fas fa-history"></i><span>Lịch sử thay đổi</span></a></div>
+<<<<<<< HEAD
             <div class="nav-item"><a href="{{ url_for('setting_bp.settings_view') }}" class="nav-link"><i class="fas fa-gear"></i><span>Cài đặt hệ thống</span></a></div>
+=======
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
             <div class="nav-item"><a href="{{ url_for('auth_bp.login') }}" class="nav-link logout-link"><i class="fas fa-right-from-bracket"></i><span>Đăng xuất</span></a></div>
         </nav>
     </div>
 
+<<<<<<< HEAD
 <!-- ============================================================
 💰 QUY TẮC TÍNH LƯƠNG HỆ THỐNG FACEID — CHI TIẾT & ĐỒNG BỘ CODE
+=======
+    <!-- ============================================================
+📘 QUY TẮC TÍNH LƯƠNG - HỆ THỐNG FACEID
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 ============================================================ -->
 <div class="main-content">
 
   <!-- Header -->
   <div class="dashboard-header d-flex justify-content-between align-items-center flex-wrap">
     <div class="header-title">
+<<<<<<< HEAD
       <h1 class="mb-1"><i class="fa-solid fa-scale-balanced me-2 text-primary"></i>Quy tắc tính lương chi tiết</h1>
       <p class="text-muted mb-0">Áp dụng tự động trong quá trình tính lương hàng tháng của hệ thống FaceID</p>
+=======
+      <h1 class="mb-1"><i class="fa-solid fa-scale-balanced me-2 text-primary"></i>Quy tắc tính lương</h1>
+      <p class="text-muted mb-0">Áp dụng cho toàn bộ nhân viên trong hệ thống FaceID</p>
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
     </div>
     <a href="{{ url_for('salary_bp.salary_view') }}" class="btn btn-outline-secondary">
       <i class="fas fa-arrow-left me-1"></i> Quay lại bảng lương
@@ -88,6 +101,7 @@
   <!-- Card -->
   <div class="card shadow-sm border-0 mt-4">
     <div class="card-body">
+<<<<<<< HEAD
       <div class="alert alert-info mb-4">
         <i class="fa-solid fa-circle-info me-1"></i>
         Hệ thống tự động áp dụng các quy tắc dưới đây khi tính lương cho từng nhân viên.
@@ -204,3 +218,69 @@
   </div>
 </div>
 
+=======
+      
+      <div class="alert alert-info mb-4">
+        <i class="fa-solid fa-circle-info me-1"></i>
+        Các quy tắc này được áp dụng tự động trong quá trình tính lương hàng tháng.
+      </div>
+
+      <!-- 1️⃣ Lương cơ bản -->
+      <h5 class="fw-bold text-primary"><i class="fa-solid fa-money-bill-wave me-2"></i>Lương cơ bản</h5>
+      <ul class="text-muted small mb-4">
+        <li>Ca ngày: <b>500.000 VNĐ</b></li>
+        <li>Ca tối: <b>800.000 VNĐ</b></li>
+        <li>Tăng ca ≥ 8h hoặc cuối tuần: nhân hệ số <b>1.5 lần</b></li>
+      </ul>
+
+      <!-- 2️⃣ Hệ số chức vụ -->
+      <h5 class="fw-bold text-primary"><i class="fa-solid fa-user-tie me-2"></i>Hệ số chức vụ</h5>
+      <ul class="text-muted small mb-4">
+        <li>Trưởng phòng: ×2.0</li>
+        <li>Phó phòng: ×1.5</li>
+        <li>Nhân viên: ×1.0</li>
+        <li>Thử việc: 85% tổng lương</li>
+      </ul>
+
+      <!-- 3️⃣ Phạt đi trễ -->
+      <h5 class="fw-bold text-primary"><i class="fa-solid fa-clock me-2"></i>Phạt đi trễ</h5>
+      <table class="table table-bordered table-sm text-center align-middle mb-4">
+        <thead class="table-light">
+          <tr>
+            <th>Thời gian trễ</th>
+            <th>Mức phạt (VNĐ)</th>
+          </tr>
+        </thead>
+        <tbody class="text-muted small">
+          <tr><td>≤ 5 phút</td><td>Không phạt</td></tr>
+          <tr><td>≤ 30 phút</td><td>50.000</td></tr>
+          <tr><td>≤ 60 phút</td><td>100.000</td></tr>
+          <tr><td>> 60 phút</td><td>200.000</td></tr>
+        </tbody>
+      </table>
+
+      <!-- 4️⃣ Phụ cấp -->
+      <h5 class="fw-bold text-primary"><i class="fa-solid fa-hand-holding-heart me-2"></i>Phụ cấp</h5>
+      <ul class="text-muted small mb-4">
+        <li>Phụ cấp xăng xe: <b>500.000 VNĐ/tháng</b></li>
+        <li>Phụ cấp ăn trưa: <b>30.000 VNĐ/ngày làm việc</b></li>
+        <li>Phụ cấp khác: <b>200.000 VNĐ/tháng</b></li>
+      </ul>
+
+      <!-- 5️⃣ Thuế -->
+      <h5 class="fw-bold text-primary"><i class="fa-solid fa-file-invoice-dollar me-2"></i>Thuế thu nhập cá nhân</h5>
+      <ul class="text-muted small mb-4">
+        <li>Thuế TNCN: <b>5%</b> trên tổng lương trước khi cộng phụ cấp</li>
+        <li>Tự động trừ khi tính lương hàng tháng</li>
+      </ul>
+
+      <!-- 6️⃣ Công thức tổng -->
+      <div class="alert alert-success mt-4 mb-0">
+        <i class="fa-solid fa-equals me-1"></i>
+        <b>Tổng lương thực nhận = Tổng lương + Phụ cấp − Thuế TNCN</b>
+      </div>
+
+    </div>
+  </div>
+</div>
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c

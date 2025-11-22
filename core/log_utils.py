@@ -1,14 +1,20 @@
 import pyodbc
 from datetime import datetime
 from core.db_utils import get_sql_connection
+<<<<<<< HEAD
 from flask import request, session
 from datetime import datetime
 
 def log_action(action, detail="", result="Thành công", scope="Hệ thống", ma_tk=None):
+=======
+
+def log_change(bang, ma_banghi, hanh_dong, du_lieu_cu, du_lieu_moi, nguoi_thuchien):
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
     try:
         conn = get_sql_connection()
         cursor = conn.cursor()
         cursor.execute("""
+<<<<<<< HEAD
             INSERT INTO LichSuHeThong (MaTK, HanhDong, NoiDung, KetQua, IP, ThietBi, ThoiGian, NguoiThucHien, Scope)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
@@ -118,3 +124,12 @@ def log_payment(ma_luong, ma_nv, so_tien, phuong_thuc,
     finally:
         if conn:
             conn.close()
+=======
+            INSERT INTO LichSuThayDoi (Bang, MaBanGhi, HanhDong, DuLieuCu, DuLieuMoi, ThoiGian, NguoiThucHien)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (bang, ma_banghi, hanh_dong, du_lieu_cu, du_lieu_moi, datetime.now(), nguoi_thuchien))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Lỗi ghi lịch sử: {e}")
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c

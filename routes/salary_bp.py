@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, jsonify, session, request, redirect, url_for, flash
 from datetime import datetime, date
 from core.db_utils import get_sql_connection
+<<<<<<< HEAD
 from core.salary_utils import tinh_luong_nv, get_tham_so_luong, next_ma_ct_luong
 from core.decorators import require_role
 import uuid
@@ -14,21 +15,31 @@ import os
 from flask import send_file, current_app
 import core.payment_utils as payment_utils
 from decimal import Decimal
+=======
+from core.salary_utils import tinh_luong_nv, get_tham_so_luong
+from core.decorators import require_role
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 
 
 salary_bp = Blueprint("salary_bp", __name__)
 
 # ============================================================
+<<<<<<< HEAD
 # 💰 TRANG XEM LƯƠNG (Admin + HR) — FINAL SYNC WITH tinh_luong_nv()
 # ============================================================
 from core.salary_utils import tinh_luong_nv
 from core.log_utils import ghi_lich_su
 from datetime import datetime, date
 
+=======
+# 💰 TRANG XEM LƯƠNG (Admin + HR)
+# ============================================================
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 @salary_bp.route("/salary")
 @require_role("admin", "hr")
 def salary_view():
     conn = get_sql_connection()
+<<<<<<< HEAD
     conn.rollback()
     cursor = conn.cursor()
 
@@ -81,20 +92,53 @@ def salary_view():
     cursor.execute("SELECT COUNT(*) FROM NhanVien WHERE TrangThai = 1")
     total_employees = cursor.fetchone()[0] or 0
 
+=======
+    conn.rollback()   # ✅ reset transaction lỗi cũ
+    cursor = conn.cursor()
+    role = session.get("role", "admin")
+
+    # 🔹 Xác định tháng - năm hiện tại
+    today = datetime.now()
+    year = today.year
+    month = today.month
+    print(f"[DEBUG] Xem lương cho: {year}-{month:02d}")
+
+    # 🟢 Tổng số nhân viên đang hoạt động
+    cursor.execute("SELECT COUNT(*) FROM NhanVien WHERE TrangThai = 1")
+    total_employees = cursor.fetchone()[0] or 0
+
+    # 🟢 Số nhân viên đã có lương tháng này
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
     cursor.execute("""
         SELECT COUNT(DISTINCT L.MaNV)
         FROM Luong L
         JOIN NhanVien NV ON L.MaNV = NV.MaNV
+<<<<<<< HEAD
         WHERE YEAR(L.ThangNam)=? AND MONTH(L.ThangNam)=? 
           AND L.DaXoa=1 AND L.TrangThai IN (1,2) AND NV.TrangThai=1
     """, (year, month))
     total_salaried = cursor.fetchone()[0] or 0
     total_unsalaried = max(total_employees - total_salaried, 0)
 
+=======
+        WHERE YEAR(L.ThangNam) = ? 
+          AND MONTH(L.ThangNam) = ?
+          AND L.DaXoa = 1
+          AND L.TrangThai = 1
+          AND NV.TrangThai = 1
+    """, (year, month))
+    total_salaried = cursor.fetchone()[0] or 0
+
+    # 🟢 Số nhân viên chưa có lương
+    total_unsalaried = max(total_employees - total_salaried, 0)
+
+    # 🟢 Tổng quỹ lương tháng này
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
     cursor.execute("""
         SELECT SUM(L.TongTien)
         FROM Luong L
         JOIN NhanVien NV ON L.MaNV = NV.MaNV
+<<<<<<< HEAD
         WHERE YEAR(L.ThangNam)=? AND MONTH(L.ThangNam)=?
           AND L.DaXoa=1 AND L.TrangThai IN (1,2) AND NV.TrangThai=1
     """, (year, month))
@@ -103,11 +147,23 @@ def salary_view():
     # ============================================================
     # 4️⃣ Danh sách chi tiết lương (bản mới nhất)
     # ============================================================
+=======
+        WHERE YEAR(L.ThangNam) = ? 
+          AND MONTH(L.ThangNam) = ?
+          AND L.DaXoa = 1
+          AND L.TrangThai = 1
+          AND NV.TrangThai = 1
+    """, (year, month))
+    total_salary = cursor.fetchone()[0] or 0
+
+    # 🟢 Danh sách chi tiết lương nhân viên
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
     cursor.execute("""
         SELECT 
             NV.MaNV,
             NV.HoTen,
             PB.TenPB AS PhongBan,
+<<<<<<< HEAD
             L.MaLuong,
             L.SoGioLam,
             L.TongTien AS TongTien
@@ -158,6 +214,27 @@ def salary_view():
     # ============================================================
     # 6️⃣ Render template
     # ============================================================
+=======
+            ISNULL(L.SoGioLam, 0) AS SoGioLam,
+            ISNULL(L.TongTien, 0) AS TongTien,
+            ISNULL(L.TrangThai, 0) AS TrangThai,
+            ISNULL(L.DaXoa, 1) AS DaXoa
+        FROM NhanVien NV
+        LEFT JOIN PhongBan PB ON NV.MaPB = PB.MaPB
+        LEFT JOIN Luong L 
+            ON NV.MaNV = L.MaNV 
+            AND YEAR(L.ThangNam) = ? 
+            AND MONTH(L.ThangNam) = ?
+            AND (L.DaXoa = 1 OR L.DaXoa IS NULL)
+        WHERE NV.TrangThai = 1
+        ORDER BY NV.MaNV
+    """, (year, month))
+
+    cols = [c[0] for c in cursor.description]
+    salaries = [dict(zip(cols, row)) for row in cursor.fetchall()]
+    conn.close()
+
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
     template_name = "hr_salary.html" if role == "hr" else "salary.html"
 
     return render_template(
@@ -171,6 +248,7 @@ def salary_view():
         current_year=str(year),
         role=role
     )
+<<<<<<< HEAD
 
 # ============================================================
 # 💰 TÍNH LƯƠNG TOÀN BỘ NHÂN VIÊN — FINAL FIXED V5 (ĐỒNG BỘ & AN TOÀN FK)
@@ -289,10 +367,59 @@ def calculate_all_salary():
         flash(f"❌ Lỗi hệ thống khi tính lương: {e}", "danger")
         return redirect(url_for("salary_bp.salary_view", month=month, year=year))
 
+=======
+# ============================================================
+# 💰 TÍNH LƯƠNG TOÀN BỘ NHÂN VIÊN
+# ============================================================
+@salary_bp.route("/calculate_salary")
+@require_role("admin", "hr")
+def calculate_all_salary():
+    conn = get_sql_connection()
+    cursor = conn.cursor()
+    nguoi_tinh = session.get("username", "Hệ thống")
+    thang_nam = date.today().replace(day=1)
+
+    try:
+        cursor.execute("SELECT MaNV FROM NhanVien WHERE TrangThai = 1")
+        nhanvien = cursor.fetchall()
+        if not nhanvien:
+            return jsonify({"success": False, "message": "⚠️ Không có nhân viên nào trong hệ thống."})
+
+        da_tinh = 0
+        loi_list = []
+
+        for (ma_nv,) in nhanvien:
+            try:
+                tinh_luong_nv(cursor, ma_nv, thang_nam, nguoi_tinh, save_to_db=True, return_detail=False)
+                da_tinh += 1
+            except Exception as e:
+                loi_list.append(f"{ma_nv}: {e}")
+                print(f"[ERROR] ❌ Lỗi khi tính lương {ma_nv}: {e}")
+
+        conn.commit()
+
+        if loi_list:
+            msg = f"⚠️ Đã tính xong {da_tinh}/{len(nhanvien)} nhân viên, nhưng có {len(loi_list)} lỗi:\n" + "\n".join(loi_list)
+            return jsonify({"success": False, "message": msg})
+        else:
+            return jsonify({
+                "success": True,
+                "message": f"✅ Đã tính lương thành công cho {da_tinh}/{len(nhanvien)} nhân viên!"
+            })
+
+    except Exception as e:
+        conn.rollback()
+        print(f"[FATAL] ❌ Lỗi toàn hệ thống khi tính lương: {e}")
+        return jsonify({
+            "success": False,
+            "message": f"❌ Lỗi khi tính lương toàn hệ thống: {str(e)}"
+        })
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
     finally:
         cursor.close()
         conn.close()
 
+<<<<<<< HEAD
 # ============================================================
 # 💰 TÍNH LƯƠNG RIÊNG CHO 1 NHÂN VIÊN — FINAL FIXED v6
 # ============================================================
@@ -397,17 +524,55 @@ def calculate_salary_for_one(ma_nv):
         flash(err_msg, "danger")
         return redirect(url_for("salary_bp.salary_view", month=month, year=year))
 
+=======
+
+# ============================================================
+# 💰 TÍNH LƯƠNG CHO 1 NHÂN VIÊN
+# ============================================================
+@salary_bp.route("/calculate_salary/<ma_nv>")
+@require_role("admin", "hr")
+def calculate_salary_for_one(ma_nv):
+    conn = get_sql_connection()
+    cursor = conn.cursor()
+    nguoi_tinh = session.get("username", "Hệ thống")
+    thang_nam = date.today().replace(day=1)
+
+    try:
+        tong_gio, tong_tien, _ = tinh_luong_nv(
+            cursor, ma_nv, thang_nam, nguoi_tinh, save_to_db=True, return_detail=True
+        )
+        conn.commit()
+        print(f"✅ Tính lương thành công cho {ma_nv}: {tong_gio:.2f} giờ, {tong_tien:,.0f} VND")
+        return jsonify({
+            "success": True,
+            "message": f"✅ Đã tính lương cho {ma_nv}: {tong_gio:.2f} giờ, {tong_tien:,.0f} VND"
+        })
+    except Exception as e:
+        conn.rollback()
+        print(f"[ERROR] ❌ Lỗi khi tính lương {ma_nv}: {e}")
+        return jsonify({
+            "success": False,
+            "message": f"❌ Lỗi khi tính lương {ma_nv}: {str(e)}"
+        })
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
     finally:
         cursor.close()
         conn.close()
 
+<<<<<<< HEAD
 # ============================================================
 # 💰 XEM CHI TIẾT LƯƠNG NHÂN VIÊN — FINAL FIXED V7 (ĐỒNG BỘ VỚI HÀM TÍNH V18)
+=======
+
+# ============================================================
+# 💰 XEM CHI TIẾT LƯƠNG 1 NHÂN VIÊN
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 # ============================================================
 @salary_bp.route("/salary/<ma_nv>")
 @require_role("admin", "hr")
 def salary_detail(ma_nv):
     """
+<<<<<<< HEAD
     ✅ Hiển thị chi tiết lương 1 nhân viên
     ------------------------------------------------------------
     - Đồng bộ với tinh_luong_nv() FINAL V18
@@ -436,12 +601,32 @@ def salary_detail(ma_nv):
         # 1️⃣ Lấy thông tin nhân viên
         cursor.execute("""
             SELECT NV.MaNV, NV.HoTen, NV.ChucVu, PB.TenPB, NV.SoCaPhepConLai
+=======
+    Trang xem chi tiết lương của 1 nhân viên trong tháng hiện tại.
+    - Gọi hàm tính lương (chỉ xem, không lưu DB)
+    - Hiển thị chi tiết các ca làm việc, phụ cấp, thuế, tổng lương thực nhận
+    """
+
+    conn = get_sql_connection()
+    cursor = conn.cursor()
+    role = session.get("role", "admin")
+    thang_nam = date.today().replace(day=1)
+    nguoi_xem = session.get("username", "Hệ thống")
+
+    try:
+        # ============================================================
+        # 1️⃣ Lấy thông tin nhân viên
+        # ============================================================
+        cursor.execute("""
+            SELECT NV.MaNV, NV.HoTen, NV.ChucVu, PB.TenPB
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
             FROM NhanVien NV
             LEFT JOIN PhongBan PB ON NV.MaPB = PB.MaPB
             WHERE NV.MaNV = ?
         """, (ma_nv,))
         emp = cursor.fetchone()
         if not emp:
+<<<<<<< HEAD
             return render_template("error.html", message=f"❌ Không tìm thấy nhân viên {ma_nv}")
 
         # 2️⃣ Gọi hàm tính lương chi tiết (không lưu DB)
@@ -450,10 +635,26 @@ def salary_detail(ma_nv):
             ma_nv=ma_nv,
             thangnam=thang_nam,
             nguoi_tinh=nguoi_xem,
+=======
+            return render_template(
+                "error.html",
+                message=f"❌ Không tìm thấy nhân viên có mã {ma_nv}"
+            )
+
+        # ============================================================
+        # 2️⃣ Gọi hàm tính lương (chỉ xem, không lưu DB)
+        # ============================================================
+        tong_gio, tong_tien_thuc, records = tinh_luong_nv(
+            cursor,
+            ma_nv,
+            thang_nam,
+            nguoi_xem,
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
             save_to_db=False,
             return_detail=True
         )
 
+<<<<<<< HEAD
         # ⚙️ Tính lại phụ cấp & khấu trừ (giống V18)
         from decimal import Decimal
         params = get_tham_so_luong(cursor)
@@ -534,6 +735,86 @@ def salary_detail(ma_nv):
         conn.close()
 
 
+=======
+        # Nếu không có dữ liệu chấm công
+        if not records:
+            return render_template(
+                "salary_detail.html",
+                emp=emp,
+                records=[],
+                tong_gio=0,
+                tong_tien=0,
+                phu_cap=0,
+                pit=0,
+                tong_tien_thuc=0,
+                role_label="Nhân viên",
+                role_icon="fa-user text-primary",
+                current_month=thang_nam.month,
+                current_year=thang_nam.year,
+                message="⚠️ Nhân viên này chưa có dữ liệu chấm công trong tháng."
+            )
+
+        # ============================================================
+        # 3️⃣ Tính phụ cấp & thuế để hiển thị công thức tổng
+        # ============================================================
+        params = get_tham_so_luong(cursor)
+        phu_cap_xang = params.get("PhuCapXangXe", 500000)
+        phu_cap_an = params.get("PhuCapAnTrua", 30000) * len(records)
+        phu_cap_khac = params.get("PhuCapKhac", 200000)
+        phu_cap = phu_cap_xang + phu_cap_an + phu_cap_khac
+
+        pit = max((tong_tien_thuc - phu_cap) * params.get("PIT_ThueThuNhap", 0.05), 0)
+        tong_tien = max(tong_tien_thuc - phu_cap + pit, 0)
+
+        # ============================================================
+        # 4️⃣ Phân loại vai trò (icon + nhãn chức vụ)
+        # ============================================================
+        chucvu = (emp[2] or "").lower()
+        if "trưởng phòng" in chucvu:
+            role_label, role_icon = "Trưởng phòng", "fa-star text-warning"
+        elif "phó phòng" in chucvu:
+            role_label, role_icon = "Phó phòng", "fa-crown text-info"
+        elif "hr" in chucvu:
+            role_label, role_icon = "Nhân sự", "fa-users text-success"
+        elif "thực tập" in chucvu or "intern" in chucvu:
+            role_label, role_icon = "Thực tập sinh", "fa-user-graduate text-secondary"
+        else:
+            role_label, role_icon = "Nhân viên", "fa-user text-primary"
+
+        # ============================================================
+        # 5️⃣ Chọn template theo vai trò (HR hay Admin)
+        # ============================================================
+        template_name = "hr_salary_detail.html" if role == "hr" else "salary_detail.html"
+
+        # ============================================================
+        # 6️⃣ Truyền toàn bộ biến sang template
+        # ============================================================
+        return render_template(
+            template_name,
+            emp=emp,
+            records=records,
+            tong_gio=tong_gio or 0,
+            tong_tien=tong_tien or 0,
+            phu_cap=phu_cap or 0,
+            pit=pit or 0,
+            tong_tien_thuc=tong_tien_thuc or 0,
+            role_label=role_label,
+            role_icon=role_icon,
+            current_month=thang_nam.month,
+            current_year=thang_nam.year
+        )
+
+    except Exception as e:
+        print(f"[ERROR] ❌ Lỗi khi xem chi tiết lương {ma_nv}: {e}")
+        return render_template(
+            "error.html",
+            message=f"Lỗi khi xem chi tiết lương: {e}"
+        )
+
+    finally:
+        conn.close()
+
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
 # ============================================================
 # ❌ XÓA MỀM 1 BẢN GHI LƯƠNG
 # ============================================================
@@ -644,6 +925,7 @@ def salary_rules():
         template_name = "salary_rules.html"
 
     return render_template(template_name)
+<<<<<<< HEAD
 
 # 🔎 LẤY THÔNG TIN THANH TOÁN CHO 1 BẢN LƯƠNG
 # ============================================================
@@ -1380,3 +1662,5 @@ def refund_transaction(ma_gd):
     finally:
         cursor.close()
         conn.close()
+=======
+>>>>>>> 8958be4bf30293afe01c40a84b84664a9210450c
